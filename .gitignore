@@ -1,0 +1,51 @@
+# Python virtual environments
+.venv/
+venv/
+ENV/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Build and distributions
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# User Uploads (excluding .gitkeep structure file)
+uploads/*
+!uploads/.gitkeep
+
+# Databases
+database.db
+*.db
+*.sqlite3
+
+# Scratch & Temporary Files
+scratch*
+.DS_Store
+*.log
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+*~
