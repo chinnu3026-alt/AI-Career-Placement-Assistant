@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+  <rect x="10" y="10" width="40" height="40" fill="#D85604"/>
+  <rect x="50" y="10" width="40" height="40" fill="#EB8C00"/>
+  <rect x="10" y="50" width="40" height="40" fill="#FFC20E"/>
+  <rect x="50" y="50" width="40" height="40" fill="#000000"/>
+  <text x="50" y="58" font-family="'Outfit', sans-serif" font-weight="900" font-size="24" fill="#FFFFFF" text-anchor="middle">pwc</text>
+</svg>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 35" width="100%" height="100%">
+  <rect width="100" height="35" rx="5" fill="#293E40"/>
+  <text x="15" y="24" font-family="'Outfit', sans-serif" font-weight="bold" font-size="18" fill="#81B900">&lt;</text>
+  <text x="55" y="23" font-family="'Outfit', sans-serif" font-weight="bold" font-size="14" fill="#FFFFFF" text-anchor="middle">servicenow</text>
+  <text x="90" y="24" font-family="'Outfit', sans-serif" font-weight="bold" font-size="18" fill="#81B900">&gt;</text>
+</svg>

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+  <defs>
+    <linearGradient id="grad_266942575692841975030889422713889722474" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#D97706" />
+    </linearGradient>
+  </defs>
+  <!-- Solid Background Plate -->
+  <rect width="100" height="100" fill="url(#grad_266942575692841975030889422713889722474)" rx="24"/>
+  <line x1="30" y1="30" x2="70" y2="30" stroke="#FFFFFF" stroke-width="3" opacity="0.25"/>
+  <line x1="30" y1="30" x2="50" y2="70" stroke="#FFFFFF" stroke-width="3" opacity="0.25"/>
+  <line x1="70" y1="30" x2="50" y2="70" stroke="#FFFFFF" stroke-width="3" opacity="0.25"/>
+  <circle cx="30" cy="30" r="6" fill="#FFFFFF" opacity="0.3"/>
+  <circle cx="70" cy="30" r="6" fill="#FFFFFF" opacity="0.3"/>
+  <circle cx="50" cy="70" r="6" fill="#FFFFFF" opacity="0.3"/>  <text x="50" y="54" dominant-baseline="middle" text-anchor="middle" font-family="'Outfit', sans-serif" font-size="28" font-weight="900" fill="#FFFFFF">MLF</text>
+</svg>

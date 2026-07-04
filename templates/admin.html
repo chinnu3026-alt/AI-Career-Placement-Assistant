@@ -1,0 +1,379 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - AI Career & Placement Assistant{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Admin stats widgets -->
+    <div class="col-md-4">
+        <div class="glass-panel p-4 text-center">
+            <span class="fs-9 text-muted d-block uppercase fw-semibold mb-1">TOTAL STUDENT COHORTS</span>
+            <h2 class="text-white fs-1 font-extrabold mb-0 text-gradient">{{ total_students }}</h2>
+            <p class="text-secondary-custom fs-9 mt-1 mb-0"><i class="fa-solid fa-users me-1"></i>Enrolled Candidates</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="glass-panel p-4 text-center">
+            <span class="fs-9 text-muted d-block uppercase fw-semibold mb-1">RESUMES ANALYZED</span>
+            <h2 class="text-white fs-1 font-extrabold mb-0 text-gradient-cyan">{{ total_resumes }}</h2>
+            <p class="text-secondary-custom fs-9 mt-1 mb-0"><i class="fa-solid fa-file-invoice me-1"></i>ATS Upload Audits</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="glass-panel p-4 text-center">
+            <span class="fs-9 text-muted d-block uppercase fw-semibold mb-1">AVG COHORT MATCH odds</span>
+            <h2 class="text-white fs-1 font-extrabold mb-0 text-gradient-green">{{ avg_probability }}%</h2>
+            <p class="text-secondary-custom fs-9 mt-1 mb-0"><i class="fa-solid fa-chart-line me-1"></i>Placement Likelihood</p>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mt-1">
+    <!-- Visual Charts Panel -->
+    <div class="col-lg-8">
+        <div class="glass-panel p-4 h-100">
+            <h3 class="h5 text-white mb-3"><i class="fa-solid fa-chart-simple me-2 text-gradient"></i>Visual Cohort Analytics</h3>
+            <p class="text-secondary-custom fs-8 mb-4">Distribution maps of student profiles, ATS scores, and placement predictions.</p>
+            
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="bg-dark p-3 rounded border border-secondary text-center" style="min-height: 250px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                        <span class="fs-9 text-muted fw-bold d-block mb-3">TOP DEMANDED SKILLS</span>
+                        <div style="position: relative; width: 100%; height: 180px;">
+                            <canvas id="skillsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="bg-dark p-3 rounded border border-secondary text-center" style="min-height: 250px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                        <span class="fs-9 text-muted fw-bold d-block mb-3">ATS QUALITY SCORES</span>
+                        <div style="position: relative; width: 100%; height: 180px;">
+                            <canvas id="atsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="bg-dark p-3 rounded border border-secondary text-center" style="min-height: 250px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                        <span class="fs-9 text-muted fw-bold d-block mb-3">PLACEMENT READINESS BANDS</span>
+                        <div style="position: relative; width: 100%; height: 180px;">
+                            <canvas id="placementChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Job Panel -->
+    <div class="col-lg-4">
+        <div class="glass-panel p-4 h-100">
+            <h3 class="h5 text-white mb-2"><i class="fa-solid fa-briefcase me-2 text-gradient-cyan"></i>Post Placement Opening</h3>
+            <p class="text-secondary-custom fs-8 mb-4">Publish real-time career positions for candidates' tracked boards.</p>
+            
+            <form id="admin-add-job-form">
+                <div class="mb-3">
+                    <label for="job_title" class="form-label fs-8 text-secondary-custom">Job Title</label>
+                    <input type="text" class="form-control glass-input w-100 py-2 fs-8" id="job_title" name="title" placeholder="e.g. Associate Software Engineer" required>
+                </div>
+                <div class="mb-3">
+                    <label for="job_company" class="form-label fs-8 text-secondary-custom">Hiring Company</label>
+                    <input type="text" class="form-control glass-input w-100 py-2 fs-8" id="job_company" name="company" placeholder="e.g. Google" required>
+                </div>
+                <div class="mb-3">
+                    <label for="job_description" class="form-label fs-8 text-secondary-custom">Description & Role Overview</label>
+                    <textarea class="form-control glass-input w-100 py-2 fs-8" id="job_description" name="description" placeholder="Explain roles, daily tasks, and opportunities..." style="height: 80px;" required></textarea>
+                </div>
+                <div class="mb-4">
+                    <label for="job_requirements" class="form-label fs-8 text-secondary-custom">Requirements (Skills / Experience)</label>
+                    <textarea class="form-control glass-input w-100 py-2 fs-8" id="job_requirements" name="requirements" placeholder="DSA, SQL, Cloud deployment, 8.0+ CGPA..." style="height: 80px;" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-premium w-100 py-2.5"><i class="fa-solid fa-bullhorn me-1.5"></i>Broadcast Job Opening</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mt-1">
+    <!-- Student Roster Cohort -->
+    <div class="col-12">
+        <div class="glass-panel p-4">
+            <h3 class="h5 text-white mb-2"><i class="fa-solid fa-graduation-cap me-2 text-gradient"></i>Enrolled Student Cohort Roster</h3>
+            <p class="text-secondary-custom fs-8 mb-4">Direct administrative log of all registered student profiles, credentials quality, and match results.</p>
+            
+            <div class="table-responsive">
+                <table class="table align-middle custom-table-dark">
+                    <thead>
+                        <tr>
+                            <th>Student Candidate</th>
+                            <th>Email Address</th>
+                            <th>CGPA Value</th>
+                            <th>Skills logged</th>
+                            <th>Projects</th>
+                            <th>Certs</th>
+                            <th>Latest ATS</th>
+                            <th>Placement Probability</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if students %}
+                            {% for s in students %}
+                                <tr>
+                                    <td class="fw-bold"><i class="fa-solid fa-circle-user me-2 text-gradient"></i>{{ s.username }}</td>
+                                    <td>{{ s.email }}</td>
+                                    <td>{{ '%.2f' | format(s.cgpa) if s.cgpa is not none else 'N/A' }}</td>
+                                    <td><span class="badge bg-secondary py-1 px-2.5">{{ s.skills_count }} Skills</span></td>
+                                    <td><span class="badge bg-secondary py-1 px-2.5">{{ s.projects_count }} Projects</span></td>
+                                    <td><span class="badge bg-secondary py-1 px-2.5">{{ s.certs_count }} Certs</span></td>
+                                    <td class="fw-bold text-info">
+                                        {% if s.ats_score is not none %}
+                                            {{ s.ats_score }}%
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-gradient-green font-bold">
+                                        {% if s.placement_probability != 'N/A' %}
+                                            {{ s.placement_probability }}% Odds
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="8" class="text-center py-4 text-muted">No student accounts registered in the database.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mt-1 mb-5">
+    <!-- Active Job Broadcasts list -->
+    <div class="col-12">
+        <div class="glass-panel p-4">
+            <h3 class="h5 text-white mb-2"><i class="fa-solid fa-bullhorn me-2 text-gradient-cyan"></i>Active Job Broadcasts</h3>
+            <p class="text-secondary-custom fs-8 mb-4">List of currently active placement openings published on the student job explorer dashboards.</p>
+            
+            <div class="table-responsive">
+                <table class="table align-middle custom-table-dark">
+                    <thead>
+                        <tr>
+                            <th>Job Opening Title</th>
+                            <th>Hiring Company</th>
+                            <th>Role description Summary</th>
+                            <th>Requirements criteria</th>
+                            <th>Published Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-jobs-list-tbody">
+                        {% if jobs %}
+                            {% for j in jobs %}
+                                <tr>
+                                    <td class="fw-bold text-info"><i class="fa-solid fa-briefcase me-2"></i>{{ j.title }}</td>
+                                    <td><span class="badge bg-dark border border-secondary text-secondary-custom py-1.5 px-2.5">{{ j.company }}</span></td>
+                                    <td class="text-truncate" style="max-width: 250px;" title="{{ j.description }}">{{ j.description }}</td>
+                                    <td class="text-truncate" style="max-width: 250px;" title="{{ j.requirements }}">{{ j.requirements }}</td>
+                                    <td>{{ j.created_at.split(' ')[0] if j.created_at else '-' }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-muted">No active job openings broadcasted yet.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart rendering client script -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Colors and theme checking
+    const getChartThemeColors = () => {
+        const theme = document.documentElement.getAttribute('data-theme') || 'dark';
+        if (theme === 'light') {
+            return {
+                text: '#111827',
+                grid: 'rgba(0, 0, 0, 0.05)',
+                colors: ['#2563EB', '#0891B2', '#7C3AED', '#DB2777', '#DC2626', '#059669', '#D97706', '#4B5563']
+            };
+        } else {
+            return {
+                text: '#FFFFFF',
+                grid: 'rgba(255, 255, 255, 0.05)',
+                colors: ['#3B82F6', '#06B6D4', '#8B5CF6', '#EC4899', '#EF4444', '#10B981', '#F59E0B', '#9CA3AF']
+            };
+        }
+    };
+
+    let charts = {};
+
+    function initCharts(data) {
+        const t = getChartThemeColors();
+        
+        // 1. Skills Chart
+        const ctxSkills = document.getElementById('skillsChart').getContext('2d');
+        charts.skills = new Chart(ctxSkills, {
+            type: 'bar',
+            data: {
+                labels: data.skills.labels,
+                datasets: [{
+                    label: 'Students Count',
+                    data: data.skills.data,
+                    backgroundColor: t.colors[0],
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: true }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: t.text, font: { family: 'Outfit', size: 10 } },
+                        grid: { color: t.grid }
+                    },
+                    y: {
+                        ticks: { color: t.text, font: { family: 'Outfit', size: 10 }, stepSize: 1 },
+                        grid: { color: t.grid }
+                    }
+                }
+            }
+        });
+
+        // 2. ATS Quality Chart
+        const ctxAts = document.getElementById('atsChart').getContext('2d');
+        charts.ats = new Chart(ctxAts, {
+            type: 'doughnut',
+            data: {
+                labels: data.ats.labels,
+                datasets: [{
+                    data: data.ats.data,
+                    backgroundColor: [t.colors[4], t.colors[6], t.colors[0], t.colors[5]],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: { color: t.text, font: { family: 'Outfit', size: 9 } }
+                    }
+                }
+            }
+        });
+
+        // 3. Placement Readiness Chart
+        const ctxPlacement = document.getElementById('placementChart').getContext('2d');
+        charts.placement = new Chart(ctxPlacement, {
+            type: 'bar',
+            data: {
+                labels: data.placement.labels,
+                datasets: [{
+                    label: 'Cohort Group Count',
+                    data: data.placement.data,
+                    backgroundColor: t.colors.slice(2, 6),
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: t.text, font: { family: 'Outfit', size: 10 } },
+                        grid: { color: t.grid }
+                    },
+                    y: {
+                        ticks: { color: t.text, font: { family: 'Outfit', size: 10 }, stepSize: 1 },
+                        grid: { color: t.grid }
+                    }
+                }
+            }
+        });
+    }
+
+    function fetchAndRenderCharts() {
+        fetch('/admin/api/charts-data')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    initCharts(data);
+                }
+            })
+            .catch(err => console.error('Error fetching admin charts:', err));
+    }
+
+    fetchAndRenderCharts();
+
+    // Theme Switch observer for redraws
+    const observer = new MutationObserver(() => {
+        const t = getChartThemeColors();
+        Object.keys(charts).forEach(key => {
+            const chart = charts[key];
+            if (chart) {
+                // Update text colors
+                if (chart.options.scales) {
+                    if (chart.options.scales.x) {
+                        chart.options.scales.x.ticks.color = t.text;
+                        chart.options.scales.x.grid.color = t.grid;
+                    }
+                    if (chart.options.scales.y) {
+                        chart.options.scales.y.ticks.color = t.text;
+                        chart.options.scales.y.grid.color = t.grid;
+                    }
+                }
+                if (chart.options.plugins && chart.options.plugins.legend && chart.options.plugins.legend.labels) {
+                    chart.options.plugins.legend.labels.color = t.text;
+                }
+                chart.update();
+            }
+        });
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+    // Handle Admin Job creation
+    const jobForm = document.getElementById('admin-add-job-form');
+    if (jobForm) {
+        jobForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const formData = new FormData(jobForm);
+            
+            fetch('/admin/api/add-job', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Job broadcasted successfully!');
+                    window.location.reload();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(err => {
+                console.error('Error broadcasting job:', err);
+                alert('An error occurred while broadcasting the job.');
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

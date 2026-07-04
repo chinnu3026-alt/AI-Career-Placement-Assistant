@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign Up - AI Career & Placement Assistant{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="glass-panel text-center">
+        <!-- Icon / Graphic -->
+        <div class="mb-4">
+            <span class="d-inline-flex align-items-center justify-content-center bg-dark border border-secondary rounded-circle" style="width: 70px; height: 70px;">
+                <i class="fa-solid fa-user-plus text-gradient-cyan fs-3"></i>
+            </span>
+        </div>
+        
+        <h2 class="mb-1">Create Account</h2>
+        <p class="text-secondary-custom mb-4">Start optimizing your career path using AI insights</p>
+        
+        <!-- Registration Form -->
+        <form action="{{ url_for('signup') }}" method="POST">
+            <!-- Username Input -->
+            <div class="mb-3 text-start">
+                <label for="username" class="form-label">Username</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-end-0 border-secondary-subtle" style="border-radius: 12px 0 0 12px; color: var(--text-muted);">
+                        <i class="fa-solid fa-circle-user"></i>
+                    </span>
+                    <input type="text" 
+                           class="form-control glass-input border-start-0 ps-0" 
+                           id="username" 
+                           name="username" 
+                           placeholder="Choose a username" 
+                           required 
+                           autocomplete="username"
+                           style="border-radius: 0 12px 12px 0;">
+                </div>
+            </div>
+            
+            <!-- Email Input -->
+            <div class="mb-3 text-start">
+                <label for="email" class="form-label">Email Address</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-end-0 border-secondary-subtle" style="border-radius: 12px 0 0 12px; color: var(--text-muted);">
+                        <i class="fa-solid fa-envelope"></i>
+                    </span>
+                    <input type="email" 
+                           class="form-control glass-input border-start-0 ps-0" 
+                           id="email" 
+                           name="email" 
+                           placeholder="Enter your email address" 
+                           required 
+                           autocomplete="email"
+                           style="border-radius: 0 12px 12px 0;">
+                </div>
+            </div>
+            
+            <!-- Gender Selection -->
+            <div class="mb-3 text-start">
+                <label for="gender" class="form-label">Gender</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-end-0 border-secondary-subtle" style="border-radius: 12px 0 0 12px; color: var(--text-muted);">
+                        <i class="fa-solid fa-venus-mars"></i>
+                    </span>
+                    <select class="form-select glass-input border-start-0 ps-0 glass-select" 
+                            id="gender" 
+                            name="gender" 
+                            required
+                            style="border-radius: 0 12px 12px 0; height: 46px;">
+                        <option value="" disabled selected>Select your gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Prefer not to say">Prefer not to say</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Password Input -->
+            <div class="mb-3 text-start">
+                <label for="password" class="form-label">Password</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-end-0 border-secondary-subtle" style="border-radius: 12px 0 0 12px; color: var(--text-muted);">
+                        <i class="fa-solid fa-lock"></i>
+                    </span>
+                    <input type="password" 
+                           class="form-control glass-input border-start-0 ps-0" 
+                           id="password" 
+                           name="password" 
+                           placeholder="Choose a strong password" 
+                           required 
+                           autocomplete="new-password"
+                           style="border-radius: 0 12px 12px 0;">
+                </div>
+            </div>
+            
+            <!-- Confirm Password Input -->
+            <div class="mb-4 text-start">
+                <label for="confirm_password" class="form-label">Confirm Password</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-end-0 border-secondary-subtle" style="border-radius: 12px 0 0 12px; color: var(--text-muted);">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </span>
+                    <input type="password" 
+                           class="form-control glass-input border-start-0 ps-0" 
+                           id="confirm_password" 
+                           name="confirm_password" 
+                           placeholder="Confirm your password" 
+                           required 
+                           autocomplete="new-password"
+                           style="border-radius: 0 12px 12px 0;">
+                </div>
+            </div>
+            
+            <!-- Submit Action -->
+            <div class="d-grid mb-3">
+                <button type="submit" class="btn btn-premium" id="btn-signup-submit">
+                    Sign Up <i class="fa-solid fa-arrow-right ms-2"></i>
+                </button>
+            </div>
+        </form>
+        
+        <div class="mt-4 pt-3 border-top border-secondary-subtle">
+            <p class="mb-0 text-secondary-custom fs-7">
+                Already have an account? 
+                <a href="{{ url_for('login') }}" class="text-gradient fw-bold text-decoration-none">Sign In Instead</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

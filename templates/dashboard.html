@@ -1,0 +1,1563 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - AI Career & Placement Assistant{% endblock %}
+
+{% block content %}
+<!-- Activate body dashboard class to override global container layout -->
+<script>
+    document.body.classList.add('dashboard-page-active');
+</script>
+
+<div class="dashboard-wrapper">
+    <!-- Left Sidebar (Offcanvas on mobile, fixed panel on desktop) -->
+    <div class="offcanvas-lg offcanvas-start sidebar-container" tabindex="-1" id="sidebarOffcanvas" aria-labelledby="sidebarOffcanvasLabel">
+        <div class="sidebar-panel h-100">
+            <!-- Brand Logo -->
+            <a class="sidebar-brand" href="{{ url_for('index') }}">
+                <i class="fa-solid fa-graduation-cap"></i>
+                <span>AI Career Assistant</span>
+            </a>
+
+            <!-- Sidebar User Profile Widget -->
+            <div class="d-flex align-items-center gap-2.5 p-3 bg-dark rounded border border-secondary mb-3 mt-1 text-decoration-none" style="border-color: var(--border-color) !important;">
+                <img class="student-avatar-img user-profile-avatar-img" src="{{ user.profile_picture_url }}" alt="Avatar" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                <div>
+                    <span class="fw-bold text-white fs-8 d-block text-truncate" style="max-width: 140px;">{{ session.get('username') }}</span>
+                    <span class="text-secondary-custom fs-9 d-block">B.E {{ user.branch if user.branch else 'CSE' }}</span>
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <div class="mt-1"></div>
+            
+            <a href="#view-dashboard" class="sidebar-link" data-tab="view-dashboard">
+                <span class="sidebar-link-content">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Dashboard</span>
+                </span>
+            </a>
+            
+            <a href="#view-profile" class="sidebar-link" data-tab="view-profile">
+                <span class="sidebar-link-content">
+                    <i class="fa-solid fa-circle-user"></i>
+                    <span>Profile Overview</span>
+                </span>
+            </a>
+            
+            <a href="#view-skills" class="sidebar-link" data-tab="view-skills">
+                <span class="sidebar-link-content">
+                    <i class="fa-solid fa-code"></i>
+                    <span>Professional Skills</span>
+                </span>
+                <span class="sidebar-badge" id="skills-badge-counter">{{ frontend_skills_count + backend_skills_count + other_skills|length }}</span>
+            </a>
+            
+            <a href="#view-certs" class="sidebar-link" data-tab="view-certs">
+                <span class="sidebar-link-content">
+                    <i class="fa-solid fa-award"></i>
+                    <span>Certifications</span>
+                </span>
+                <span class="sidebar-badge" id="certs-badge-counter">{{ certifications|length }}</span>
+            </a>
+            
+            <a href="#view-projects" class="sidebar-link" data-tab="view-projects">
+                <span class="sidebar-link-content">
+                    <i class="fa-solid fa-folder"></i>
+                    <span>Projects</span>
+                </span>
+                <span class="sidebar-badge" id="projects-badge-counter">{{ projects|length }}</span>
+            </a>
+
+            <div class="sidebar-separator border-top border-secondary my-3" style="opacity: 0.15; border-color: rgba(0, 170, 255, 0.15) !important;"></div>
+            
+            <a href="#view-dream-company" class="sidebar-link active" data-tab="view-dream-company">
+                <span class="sidebar-link-content">
+                    <i class="fa-solid fa-compass"></i>
+                    <span>Dream Company</span>
+                </span>
+            </a>
+            
+            <a href="#view-readiness-details" class="sidebar-link" data-tab="view-readiness-details">
+                <span class="sidebar-link-content">
+                    <i class="fa-solid fa-gauge-high"></i>
+                    <span>Company Readiness</span>
+                </span>
+            </a>
+            
+            <a href="#view-gap-analysis" class="sidebar-link" data-tab="view-gap-analysis">
+                <span class="sidebar-link-content">
+                    <i class="fa-solid fa-magnifying-glass-chart"></i>
+                    <span>Skill Gap Analysis</span>
+                </span>
+            </a>
+            
+            <a href="#view-roadmap-weeks" class="sidebar-link" data-tab="view-roadmap-weeks">
+                <span class="sidebar-link-content">
+                    <i class="fa-solid fa-route"></i>
+                    <span>Learning Roadmap</span>
+                </span>
+            </a>
+            
+            <a href="#view-resume-analyzer" class="sidebar-link" data-tab="view-resume-analyzer">
+                <span class="sidebar-link-content">
+                    <i class="fa-solid fa-file-invoice"></i>
+                    <span>AI Resume Analyzer</span>
+                </span>
+            </a>
+            
+            <a href="#view-placement-prediction" class="sidebar-link" data-tab="view-placement-prediction">
+                <span class="sidebar-link-content">
+                    <i class="fa-solid fa-brain"></i>
+                    <span>Placement Prediction</span>
+                </span>
+            </a>
+
+            <div class="sidebar-separator border-top border-secondary my-3" style="opacity: 0.15; border-color: rgba(0, 170, 255, 0.15) !important;"></div>
+            
+            <a href="#view-saved-companies" class="sidebar-link" data-tab="view-saved-companies">
+                <span class="sidebar-link-content">
+                    <i class="fa-solid fa-bookmark"></i>
+                    <span>Saved Companies</span>
+                </span>
+                <span class="sidebar-badge" id="saved-companies-badge">0</span>
+            </a>
+            
+            <a href="#view-app-tracker" class="sidebar-link" data-tab="view-app-tracker">
+                <span class="sidebar-link-content">
+                    <i class="fa-solid fa-list-check"></i>
+                    <span>Application Tracker</span>
+                </span>
+                <span class="sidebar-badge" id="tracker-badge-counter">0</span>
+            </a>
+
+            <a href="#view-placement-calendar" class="sidebar-link" data-tab="view-placement-calendar">
+                <span class="sidebar-link-content">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    <span>Placement Calendar</span>
+                </span>
+            </a>
+
+            <a href="#view-coding-progress" class="sidebar-link" data-tab="view-coding-progress">
+                <span class="sidebar-link-content">
+                    <i class="fa-solid fa-laptop-code"></i>
+                    <span>Coding Progress</span>
+                </span>
+            </a>
+
+            <a href="#view-recruiter-evals" class="sidebar-link" data-tab="view-recruiter-evals">
+                <span class="sidebar-link-content">
+                    <i class="fa-solid fa-clipboard-check"></i>
+                    <span>Recruiter Evals</span>
+                </span>
+            </a>
+            
+            <a href="#view-interview-prep" class="sidebar-link" data-tab="view-interview-prep">
+                <span class="sidebar-link-content">
+                    <i class="fa-solid fa-comments"></i>
+                    <span>Interview Prep</span>
+                </span>
+            </a>
+            
+            <a href="#view-settings" class="sidebar-link" data-tab="view-settings">
+                <span class="sidebar-link-content">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>Settings</span>
+                </span>
+            </a>
+
+            <!-- Sidebar bottom Widget -->
+            <div class="sidebar-widget mt-auto">
+                <h6 class="fs-9 text-white fw-bold mb-2"><i class="fa-solid fa-chart-line text-info me-1"></i>Placement Readiness</h6>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="score-gauge-blue" style="width: 50px; height: 50px; font-size: 0.75rem;">
+                        <span class="score-val-blue" id="sidebar-readiness-val">72%</span>
+                    </div>
+                    <div>
+                        <span class="fs-9 text-white fw-bold d-block">Overall Grade</span>
+                        <a href="#view-placement-prediction" class="fs-9 text-info font-semibold text-decoration-none" onclick="activateDashboardView('view-placement-prediction')">Improve Now &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main-dashboard-body flex-grow-1 d-flex flex-column">
+        <!-- Top Navbar with Avatar info -->
+        <header class="top-navbar-profile">
+            <!-- Mobile Sidebar Toggle -->
+            <button class="d-lg-none btn btn-glass p-1.5 border-0 text-white" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas" aria-controls="sidebarOffcanvas" title="Toggle Sidebar">
+                <i class="fa-solid fa-bars fs-5"></i>
+            </button>
+            <div class="d-flex align-items-center gap-3">
+                <div class="student-profile-badge">
+                    <div class="text-end">
+                        <span class="fw-bold text-white fs-7 d-block">{{ session.get('username') }}</span>
+                        <span class="text-secondary-custom fs-9 d-block">B.E {{ user.branch if user.branch else 'CSE' }}</span>
+                    </div>
+                    <img class="student-avatar-img user-profile-avatar-img" src="{{ user.profile_picture_url }}" alt="Avatar">
+                </div>
+                <!-- Logout Button -->
+                <a class="btn btn-premium btn-xs fs-8 py-1.5 px-3" href="{{ url_for('logout') }}"><i class="fa-solid fa-right-from-bracket me-1"></i>Logout</a>
+            </div>
+        </header>
+
+        <!-- Dynamic Content Workspace -->
+        <div class="workspace-content">
+            <!-- View 1: Main Dream Company Dashboard (Default active view) -->
+            <div id="view-dream-company" class="dashboard-view-panel">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h2 class="h4 text-white mb-1">Dream Company Roadmap</h2>
+                        <p class="text-secondary-custom fs-8 mb-0">Choose your dream company and get a personalized preparation roadmap.</p>
+                    </div>
+                </div>
+
+                <!-- Filters panel -->
+                <div class="filters-bar-container">
+                    <form id="roadmap-city-form" class="row g-3 align-items-center">
+                        <div class="col-lg">
+                            <label for="roadmap-branch-select" class="form-label fs-8 mb-1.5 text-secondary-custom">Branch</label>
+                            <select class="form-select glass-input glass-select w-100" id="roadmap-branch-select" name="branch" required>
+                                <option value="" disabled>-- Select --</option>
+                                <option value="CSE" selected>CSE</option>
+                                <option value="IT">IT</option>
+                                <option value="AI">AI</option>
+                                <option value="AI & DS">AI & DS</option>
+                                <option value="AIML">AIML</option>
+                                <option value="Cyber Security">Cyber Security</option>
+                                <option value="ECE">ECE</option>
+                                <option value="EEE">EEE</option>
+                                <option value="Mechanical">Mechanical</option>
+                                <option value="Civil">Civil</option>
+                                <option value="Biotechnology">Biotechnology</option>
+                                <option value="Chemical">Chemical</option>
+                                <option value="Aerospace">Aerospace</option>
+                                <option value="Instrumentation">Instrumentation</option>
+                                <option value="Robotics">Robotics</option>
+                                <option value="Data Science">Data Science</option>
+                                <option value="Other Engineering Branches">Other Engineering Branches</option>
+                            </select>
+                        </div>
+                        <div class="col-lg">
+                            <label for="roadmap-city-select" class="form-label fs-8 mb-1.5 text-secondary-custom">City Location</label>
+                            <select class="form-select glass-input glass-select w-100" id="roadmap-city-select" name="city" required>
+                                <option value="" disabled>-- Select --</option>
+                                <option value="Bangalore" selected>Bangalore</option>
+                                <option value="Hyderabad">Hyderabad</option>
+                                <option value="Chennai">Chennai</option>
+                                <option value="Pune">Pune</option>
+                                <option value="Mysore">Mysore</option>
+                                <option value="Delhi">Delhi</option>
+                                <option value="Mumbai">Mumbai</option>
+                                <option value="Noida">Noida</option>
+                                <option value="Gurgaon">Gurgaon</option>
+                                <option value="Kochi">Kochi</option>
+                            </select>
+                        </div>
+                        <div class="col-lg">
+                            <label for="company-search-input" class="form-label fs-8 mb-1.5 text-secondary-custom">Search Company</label>
+                            <input type="text" id="company-search-input" class="form-control glass-input w-100" placeholder="🔍 Search any company...">
+                        </div>
+                        <div class="col-lg">
+                            <label for="company-type-select" class="form-label fs-8 mb-1.5 text-secondary-custom">Company Type</label>
+                            <select class="form-select glass-input glass-select w-100" id="company-type-select">
+                                <option value="All Types" selected>All Types</option>
+                                <option value="Product Based">Product Based</option>
+                                <option value="Service Based">Service Based</option>
+                                <option value="Startups">Startups</option>
+                                <option value="FinTech">FinTech</option>
+                                <option value="AI Companies">AI / ML</option>
+                                <option value="Cybersecurity">Cyber Security</option>
+                                <option value="Government">Government</option>
+                                <option value="Core Engineering">Core Engineering</option>
+                                <option value="MNC">MNC</option>
+                            </select>
+                        </div>
+                        <div class="col-lg align-self-end d-flex gap-2">
+                            <button type="submit" class="btn btn-premium flex-grow-1" style="height: 52px;">
+                                <i class="fa-solid fa-sliders me-1.5"></i>Apply Filters
+                            </button>
+                            <button type="button" id="btn-reset-filters" class="btn btn-glass px-3" style="height: 52px;" title="Reset filters">
+                                <i class="fa-solid fa-rotate-left"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Categories Quick tabs bar -->
+                <div class="quick-tabs-container" id="category-tabs-container">
+                    <span class="quick-tab-pill active" data-category="All Companies">All Companies</span>
+                    <span class="quick-tab-pill" data-category="Product Based">Product Based</span>
+                    <span class="quick-tab-pill" data-category="Service Based">Service Based</span>
+                    <span class="quick-tab-pill" data-category="Startups">Startups</span>
+                    <span class="quick-tab-pill" data-category="FinTech">FinTech</span>
+                    <span class="quick-tab-pill" data-category="AI Companies">AI/ML</span>
+                    <span class="quick-tab-pill" data-category="Cybersecurity">Cyber Security</span>
+                    <span class="quick-tab-pill" data-category="Government">Government</span>
+                    <span class="quick-tab-pill" data-category="Core Engineering">Core Engineering</span>
+                    <span class="quick-tab-pill" data-category="MNC">MNC</span>
+                </div>
+
+                <!-- Main split layouts -->
+                <div class="split-dashboard-main">
+                    <!-- Left: slider and main grid table -->
+                    <div>
+                        <h4 class="fs-8 text-white mb-2.5">Top Match Recommendations</h4>
+                        <div class="position-relative">
+                            <div class="loading-overlay" id="companies-loading-overlay">
+                                <div class="spinner-premium"></div>
+                            </div>
+                            <div class="cards-slider-container" id="companies-cards-slider">
+                                <!-- Cards loaded dynamically -->
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-2 mt-3">
+                            <h4 class="fs-8 text-white mb-0" id="table-results-label">Showing 1 - 10 of 245+ companies</h4>
+                            <button type="button" class="btn btn-glass btn-xs py-1 px-2.5 fs-9" id="all-companies-counter-btn">All Companies (245+)</button>
+                        </div>
+                        
+                        <!-- Table panel wrapper -->
+                        <div class="overflow-x-auto">
+                            <table class="custom-table-dark">
+                                <thead>
+                                    <tr>
+                                        <th>Company</th>
+                                        <th>Type</th>
+                                        <th>Location</th>
+                                        <th>Package</th>
+                                        <th>Match Score</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="companies-table-body">
+                                    <!-- Rows injected dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Table Pagination controls -->
+                        <div class="pagination-container-custom">
+                            <span>Showing paginated search results</span>
+                            <div class="pagination-pages" id="table-pagination-controls">
+                                <!-- Page links dynamically loaded -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right sidebar: dream company details blueprint panel -->
+                    <div>
+                        <div class="details-blueprint-panel">
+                            <!-- Details View Setup placeholder -->
+                            <div id="company-detail-empty-state" class="text-center py-4 text-muted">
+                                <i class="fa-solid fa-building-circle-check fs-2 mb-3"></i>
+                                <h5 class="fs-7 text-white mb-1">Company Details</h5>
+                                <p class="fs-9 mb-0">Select a company from cards or table list to view target blueprint.</p>
+                            </div>
+
+                            <!-- Selected details view panel -->
+                            <div id="company-detail-filled-state" style="display: none;">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="company-logo-wrapper" id="detail-company-logo" style="width: 44px; height: 44px; padding: 3px;">
+                                            <img src="/static/images/companies/default_logo.svg" class="company-logo-img" alt="Default Logo">
+                                        </div>
+                                        <div>
+                                            <h5 class="fs-7 text-white fw-bold mb-0.5" id="detail-company-name">Google</h5>
+                                            <span class="badge bg-dark border border-secondary text-secondary-custom py-0.5 px-2 fs-9" id="detail-company-type">Product Based</span>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-glass p-1.5 border-0 text-white" id="btn-bookmark-company" title="Bookmark company">
+                                        <i class="fa-regular fa-bookmark"></i>
+                                    </button>
+                                </div>
+
+                                <div class="fs-8 text-secondary-custom mb-3.5">
+                                    <div class="mb-1"><i class="fa-solid fa-location-dot me-1.5 text-muted" title="Location"></i>Location: <span id="detail-company-location" class="text-white fw-semibold">-</span></div>
+                                    <div class="mb-1"><i class="fa-solid fa-map-pin me-1.5 text-muted" title="Headquarters"></i>HQ: <span id="detail-company-hq" class="text-white fw-semibold">-</span></div>
+                                    <div class="mb-1"><i class="fa-solid fa-building-user me-1.5 text-muted" title="Bangalore Office"></i>Bangalore Office: <span id="detail-company-blr-office" class="text-white fw-semibold">-</span></div>
+                                    <div class="mb-1"><i class="fa-solid fa-users me-1.5 text-muted" title="Employees"></i>Employees: <span id="detail-company-employees" class="text-white fw-semibold">-</span></div>
+                                    <div class="mb-1"><i class="fa-solid fa-industry me-1.5 text-muted" title="Industry"></i>Industry: <span id="detail-company-industry" class="text-white fw-semibold">-</span></div>
+                                    <div class="mb-1"><i class="fa-solid fa-calendar-days me-1.5 text-muted" title="Founded"></i>Founded: <span id="detail-company-founded" class="text-white fw-semibold">-</span></div>
+                                    <div class="mb-1"><i class="fa-solid fa-graduation-cap me-1.5 text-muted" title="Minimum CGPA"></i>Min CGPA: <span id="detail-company-cgpa" class="text-white fw-bold">-</span></div>
+                                </div>
+
+                                <div class="d-flex gap-2 mb-3.5">
+                                    <a href="#" target="_blank" class="btn btn-glass btn-xs flex-grow-1 py-1.5 fs-9 text-center text-white" id="detail-company-website-btn" style="border: 1px solid rgba(255,255,255,0.1) !important; text-decoration: none;">
+                                        <i class="fa-solid fa-globe me-1"></i> Visit Website
+                                    </a>
+                                    <a href="#" target="_blank" class="btn btn-glass btn-xs flex-grow-1 py-1.5 fs-9 text-center text-white" id="detail-company-careers-btn" style="border: 1px solid rgba(255,255,255,0.1) !important; text-decoration: none;">
+                                        <i class="fa-solid fa-briefcase me-1"></i> Careers Page
+                                    </a>
+                                </div>
+
+                                <div class="mb-3.5">
+                                    <span class="fs-9 text-muted d-block uppercase fw-semibold mb-1">EXPECTED PACKAGE</span>
+                                    <h4 class="text-gradient-green fs-4 font-extrabold mb-0" id="detail-company-package">25 - 60</h4>
+                                </div>
+
+                                <!-- Required Skills list -->
+                                <div class="mb-3">
+                                    <span class="fs-9 text-muted d-block uppercase fw-semibold mb-1.5">REQUIRED SKILLS</span>
+                                    <div class="d-flex flex-wrap gap-1" id="detail-company-tech-list">
+                                        <!-- Badges injected dynamically -->
+                                    </div>
+                                </div>
+
+                                <!-- Required Certs list -->
+                                <div class="mb-3">
+                                    <span class="fs-9 text-muted d-block uppercase fw-semibold mb-1.5">REQUIRED CERTIFICATIONS</span>
+                                    <div class="d-flex flex-wrap gap-1" id="detail-company-certs-list">
+                                        <!-- Badges injected dynamically -->
+                                    </div>
+                                </div>
+
+                                <!-- Required Projects list -->
+                                <div class="mb-3.5">
+                                    <span class="fs-9 text-muted d-block uppercase fw-semibold mb-1.5">TOP PROJECTS</span>
+                                    <ul class="fs-8 text-secondary-custom ps-3 mb-0" id="detail-company-projects-list">
+                                        <!-- Bullet lists injected dynamically -->
+                                    </ul>
+                                </div>
+
+                                <!-- Company Description -->
+                                <div class="mb-3.5 border-top border-secondary pt-3">
+                                    <span class="fs-9 text-muted d-block uppercase fw-semibold mb-1">Company Description</span>
+                                    <p class="fs-8 text-white mb-0" id="detail-company-description" style="line-height: 1.4; opacity: 0.95;"></p>
+                                </div>
+
+                                <!-- Hiring Process -->
+                                <div class="mb-3.5">
+                                    <span class="fs-9 text-muted d-block uppercase fw-semibold mb-1">Hiring Process</span>
+                                    <p class="fs-8 text-white mb-0" id="detail-company-hiring-process" style="line-height: 1.4; opacity: 0.95;"></p>
+                                </div>
+
+                                <!-- Circular Match Score Dial -->
+                                <div class="border-top border-secondary pt-3 text-center mb-3">
+                                    <span class="fs-9 text-muted d-block mb-2 font-semibold">YOUR MATCH SCORE</span>
+                                    <div class="score-gauge-blue mb-1.5" id="detail-company-score-dial" style="width: 80px; height: 80px; font-size: 1.15rem;">
+                                        <span class="score-val-blue" id="detail-company-score-val">92%</span>
+                                    </div>
+                                    <span class="fs-9 text-gradient-green font-bold d-block" id="detail-company-match-quality">Excellent Match</span>
+                                </div>
+
+                                <!-- Application Tracker helper link -->
+                                <div class="d-grid gap-2 mb-3.5">
+                                    <label class="fs-9 text-muted text-start mb-0.5">TRACK STATUS</label>
+                                    <select class="form-select glass-input glass-select py-1.5 fs-8 w-100 text-secondary-custom" id="detail-tracker-status" onchange="addSelectedCompanyToTracker()">
+                                        <option value="none">-- Add to Tracker --</option>
+                                        <option value="Applied">Applied</option>
+                                        <option value="Interview Scheduled">Interview Scheduled</option>
+                                        <option value="Rejected">Rejected</option>
+                                        <option value="Selected">Selected</option>
+                                    </select>
+                                </div>
+
+                                <button type="button" class="btn btn-premium btn-sm w-100 py-2.5" id="btn-view-roadmap-trigger">
+                                    View Full Roadmap &rarr;
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View 2: Dashboard Statistics Panel (`#view-dashboard`) -->
+            <div id="view-dashboard" class="dashboard-view-panel" style="display: none;">
+                <h2 class="h4 text-white mb-2"><i class="fa-solid fa-chart-line me-2 text-gradient"></i>Console Dashboard</h2>
+                <p class="text-secondary-custom fs-8 mb-4">Real-time summaries of credentials metrics and placement predictions.</p>
+                
+                <!-- Five Core Stats Cards Row for Integration Test Requirements -->
+                <div class="row g-3 mb-4">
+                    <div class="col-xl col-md-4 col-sm-6">
+                        <div class="dashboard-stats-card">
+                            <div class="dashboard-stats-card-icon bg-dark border border-secondary text-info"><i class="fa-solid fa-graduation-cap"></i></div>
+                            <div>
+                                <span class="dashboard-stats-card-title">Academic CGPA (Current CGPA)</span>
+                                <h5 class="dashboard-stats-card-value">{{ user.cgpa if user.cgpa is not none else '0.0' }}</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl col-md-4 col-sm-6">
+                        <div class="dashboard-stats-card">
+                            <div class="dashboard-stats-card-icon bg-dark border border-secondary text-success"><i class="fa-solid fa-code"></i></div>
+                            <div>
+                                <span class="dashboard-stats-card-title">Frontend Skills</span>
+                                <h5 class="dashboard-stats-card-value">{{ frontend_skills_count }}</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl col-md-4 col-sm-6">
+                        <div class="dashboard-stats-card">
+                            <div class="dashboard-stats-card-icon bg-dark border border-secondary text-warning"><i class="fa-solid fa-terminal"></i></div>
+                            <div>
+                                <span class="dashboard-stats-card-title">Backend Skills</span>
+                                <h5 class="dashboard-stats-card-value">{{ backend_skills_count }}</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl col-md-4 col-sm-6">
+                        <div class="dashboard-stats-card">
+                            <div class="dashboard-stats-card-icon bg-dark border border-secondary text-primary"><i class="fa-solid fa-folder"></i></div>
+                            <div>
+                                <span class="dashboard-stats-card-title">Total Projects</span>
+                                <h5 class="dashboard-stats-card-value">{{ projects|length }}</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl col-md-4 col-sm-6">
+                        <div class="dashboard-stats-card">
+                            <div class="dashboard-stats-card-icon bg-dark border border-secondary text-danger"><i class="fa-solid fa-award"></i></div>
+                            <div>
+                                <span class="dashboard-stats-card-title">Certifications</span>
+                                <h5 class="dashboard-stats-card-value">{{ certifications|length }}</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-md-8">
+                        <div class="glass-panel p-4 mb-4">
+                            <h3 class="h5 text-white mb-3">Preparation Summary</h3>
+                            <div class="row g-3">
+                                <div class="col-sm-6">
+                                    <div class="glass-card" style="padding: 1.5rem !important; min-height: 100px; display: flex; flex-direction: column; justify-content: center; overflow: visible !important;">
+                                        <span class="d-block mb-1.5" style="color: #D1D5DB; font-size: 14px;">Target Company</span>
+                                        <h5 class="text-white fw-bold mb-0" style="font-size: 20px;" id="dashboard-target-name">None selected</h5>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="glass-card" style="padding: 1.5rem !important; min-height: 100px; display: flex; flex-direction: column; justify-content: center; overflow: visible !important;">
+                                        <span class="d-block mb-1.5" style="color: #D1D5DB; font-size: 14px;">Target Location</span>
+                                        <h5 class="text-white fw-bold mb-0" style="font-size: 20px;" id="dashboard-target-city">-</h5>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="glass-card" style="padding: 1.5rem !important; min-height: 100px; display: flex; flex-direction: column; justify-content: center; overflow: visible !important;">
+                                        <span class="d-block mb-1.5" style="color: #D1D5DB; font-size: 14px;">Completed Skills</span>
+                                        <h5 class="text-gradient-green fw-bold mb-0" style="font-size: 20px;" id="dashboard-skills-count">0</h5>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="glass-card" style="padding: 1.5rem !important; min-height: 100px; display: flex; flex-direction: column; justify-content: center; overflow: visible !important;">
+                                        <span class="d-block mb-1.5" style="color: #D1D5DB; font-size: 14px;">Target Package Range</span>
+                                        <h5 class="text-gradient fw-bold mb-0" style="font-size: 20px;" id="dashboard-package-range">N/A</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recommendations list -->
+                        <div class="glass-panel p-4">
+                            <h3 class="h5 text-white mb-3">Priority Action Items</h3>
+                            <div id="dashboard-priority-list" class="fs-8 text-secondary-custom">
+                                <p class="mb-0 text-muted">Select a target company to load action items check list.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="glass-panel p-4 text-center">
+                            <h3 class="h5 text-white mb-3">Placement Fitness</h3>
+                            <div class="score-gauge-blue mb-3" style="width: 110px; height: 110px; font-size: 1.5rem;">
+                                <span class="score-val-blue" id="dashboard-readiness-val">72%</span>
+                            </div>
+                            <span class="badge bg-dark border border-secondary text-secondary-custom py-1.5 px-3 fs-9" style="border-radius: 20px;">
+                                Dynamic readiness score
+                            </span>
+                            <div class="border-top border-secondary mt-3.5 pt-3 text-start fs-8">
+                                <div class="d-flex justify-content-between mb-1.5">
+                                    <span>Branch Average</span>
+                                    <span class="text-white fw-bold">65%</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-1.5">
+                                    <span>ATS Grade</span>
+                                    <span class="text-white fw-bold" id="dashboard-ats-grade">N/A</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span>Missing Gaps</span>
+                                    <span class="text-danger fw-bold" id="dashboard-missing-count">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View 3: Profile Overview (`#view-profile`) -->
+            <div id="view-profile" class="dashboard-view-panel" style="display: none;">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="glass-panel p-4">
+                            <h3 class="h5 text-white mb-2"><i class="fa-solid fa-circle-user me-2 text-gradient"></i>Academic Profile Overview</h3>
+                            <p class="text-secondary-custom fs-8 mb-4">Set academic markers standard in hiring algorithms.</p>
+                            
+                            <form id="profile-cgpa-form">
+                                <div class="mb-3">
+                                    <label for="cgpa" class="form-label fs-8 text-secondary-custom">Cumulative CGPA (0.00 – 10.00 Scale)</label>
+                                    <input type="number" step="0.01" min="0" max="10" class="form-control glass-input w-100 py-2 fs-8"
+                                        id="cgpa" name="cgpa" value="{{ user.cgpa if user.cgpa is not none else '' }}"
+                                        placeholder="e.g. 8.5" required>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="branch" class="form-label fs-8 text-secondary-custom">Engineering Branch</label>
+                                    <select class="form-select glass-input glass-select w-100 py-2 fs-8" id="branch" name="branch" required>
+                                        <option value="" disabled {% if not user.branch %}selected{% endif %}>-- Select Branch --</option>
+                                        <option value="CSE" {% if user.branch == 'CSE' %}selected{% endif %}>CSE</option>
+                                        <option value="IT" {% if user.branch == 'IT' %}selected{% endif %}>IT</option>
+                                        <option value="AI" {% if user.branch == 'AI' %}selected{% endif %}>AI</option>
+                                        <option value="AI & DS" {% if user.branch == 'AI & DS' or user.branch == 'AI&DS' or user.branch == 'AIDS' %}selected{% endif %}>AI & DS</option>
+                                        <option value="AIML" {% if user.branch == 'AIML' or user.branch == 'AI/ML' %}selected{% endif %}>AIML</option>
+                                        <option value="Cyber Security" {% if user.branch == 'Cyber Security' %}selected{% endif %}>Cyber Security</option>
+                                        <option value="ECE" {% if user.branch == 'ECE' %}selected{% endif %}>ECE</option>
+                                        <option value="EEE" {% if user.branch == 'EEE' %}selected{% endif %}>EEE</option>
+                                        <option value="Mechanical" {% if user.branch == 'Mechanical' or user.branch == 'ME' %}selected{% endif %}>Mechanical</option>
+                                        <option value="Civil" {% if user.branch == 'Civil' or user.branch == 'CE' %}selected{% endif %}>Civil</option>
+                                        <option value="Biotechnology" {% if user.branch == 'Biotechnology' %}selected{% endif %}>Biotechnology</option>
+                                        <option value="Chemical" {% if user.branch == 'Chemical' %}selected{% endif %}>Chemical</option>
+                                        <option value="Aerospace" {% if user.branch == 'Aerospace' %}selected{% endif %}>Aerospace</option>
+                                        <option value="Instrumentation" {% if user.branch == 'Instrumentation' %}selected{% endif %}>Instrumentation</option>
+                                        <option value="Robotics" {% if user.branch == 'Robotics' %}selected{% endif %}>Robotics</option>
+                                        <option value="Data Science" {% if user.branch == 'Data Science' %}selected{% endif %}>Data Science</option>
+                                        <option value="Other Engineering Branches" {% if user.branch == 'Other Engineering Branches' or user.branch == 'others' or user.branch == 'Others' %}selected{% endif %}>Other Engineering Branches</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-premium btn-sm w-100 py-2"><i class="fa-solid fa-floppy-disk me-1.5"></i>Save Profile Data</button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="glass-panel p-4 text-center">
+                            <h3 class="h5 text-white mb-3 text-start"><i class="fa-solid fa-camera me-2 text-gradient-cyan"></i>Profile Picture</h3>
+                            <p class="text-secondary-custom fs-8 mb-4 text-start">Upload a high-quality headshot to personalize your dashboard.</p>
+                            
+                            <div class="profile-pic-container mb-4 position-relative d-inline-block" style="cursor: pointer;">
+                                <img id="profile-pic-preview" class="profile-pic-preview-img rounded-circle border" 
+                                     src="{{ user.profile_picture_url }}" 
+                                     alt="Profile Picture" 
+                                     style="width: 120px; height: 120px; object-fit: cover; border-width: 3px !important; border-color: var(--accent-blue) !important; transition: var(--transition-smooth);">
+                                <div class="profile-pic-hover-overlay rounded-circle">
+                                    <i class="fa-solid fa-camera text-white fs-4"></i>
+                                </div>
+                            </div>
+                            
+                            <form id="profile-pic-form" enctype="multipart/form-data">
+                                <div class="mb-3">
+                                    <input type="file" id="profile-pic-input" name="profile_picture" accept="image/*" class="d-none">
+                                    <button type="button" class="btn btn-glass btn-sm me-2" id="btn-select-photo">
+                                        <i class="fa-solid fa-upload me-1.5"></i>Upload Photo
+                                    </button>
+                                    <button type="button" class="btn btn-glass btn-sm text-danger" id="btn-remove-photo">
+                                        <i class="fa-solid fa-trash-can me-1.5"></i>Remove Photo
+                                    </button>
+                                </div>
+                                <div class="mb-2" id="profile-pic-actions" style="display: none;">
+                                    <button type="submit" class="btn btn-premium btn-sm" id="btn-save-photo">
+                                        <i class="fa-solid fa-floppy-disk me-1.5"></i>Save Photo
+                                    </button>
+                                    <button type="button" class="btn btn-glass btn-sm ms-2" id="btn-cancel-photo">
+                                        Cancel
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View 4: Skills Inventory (`#view-skills`) -->
+            <div id="view-skills" class="dashboard-view-panel" style="display: none;">
+                <div class="row g-4">
+                    <div class="col-md-5">
+                        <div class="glass-panel p-4">
+                            <h3 class="h5 text-white mb-2"><i class="fa-solid fa-code me-2 text-gradient"></i>Add Skill Tag</h3>
+                            <p class="text-secondary-custom fs-8 mb-3">Register new skills keywords in your core profile inventory.</p>
+                            
+                            <form id="add-skill-form" class="row g-2 align-items-end">
+                                <div class="col-12">
+                                    <label for="skill_name" class="form-label fs-9 mb-1 text-secondary-custom">Skill Name</label>
+                                    <input type="text" class="form-control glass-input w-100 py-1.5 fs-8" id="skill_name" name="skill_name" placeholder="e.g. React" list="suggested-skills" required>
+                                </div>
+                                <div class="col-12 mt-2">
+                                    <label for="proficiency" class="form-label fs-9 mb-1 text-secondary-custom">Proficiency Level</label>
+                                    <select class="form-select glass-input glass-select py-1.5 fs-8 w-100" id="proficiency" name="proficiency" required>
+                                        <option value="Beginner">Beginner</option>
+                                        <option value="Intermediate" selected>Intermediate</option>
+                                        <option value="Advanced">Advanced</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 mt-3">
+                                    <button type="submit" class="btn btn-premium btn-xs w-100 py-2"><i class="fa-solid fa-plus me-1"></i>Add Skill</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-7">
+                        <div class="glass-panel p-4">
+                            <h3 class="h5 text-white mb-3">Registered Technical Inventory</h3>
+                            
+                            <div class="mb-3">
+                                <h5 class="fs-8 text-white fw-bold mb-2"><i class="fa-solid fa-circle-nodes me-2 text-gradient"></i>Frontend Skills</h5>
+                                <div class="d-flex flex-wrap gap-1.5">
+                                    {% if frontend_skills %}
+                                        {% for skill in frontend_skills %}
+                                            <span class="skill-badge {% if skill.proficiency == 'Beginner' %}proficiency-beginner{% elif skill.proficiency == 'Advanced' %}proficiency-advanced{% endif %} fs-9">
+                                                {{ skill.skill_name }} ({{ skill.proficiency }})
+                                                <button class="badge-delete-btn" type="button" data-skill-id="{{ skill.id }}" onclick="deleteSkill(this.dataset.skillId)">
+                                                    <i class="fa-solid fa-xmark"></i>
+                                                </button>
+                                            </span>
+                                        {% endfor %}
+                                    {% else %}
+                                        <span class="text-muted fs-9">No frontend skills listed.</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <h5 class="fs-8 text-white fw-bold mb-2"><i class="fa-solid fa-terminal me-2 text-gradient-green"></i>Backend Skills</h5>
+                                <div class="d-flex flex-wrap gap-1.5">
+                                    {% if backend_skills %}
+                                        {% for skill in backend_skills %}
+                                            <span class="skill-badge {% if skill.proficiency == 'Beginner' %}proficiency-beginner{% elif skill.proficiency == 'Advanced' %}proficiency-advanced{% endif %} fs-9">
+                                                {{ skill.skill_name }} ({{ skill.proficiency }})
+                                                <button class="badge-delete-btn" type="button" data-skill-id="{{ skill.id }}" onclick="deleteSkill(this.dataset.skillId)">
+                                                    <i class="fa-solid fa-xmark"></i>
+                                                </button>
+                                            </span>
+                                        {% endfor %}
+                                    {% else %}
+                                        <span class="text-muted fs-9">No backend skills listed.</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            {% if other_skills %}
+                            <div>
+                                <h5 class="fs-8 text-white fw-bold mb-2"><i class="fa-solid fa-screwdriver-wrench me-2 text-gradient-purple"></i>Other/General Skills</h5>
+                                <div class="d-flex flex-wrap gap-1.5">
+                                    {% for skill in other_skills %}
+                                        <span class="skill-badge {% if skill.proficiency == 'Beginner' %}proficiency-beginner{% elif skill.proficiency == 'Advanced' %}proficiency-advanced{% endif %} fs-9">
+                                            {{ skill.skill_name }} ({{ skill.proficiency }})
+                                            <button class="badge-delete-btn" type="button" data-skill-id="{{ skill.id }}" onclick="deleteSkill(this.dataset.skillId)">
+                                                <i class="fa-solid fa-xmark"></i>
+                                            </button>
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View 5: Certifications (`#view-certs`) -->
+            <div id="view-certs" class="dashboard-view-panel" style="display: none;">
+                <div class="row g-4">
+                    <div class="col-md-5">
+                        <div class="glass-panel p-4">
+                            <h3 class="h5 text-white mb-2"><i class="fa-solid fa-award me-2 text-gradient"></i>Add Certification</h3>
+                            <p class="text-secondary-custom fs-8 mb-3">Highlight verified credentials to boost matching fitness.</p>
+                            
+                            <form id="add-cert-form" class="row g-2">
+                                <div class="col-12">
+                                    <label for="cert_name" class="form-label fs-9 mb-1 text-secondary-custom">Title</label>
+                                    <input type="text" class="form-control glass-input py-1.5 fs-8 w-100" id="cert_name" name="cert_name" placeholder="e.g. AWS Developer" required>
+                                </div>
+                                <div class="col-6">
+                                    <label for="issuing_org" class="form-label fs-9 mb-1 text-secondary-custom">Issuing Org</label>
+                                    <input type="text" class="form-control glass-input py-1.5 fs-8 w-100" id="issuing_org" name="issuing_org" placeholder="e.g. Amazon" required>
+                                </div>
+                                <div class="col-6">
+                                    <label for="issue_date" class="form-label fs-9 mb-1 text-secondary-custom">Date (MM/YYYY)</label>
+                                    <input type="text" class="form-control glass-input py-1.5 fs-8 w-100" id="issue_date" name="issue_date" placeholder="05/2026" required>
+                                </div>
+                                <div class="col-12 mt-3">
+                                    <button type="submit" class="btn btn-premium btn-xs w-100 py-2"><i class="fa-solid fa-plus me-1"></i>Add Cert</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-7">
+                        <div class="glass-panel p-4">
+                            <h3 class="h5 text-white mb-3">Registered Certifications</h3>
+                            <div class="overflow-y-auto" style="max-height: 350px;">
+                                {% if certifications %}
+                                    {% for cert in certifications %}
+                                        <div class="dashboard-list-item">
+                                            <div>
+                                                <h5 class="fs-8 mb-0 text-white fw-bold">{{ cert.cert_name }}</h5>
+                                                <p class="mb-0 text-muted fs-9">{{ cert.issuing_org }} &bull; {{ cert.issue_date }}</p>
+                                            </div>
+                                            <button type="button" class="btn-delete-item" data-cert-id="{{ cert.id }}" onclick="deleteCertification(this.dataset.certId)">
+                                                <i class="fa-solid fa-trash-can"></i>
+                                            </button>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <p class="text-muted fs-8">No certifications registered yet.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View 6: Projects (`#view-projects`) -->
+            <div id="view-projects" class="dashboard-view-panel" style="display: none;">
+                <div class="row g-4">
+                    <div class="col-md-5">
+                        <div class="glass-panel p-4">
+                            <h3 class="h5 text-white mb-2"><i class="fa-solid fa-folder me-2 text-gradient"></i>Add Project</h3>
+                            <p class="text-secondary-custom fs-8 mb-3">Add repository links and technical parameters.</p>
+                            
+                            <form id="add-project-form" class="row g-2">
+                                <div class="col-12">
+                                    <label for="title" class="form-label fs-9 mb-1 text-secondary-custom">Title</label>
+                                    <input type="text" class="form-control glass-input py-1.5 fs-8 w-100" id="title" name="title" placeholder="e.g. Chat System" required>
+                                </div>
+                                <div class="col-12">
+                                    <label for="description" class="form-label fs-9 mb-1 text-secondary-custom">Summary</label>
+                                    <input type="text" class="form-control glass-input py-1.5 fs-8 w-100" id="description" name="description" placeholder="Explain features..." required>
+                                </div>
+                                <div class="col-12">
+                                    <label for="technologies" class="form-label fs-9 mb-1 text-secondary-custom">Stack (comma separated)</label>
+                                    <input type="text" class="form-control glass-input py-1.5 fs-8 w-100" id="technologies" name="technologies" placeholder="e.g. React, Flask" required>
+                                </div>
+                                <div class="col-12 mt-3">
+                                    <button type="submit" class="btn btn-premium btn-xs w-100 py-2"><i class="fa-solid fa-plus me-1"></i>Add Project</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-7">
+                        <div class="glass-panel p-4">
+                            <h3 class="h5 text-white mb-3">Registered Projects</h3>
+                            <div class="overflow-y-auto" style="max-height: 350px;">
+                                {% if projects %}
+                                    {% for project in projects %}
+                                        <div class="dashboard-list-item align-items-start">
+                                            <div class="pe-2" style="max-width: 85%;">
+                                                <h5 class="fs-8 mb-0.5 text-white fw-bold">{{ project.title }}</h5>
+                                                <p class="mb-1 text-secondary-custom fs-9">{{ project.description }}</p>
+                                                <p class="mb-0 fs-9 text-gradient-green fw-semibold"><i class="fa-solid fa-cube me-1"></i>{{ project.technologies }}</p>
+                                            </div>
+                                            <button type="button" class="btn-delete-item mt-1" data-project-id="{{ project.id }}" onclick="deleteProject(this.dataset.projectId)">
+                                                <i class="fa-solid fa-trash-can"></i>
+                                            </button>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <p class="text-muted fs-8">No active projects registered.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View 7: Company Readiness (`#view-readiness-details`) -->
+            <div id="view-readiness-details" class="dashboard-view-panel" style="display: none;">
+                <h2 class="h4 text-white mb-2"><i class="fa-solid fa-gauge-high me-2 text-gradient"></i>Company Readiness Analytics</h2>
+                <p class="text-secondary-custom fs-8 mb-4">Examine your overall placement score compared to selected recruiters.</p>
+                
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="glass-panel p-4 h-100">
+                            <h3 class="h5 text-white mb-3">Fit Matrix Graphs</h3>
+                            <div class="row g-2 mb-4">
+                                <div class="col-6">
+                                    <div class="chart-container-canvas" style="height: 160px;">
+                                        <canvas id="detail-roadmapRadarChart"></canvas>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="chart-container-canvas" style="height: 160px;">
+                                        <canvas id="detail-roadmapBarChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="glass-panel p-4 h-100">
+                            <h3 class="h5 text-white mb-3">Placement Fitness Stats</h3>
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <div class="glass-card p-3 text-center">
+                                        <span class="fs-9 text-muted d-block uppercase mb-1">READINESS INDEX</span>
+                                        <h4 class="text-gradient fs-4 font-bold mb-0" id="readiness-detail-score">0%</h4>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="glass-card p-3 text-center">
+                                        <span class="fs-9 text-muted d-block uppercase mb-1">SKILL MATCH %</span>
+                                        <h4 class="text-gradient-green fs-4 font-bold mb-0" id="readiness-detail-match">0%</h4>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="glass-card p-3 text-center">
+                                        <span class="fs-9 text-muted d-block uppercase mb-1">PLACEMENT PROB</span>
+                                        <h4 class="text-white fs-4 font-bold mb-0" id="readiness-detail-prob">0%</h4>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="glass-card p-3 text-center">
+                                        <span class="fs-9 text-muted d-block uppercase mb-1">MISSING SKILLS</span>
+                                        <h4 class="text-danger fs-4 font-bold mb-0" id="readiness-detail-missing">0</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View 8: Skill Gap Analysis (`#view-gap-analysis`) -->
+            <div id="view-gap-analysis" class="dashboard-view-panel" style="display: none;">
+                <h2 class="h4 text-white mb-2"><i class="fa-solid fa-magnifying-glass-chart me-2 text-gradient"></i>Skill Gap Analysis</h2>
+                <p class="text-secondary-custom fs-8 mb-4">Gaps breakdown compared with your selected target employer.</p>
+                
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="glass-panel p-4 h-100">
+                            <h3 class="h5 text-white mb-3">Skills Match Matrix</h3>
+                            <div id="gap-skills-breakdown" class="fs-8 overflow-y-auto" style="max-height: 350px;">
+                                <p class="text-muted mb-0">Select a target company to inspect required skills gap.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="glass-panel p-4 h-100">
+                            <h3 class="h5 text-white mb-3">Certs & Projects Checklist</h3>
+                            <div id="gap-credentials-breakdown" class="fs-8 overflow-y-auto" style="max-height: 350px;">
+                                <p class="text-muted mb-0">Select a target company to inspect required credentials gap.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View 9: Learning Roadmap (`#view-roadmap-weeks`) -->
+            <div id="view-roadmap-weeks" class="dashboard-view-panel" style="display: none;">
+                <h2 class="h4 text-white mb-2"><i class="fa-solid fa-route me-2 text-gradient-purple"></i>Custom Learning Roadmap</h2>
+                <p class="text-secondary-custom fs-8 mb-4">Structured step-by-step training roadmap blocks to prepare for your missing skill gaps.</p>
+                
+                <div class="glass-panel p-4">
+                    <!-- Progress Bar Tracker -->
+                    <div class="mb-4 bg-dark p-3 border border-secondary rounded-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2 fs-8">
+                            <span class="text-secondary-custom font-semibold">Training Progress</span>
+                            <span class="text-gradient fw-bold" id="roadmap-view-progress-text">0% Completed (0/0 Weeks)</span>
+                        </div>
+                        <div class="progress" style="height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" id="roadmap-view-progress-bar" role="progressbar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="weekly-roadmap-accordion" id="roadmap-view-weeks-container">
+                        <div class="text-center py-4 text-muted">Select a target company to compile custom weekly curriculum.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View 10: AI Resume Analyzer (`#view-resume-analyzer`) -->
+            <div id="view-resume-analyzer" class="dashboard-view-panel" style="display: none;">
+                <h2 class="h4 text-white mb-2"><i class="fa-solid fa-file-invoice me-2"></i>AI Resume Analyzer</h2>
+                <p class="text-secondary-custom fs-8 mb-4">Drag and drop your professional PDF resume to audit keywords structure and match coefficients.</p>
+                
+                <div class="glass-panel p-4">
+                    <input type="file" id="resume-file-input" class="d-none" accept=".pdf">
+
+                    <div class="drag-drop-area py-4 mb-4" id="resume-drop-zone">
+                        <i class="fa-solid fa-cloud-arrow-up upload-icon fs-2 mb-2"></i>
+                        <h5 class="fs-7 mb-1 text-white">Drag & Drop PDF Resume here</h5>
+                        <p class="text-muted fs-8 mb-0">or click to manually browse PDF file (max 16MB)</p>
+                    </div>
+
+                    <!-- Upload loader -->
+                    <div id="analyzer-loader" class="analyzer-loader">
+                        <div class="spinner-glow"></div>
+                        <p class="text-secondary-custom fs-8" id="loader-status-text">Parsing PDF context...</p>
+                    </div>
+
+                    <!-- Analysis Output -->
+                    <div id="analyzer-results" style="display: none;" class="mt-3 border-top border-secondary pt-3">
+                        <div class="row g-3">
+                            <div class="col-md-4 text-center border-end border-secondary pe-md-3">
+                                <div class="score-gauge-blue mb-2" id="resume-score-gauge" style="width: 100px; height: 100px; font-size: 1.35rem;">
+                                    <span class="score-val-blue" id="resume-score-val">0</span>
+                                </div>
+                                <span class="badge bg-dark border border-secondary text-secondary-custom py-1.5 px-3 fs-9" style="border-radius: 12px;">
+                                    ATS Grade
+                                </span>
+                            </div>
+                            <div class="col-md-8 ps-md-3">
+                                <div class="row g-2 fs-8">
+                                    <div class="col-6">
+                                        <h4 class="h7 text-gradient-green mb-1 fs-9"><i class="fa-solid fa-circle-check me-1.5"></i>Detected Skills</h4>
+                                        <div id="detected-skills-container" class="d-flex flex-wrap gap-1" style="max-height: 120px; overflow-y: auto;">
+                                            <!-- Badges injected dynamically -->
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <h4 class="h7 text-gradient mb-1 fs-9"><i class="fa-solid fa-circle-exclamation me-1.5"></i>Missing Skills</h4>
+                                        <div id="missing-skills-container" class="d-flex flex-wrap gap-1" style="max-height: 120px; overflow-y: auto;">
+                                            <!-- Badges injected dynamically -->
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-3 border-top border-secondary pt-2">
+                                    <h4 class="h7 text-gradient mb-1 fs-9"><i class="fa-solid fa-list-check me-1.5"></i>ATS Suggestions</h4>
+                                    <div id="feedback-list-container" class="fs-8 overflow-y-auto" style="max-height: 120px;">
+                                        <!-- Bullet elements injected dynamically -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View 11: Placement Prediction (`#view-placement-prediction`) -->
+            <div id="view-placement-prediction" class="dashboard-view-panel" style="display: none;">
+                <h2 class="h4 text-white mb-2"><i class="fa-solid fa-brain me-2"></i>AI Placement Predictor Engine</h2>
+                <p class="text-secondary-custom fs-8 mb-4">Matches skills, project counts, certifications, and academic GPAs against recruitment mock vectors.</p>
+                
+                <div class="glass-panel p-4">
+                    <div class="d-grid mb-4">
+                        <button type="button" class="btn btn-premium w-100 py-3" id="btn-predict-placement">
+                            <i class="fa-solid fa-circle-nodes me-1.5"></i> Evaluate Profile Coefficient
+                        </button>
+                    </div>
+
+                    <!-- Loader -->
+                    <div id="predictor-loader" class="analyzer-loader">
+                        <div class="spinner-glow"></div>
+                        <p class="text-secondary-custom fs-8">Evaluating mock parameters vectors...</p>
+                    </div>
+
+                    <!-- Result Panel -->
+                    <div id="predictor-results" style="display: none;">
+                        <div class="row g-4 align-items-center">
+                            <div class="col-md-4 text-center border-end border-secondary pe-md-4">
+                                <div class="score-gauge-blue mb-2.5" id="predict-score-gauge" style="width: 110px; height: 110px; font-size: 1.5rem;">
+                                    <span class="score-val-blue" id="predict-score-val">0</span>
+                                </div>
+                                <span class="badge bg-dark border border-secondary text-secondary-custom py-1.5 px-3 fs-9" style="border-radius: 20px;">
+                                    Calculated Probability %
+                                </span>
+                            </div>
+                            <div class="col-md-8 ps-md-4">
+                                <h4 class="h6 text-gradient-green mb-3">Coefficient Impact Breakdown</h4>
+                                <div class="chart-container-canvas" style="height: 160px;">
+                                    <canvas id="placement-breakdown-chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border-top border-secondary pt-3 mt-4">
+                            <h4 class="h6 text-gradient mb-3"><i class="fa-solid fa-circle-exclamation me-1.5"></i>Action Items recommendations</h4>
+                            <div id="predictor-recommendations-list" class="fs-8 text-secondary-custom">
+                                <!-- Items injected dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View 12: Saved Companies (`#view-saved-companies`) -->
+            <div id="view-saved-companies" class="dashboard-view-panel" style="display: none;">
+                <h2 class="h4 text-white mb-2"><i class="fa-solid fa-bookmark me-2 text-gradient"></i>Saved Companies</h2>
+                <p class="text-secondary-custom fs-8 mb-4">Your bookmarked career options for fast blueprint lookup.</p>
+                
+                <div class="glass-panel p-4">
+                    <div class="row g-3" id="saved-companies-grid">
+                        <div class="col-12" id="saved-companies-empty-state">
+                            <div class="empty-state-container">
+                                <div class="empty-state-icon"><i class="fa-solid fa-bookmark text-muted"></i></div>
+                                <h5 class="empty-state-title">No Saved Companies</h5>
+                                <p class="empty-state-desc">Bookmark companies from the explorer to see them here and track them easily.</p>
+                                <button type="button" class="btn btn-premium btn-sm" onclick="activateDashboardView('view-dream-company')">Explore Companies</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View 13: Application Tracker (`#view-app-tracker`) -->
+            <div id="view-app-tracker" class="dashboard-view-panel" style="display: none;">
+                <h2 class="h4 text-white mb-2"><i class="fa-solid fa-list-check me-2 text-gradient"></i>Application Kanban Tracker</h2>
+                <p class="text-secondary-custom fs-8 mb-4">Track progress of applications across recruitment stages. Click stage buttons in details panel to populate columns.</p>
+                
+                <div class="kanban-board-container mt-2">
+                    <div class="kanban-col">
+                        <div class="kanban-col-header">
+                            <span>APPLIED</span>
+                            <span class="badge bg-dark border border-secondary text-info" id="tracker-count-applied">0</span>
+                        </div>
+                        <div class="kanban-col-cards" id="tracker-applied-cards">
+                            <!-- Cards loaded dynamically -->
+                        </div>
+                    </div>
+                    <div class="kanban-col">
+                        <div class="kanban-col-header">
+                            <span>INTERVIEW SCHEDULED</span>
+                            <span class="badge bg-dark border border-secondary text-info" id="tracker-count-interview">0</span>
+                        </div>
+                        <div class="kanban-col-cards" id="tracker-interview-cards">
+                            <!-- Cards loaded dynamically -->
+                        </div>
+                    </div>
+                    <div class="kanban-col">
+                        <div class="kanban-col-header">
+                            <span>REJECTED</span>
+                            <span class="badge bg-dark border border-secondary text-danger" id="tracker-count-rejected">0</span>
+                        </div>
+                        <div class="kanban-col-cards" id="tracker-rejected-cards">
+                            <!-- Cards loaded dynamically -->
+                        </div>
+                    </div>
+                    <div class="kanban-col">
+                        <div class="kanban-col-header">
+                            <span>SELECTED</span>
+                            <span class="badge bg-dark border border-secondary text-success" id="tracker-count-selected">0</span>
+                        </div>
+                        <div class="kanban-col-cards" id="tracker-selected-cards">
+                            <!-- Cards loaded dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View 14: Interview Prep (`#view-interview-prep`) -->
+            <div id="view-interview-prep" class="dashboard-view-panel" style="display: none;">
+                <h2 class="h4 text-white mb-2"><i class="fa-solid fa-comments me-2 text-gradient"></i>Interview Preparation Center</h2>
+                <p class="text-secondary-custom fs-8 mb-4">Review frequently asked technical and behavioral checklist questions.</p>
+                
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="glass-panel p-4 mb-4">
+                            <h3 class="h5 text-white mb-3"><i class="fa-solid fa-code me-2 text-info"></i>Technical Interview Checklist</h3>
+                            <div class="fs-8 text-secondary-custom">
+                                <div class="p-2 border border-secondary rounded mb-2" style="background: rgba(255,255,255,0.01);">
+                                    <strong class="text-white">Q1: Explain the difference between SQL and NoSQL databases.</strong>
+                                    <p class="text-muted mt-1 mb-0">SQL databases are relational, table-based, with fixed schema and structured query language. NoSQL databases are non-relational, document-based, graph-based, or key-value structures with dynamic schemas.</p>
+                                </div>
+                                <div class="p-2 border border-secondary rounded mb-2" style="background: rgba(255,255,255,0.01);">
+                                    <strong class="text-white">Q2: Explain how a REST API works.</strong>
+                                    <p class="text-muted mt-1 mb-0">REST (Representational State Transfer) APIs use HTTP methods (GET, POST, PUT, DELETE) to interact with resources identified by URLs, passing payloads in JSON/XML format.</p>
+                                </div>
+                                <div class="p-2 border border-secondary rounded" style="background: rgba(255,255,255,0.01);">
+                                    <strong class="text-white">Q3: What is a deadlock and how do you prevent it?</strong>
+                                    <p class="text-muted mt-1 mb-0">A deadlock is a state where two or more processes are blocked forever, each waiting for resources held by another. Prevent it by eliminating circular wait conditions or resource holding requirements.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="glass-panel p-4 mb-4">
+                            <h3 class="h5 text-white mb-3"><i class="fa-solid fa-user-group me-2 text-gradient-green"></i>HR & Behavioral Checklist</h3>
+                            <div class="fs-8 text-secondary-custom">
+                                <div class="p-2 border border-secondary rounded mb-2" style="background: rgba(255,255,255,0.01);">
+                                    <strong class="text-white">Q1: Tell me about yourself.</strong>
+                                    <p class="text-muted mt-1 mb-0">Structure your response using the Present-Past-Future framework: describe your current profile/studies, key projects completed in the past, and career alignment goals for this position.</p>
+                                </div>
+                                <div class="p-2 border border-secondary rounded mb-2" style="background: rgba(255,255,255,0.01);">
+                                    <strong class="text-white">Q2: Why do you want to join our company?</strong>
+                                    <p class="text-muted mt-1 mb-0">Highlight the engineering culture, specific product challenges, or recent industry announcements showing your interest aligns with the company's growth.</p>
+                                </div>
+                                <div class="p-2 border border-secondary rounded" style="background: rgba(255,255,255,0.01);">
+                                    <strong class="text-white">Q3: Describe a challenging project you built.</strong>
+                                    <p class="text-muted mt-1 mb-0">Use the STAR method (Situation, Task, Action, Result) to clearly explain tech bottlenecks and the specific steps you took to resolve them.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View: Placement Calendar (`#view-placement-calendar`) -->
+            <div id="view-placement-calendar" class="dashboard-view-panel" style="display: none;">
+                <h2 class="h4 text-white mb-2"><i class="fa-solid fa-calendar-days me-2 text-gradient"></i>Placement Calendar</h2>
+                <p class="text-secondary-custom fs-8 mb-4">Track upcoming mock interviews, technical coding rounds, and company presentation events.</p>
+                
+                <div class="row g-4">
+                    <div class="col-md-5">
+                        <div class="glass-panel p-4">
+                            <h3 class="h5 text-white mb-3"><i class="fa-solid fa-plus me-2 text-info"></i>Schedule Event</h3>
+                            <form id="add-event-form" class="row g-2">
+                                <div class="col-12">
+                                    <label for="event_title" class="form-label fs-9 mb-1 text-secondary-custom">Event Title</label>
+                                    <input type="text" class="form-control glass-input glass-input-sm w-100" id="event_title" name="title" placeholder="e.g. Amazon Technical Mock" required>
+                                </div>
+                                <div class="col-12">
+                                    <label for="event_date" class="form-label fs-9 mb-1 text-secondary-custom">Event Date</label>
+                                    <input type="date" class="form-control glass-input glass-input-sm w-100" id="event_date" name="date" required>
+                                </div>
+                                <div class="col-12">
+                                    <label for="event_description" class="form-label fs-9 mb-1 text-secondary-custom">Description</label>
+                                    <textarea class="form-control glass-input w-100" id="event_description" name="description" placeholder="Notes, topics, reference materials..." style="height: 76px;"></textarea>
+                                </div>
+                                <div class="col-12 mt-3">
+                                    <button type="submit" class="btn btn-premium w-100" style="height: 38px;"><i class="fa-solid fa-plus me-1"></i>Add Schedule</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-7">
+                        <div class="glass-panel p-4">
+                            <h3 class="h5 text-white mb-3"><i class="fa-solid fa-clock-rotate-left me-2 text-gradient-green"></i>Upcoming Schedules</h3>
+                            <div class="overflow-y-auto" style="max-height: 400px;" id="calendar-events-list">
+                                <div class="empty-state-container">
+                                    <div class="empty-state-icon"><i class="fa-solid fa-calendar text-muted"></i></div>
+                                    <h5 class="empty-state-title">No Upcoming Events</h5>
+                                    <p class="empty-state-desc">You don't have any mock interviews or technical tests scheduled.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View: Coding Progress Tracker (`#view-coding-progress`) -->
+            <div id="view-coding-progress" class="dashboard-view-panel" style="display: none;">
+                <h2 class="h4 text-white mb-2"><i class="fa-solid fa-laptop-code me-2 text-gradient"></i>Coding Progress Tracker</h2>
+                <p class="text-secondary-custom fs-8 mb-4">Track problem solving milestones and rating statistics across competitive platforms.</p>
+                
+                <div class="row g-4">
+                    <div class="col-md-5">
+                        <div class="glass-panel p-4">
+                            <h3 class="h5 text-white mb-3"><i class="fa-solid fa-square-poll-vertical me-2 text-info"></i>Log Platform Metrics</h3>
+                            <form id="add-coding-form" class="row g-2">
+                                <div class="col-12">
+                                    <label for="coding_platform" class="form-label fs-9 mb-1 text-secondary-custom">Platform</label>
+                                    <select class="form-select glass-input glass-input-sm w-100" id="coding_platform" name="platform" required>
+                                        <option value="LeetCode">LeetCode</option>
+                                        <option value="HackerRank">HackerRank</option>
+                                        <option value="GeeksforGeeks">GeeksforGeeks</option>
+                                        <option value="CodeChef">CodeChef</option>
+                                        <option value="Codeforces">Codeforces</option>
+                                    </select>
+                                </div>
+                                <div class="col-6">
+                                    <label for="problems_solved" class="form-label fs-9 mb-1 text-secondary-custom">Solved Count</label>
+                                    <input type="number" class="form-control glass-input glass-input-sm w-100" id="problems_solved" name="problems_solved" placeholder="e.g. 150" required>
+                                </div>
+                                <div class="col-6">
+                                    <label for="coding_rating" class="form-label fs-9 mb-1 text-secondary-custom">Rating / Badges</label>
+                                    <input type="number" class="form-control glass-input glass-input-sm w-100" id="coding_rating" name="rating" placeholder="e.g. 1650">
+                                </div>
+                                <div class="col-12 mt-3">
+                                    <button type="submit" class="btn btn-premium w-100" style="height: 38px;"><i class="fa-solid fa-arrows-rotate me-1"></i>Update Stats</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-7">
+                        <div class="glass-panel p-4">
+                            <h3 class="h5 text-white mb-3"><i class="fa-solid fa-graduation-cap me-2 text-gradient-green"></i>Platform Leaderboard Stats</h3>
+                            <div class="row g-3" id="coding-progress-cards">
+                                <div class="col-12">
+                                    <div class="empty-state-container">
+                                        <div class="empty-state-icon"><i class="fa-solid fa-laptop-code text-muted"></i></div>
+                                        <h5 class="empty-state-title">No Platform Stats</h5>
+                                        <p class="empty-state-desc">Add LeetCode or HackerRank problem counts to track your coding preparation metrics.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View: Recruiter Evaluation Dashboard (`#view-recruiter-evals`) -->
+            <div id="view-recruiter-evals" class="dashboard-view-panel" style="display: none;">
+                <h2 class="h4 text-white mb-2"><i class="fa-solid fa-clipboard-check me-2 text-gradient"></i>Recruiter Evaluation Dashboard</h2>
+                <p class="text-secondary-custom fs-8 mb-4">Analyze review scores, rating points, and feedback suggestions logged by mock or actual technical recruiters.</p>
+                
+                <div class="row g-4">
+                    <div class="col-md-5">
+                        <div class="glass-panel p-4">
+                            <h3 class="h5 text-white mb-3"><i class="fa-solid fa-file-pen me-2 text-info"></i>Log Recruiter Review</h3>
+                            <form id="add-eval-form" class="row g-2">
+                                <div class="col-12">
+                                    <label for="eval_company" class="form-label fs-9 mb-1 text-secondary-custom">Recruiter Company</label>
+                                    <input type="text" class="form-control glass-input glass-input-sm w-100" id="eval_company" name="company_name" placeholder="e.g. Google" required>
+                                </div>
+                                <div class="col-6">
+                                    <label for="evaluator_name" class="form-label fs-9 mb-1 text-secondary-custom">Evaluator Name</label>
+                                    <input type="text" class="form-control glass-input glass-input-sm w-100" id="evaluator_name" name="evaluator_name" placeholder="e.g. John Doe (Tech Lead)" required>
+                                </div>
+                                <div class="col-6">
+                                    <label for="eval_rating" class="form-label fs-9 mb-1 text-secondary-custom">Overall Fit (1-5 Stars)</label>
+                                    <select class="form-select glass-input glass-input-sm w-100" id="eval_rating" name="rating" required>
+                                        <option value="5">5 - Excellent Fit</option>
+                                        <option value="4" selected>4 - Strong Fit</option>
+                                        <option value="3">3 - Moderate Fit</option>
+                                        <option value="2">2 - Needs Guidance</option>
+                                        <option value="1">1 - Deficient</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label for="eval_comments" class="form-label fs-9 mb-1 text-secondary-custom">Detailed Comments</label>
+                                    <textarea class="form-control glass-input w-100" id="eval_comments" name="comments" placeholder="Highlight technical capabilities, gaps, or structural improvement recommendations..." style="height: 76px;"></textarea>
+                                </div>
+                                <div class="col-12 mt-3">
+                                    <button type="submit" class="btn btn-premium w-100" style="height: 38px;"><i class="fa-solid fa-cloud-arrow-up me-1"></i>Log Evaluation</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-7">
+                        <div class="glass-panel p-4">
+                            <h3 class="h5 text-white mb-3"><i class="fa-solid fa-star me-2 text-gradient-green"></i>Logged Evaluations</h3>
+                            <div class="overflow-y-auto" style="max-height: 400px;" id="recruiter-evals-list">
+                                <div class="empty-state-container">
+                                    <div class="empty-state-icon"><i class="fa-solid fa-clipboard-check text-muted"></i></div>
+                                    <h5 class="empty-state-title">No Evaluations Logged</h5>
+                                    <p class="empty-state-desc">Submit mock recruiter feedback reviews to visualize your profile readiness metrics.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View 12: Settings (`#view-settings`) -->
+            <div id="view-settings" class="dashboard-view-panel" style="display: none;">
+                <h2 class="h4 text-white mb-2"><i class="fa-solid fa-sliders me-2 text-gradient"></i>Settings</h2>
+                <p class="text-secondary-custom fs-8 mb-4">Manage console configurations and account credentials.</p>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="glass-panel p-4">
+                            <h3 class="h5 text-white mb-3">Preferences</h3>
+                            <div class="form-check form-switch mb-3 fs-8 text-secondary-custom">
+                                <input class="form-check-input" type="checkbox" id="settings-toggle-notifs" checked>
+                                <label class="form-check-label" for="settings-toggle-notifs">Enable Placement Alerts Email notifications</label>
+                            </div>
+                            <div class="form-check form-switch mb-4 fs-8 text-secondary-custom">
+                                <input class="form-check-input" type="checkbox" id="settings-toggle-ai-feedback" checked>
+                                <label class="form-check-label" for="settings-toggle-ai-feedback">Real-time AI Resume feedback suggestions</label>
+                            </div>
+                            <button type="button" class="btn btn-premium btn-sm" onclick="alert('Settings saved successfully!')">
+                                Save Configurations
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Company Details Dialog Modal -->
+<dialog id="company-detail-modal" class="company-detail-dialog" closedby="any" aria-labelledby="modal-company-title">
+    <div class="modal-header-custom">
+        <div class="d-flex align-items-center gap-2">
+            <div class="company-logo-wrapper" id="modal-company-logo" style="width: 44px; height: 44px; padding: 3px;">
+                <img src="/static/images/companies/default_logo.svg" class="company-logo-img" alt="Default Logo">
+            </div>
+            <div>
+                <h3 class="fs-6 text-white fw-bold mb-0" id="modal-company-title">Company Details</h3>
+                <span class="badge bg-dark border border-secondary text-secondary-custom py-0.5 px-2 fs-9" id="modal-company-type">Product Based</span>
+            </div>
+        </div>
+        <button type="button" class="btn btn-glass p-1 border-0 text-white" commandfor="company-detail-modal" command="close" aria-label="Close modal">
+            <i class="fa-solid fa-xmark fs-5"></i>
+        </button>
+    </div>
+    <div class="modal-body-custom">
+        <div class="row g-4">
+            <div class="col-md-7">
+                <h4 class="fs-7 text-white fw-bold mb-2"><i class="fa-solid fa-circle-info me-1.5 text-info"></i>About the Company</h4>
+                <p class="fs-8 text-secondary-custom mb-4" id="modal-company-description" style="line-height: 1.5;"></p>
+                
+                <h4 class="fs-7 text-white fw-bold mb-2"><i class="fa-solid fa-clipboard-list me-1.5 text-gradient-green"></i>Hiring & Interview Process</h4>
+                <p class="fs-8 text-secondary-custom mb-4" id="modal-company-hiring-process" style="line-height: 1.5;"></p>
+
+                <h4 class="fs-7 text-white fw-bold mb-2"><i class="fa-solid fa-code me-1.5 text-gradient"></i>Required Tech Stack</h4>
+                <div class="d-flex flex-wrap gap-1.5 mb-4" id="modal-company-tech-list"></div>
+
+                <h4 class="fs-7 text-white fw-bold mb-2"><i class="fa-solid fa-award me-1.5 text-gradient-purple"></i>Preferred Certifications</h4>
+                <div class="d-flex flex-wrap gap-1.5 mb-4" id="modal-company-certs-list"></div>
+
+                <h4 class="fs-7 text-white fw-bold mb-2"><i class="fa-solid fa-diagram-project me-1.5 text-gradient-cyan"></i>Top Project Recommendations</h4>
+                <ul class="fs-8 text-secondary-custom ps-3 mb-0" id="modal-company-projects-list"></ul>
+            </div>
+            
+            <div class="col-md-5">
+                <div class="glass-card p-3 mb-3 text-center">
+                    <span class="fs-9 text-muted d-block uppercase mb-1">Expected Package</span>
+                    <h4 class="text-gradient-green fs-3 font-extrabold mb-0" id="modal-company-package">₹ - LPA</h4>
+                </div>
+
+                <div class="glass-card p-3 mb-3 text-center">
+                    <span class="fs-9 text-muted d-block mb-1.5 font-semibold">YOUR FIT SCORE</span>
+                    <div class="score-gauge-blue mb-1.5" id="modal-company-score-dial" style="width: 90px; height: 90px; font-size: 1.25rem;">
+                        <span class="score-val-blue" id="modal-company-score-val">0%</span>
+                    </div>
+                    <span class="fs-9 text-gradient-green font-bold d-block" id="modal-company-match-quality">Good Match</span>
+                </div>
+
+                <div class="glass-panel p-3 fs-8 text-secondary-custom mb-3">
+                    <div class="mb-2"><i class="fa-solid fa-location-dot me-1.5 text-muted"></i>Location: <span id="modal-company-location" class="text-white fw-semibold">-</span></div>
+                    <div class="mb-2"><i class="fa-solid fa-map-pin me-1.5 text-muted"></i>HQ: <span id="modal-company-hq" class="text-white fw-semibold">-</span></div>
+                    <div class="mb-2"><i class="fa-solid fa-users me-1.5 text-muted"></i>Employees: <span id="modal-company-employees" class="text-white fw-semibold">-</span></div>
+                    <div class="mb-2"><i class="fa-solid fa-industry me-1.5 text-muted"></i>Industry: <span id="modal-company-industry" class="text-white fw-semibold">-</span></div>
+                    <div class="mb-2"><i class="fa-solid fa-calendar me-1.5 text-muted"></i>Founded: <span id="modal-company-founded" class="text-white fw-semibold">-</span></div>
+                    <div class="mb-0"><i class="fa-solid fa-graduation-cap me-1.5 text-muted"></i>Min CGPA: <span id="modal-company-cgpa" class="text-white fw-bold">-</span></div>
+                </div>
+
+                <div class="d-flex gap-2 mb-3">
+                    <a href="#" target="_blank" class="btn btn-glass btn-xs flex-grow-1 py-2 fs-9 text-center text-white" id="modal-company-website-btn" style="border: 1px solid rgba(255,255,255,0.1) !important; text-decoration: none;">
+                        <i class="fa-solid fa-globe me-1"></i> Website
+                    </a>
+                    <a href="#" target="_blank" class="btn btn-glass btn-xs flex-grow-1 py-2 fs-9 text-center text-white" id="modal-company-careers-btn" style="border: 1px solid rgba(255,255,255,0.1) !important; text-decoration: none;">
+                        <i class="fa-solid fa-briefcase me-1"></i> Careers
+                    </a>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <label class="fs-9 text-muted text-start mb-0">Track Status</label>
+                    <select class="form-select glass-input glass-input-sm glass-select w-100 text-secondary-custom" id="modal-tracker-status">
+                        <option value="none">-- Add to Tracker --</option>
+                        <option value="Applied">Applied</option>
+                        <option value="Interview Scheduled">Interview Scheduled</option>
+                        <option value="Rejected">Rejected</option>
+                        <option value="Selected">Selected</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer-custom">
+        <button type="button" class="btn btn-glass btn-sm" id="modal-bookmark-btn">
+            <i class="fa-regular fa-bookmark me-1.5"></i>Bookmark
+        </button>
+        <button type="button" class="btn btn-premium btn-sm" id="modal-view-roadmap-btn">
+            View Roadmap &rarr;
+        </button>
+    </div>
+</dialog>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const picInput = document.getElementById('profile-pic-input');
+    const selectBtn = document.getElementById('btn-select-photo');
+    const removeBtn = document.getElementById('btn-remove-photo');
+    const saveActions = document.getElementById('profile-pic-actions');
+    const cancelBtn = document.getElementById('btn-cancel-photo');
+    const previewImg = document.getElementById('profile-pic-preview');
+    const picContainer = document.querySelector('.profile-pic-container');
+    const picForm = document.getElementById('profile-pic-form');
+    
+    let originalSrc = previewImg ? previewImg.src : '';
+
+    if (selectBtn && picInput) {
+        selectBtn.addEventListener('click', () => picInput.click());
+    }
+    if (picContainer && picInput) {
+        picContainer.addEventListener('click', () => picInput.click());
+    }
+
+    if (picInput) {
+        picInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    if (saveActions) saveActions.style.display = 'block';
+                };
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+    }
+
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', function() {
+            previewImg.src = originalSrc;
+            if (picInput) picInput.value = '';
+            if (saveActions) saveActions.style.display = 'none';
+        });
+    }
+
+    if (picForm) {
+        picForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            fetch('/api/upload-profile-pic', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    originalSrc = data.profile_picture_url;
+                    previewImg.src = data.profile_picture_url;
+                    
+                    // Update all profile avatars in dashboard
+                    document.querySelectorAll('.user-profile-avatar-img').forEach(img => {
+                        img.src = data.profile_picture_url;
+                    });
+                    
+                    if (saveActions) saveActions.style.display = 'none';
+                    alert(data.message);
+                } else {
+                    alert(data.message || 'Failed to upload photo.');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('An error occurred during file upload.');
+            });
+        });
+    }
+
+    if (removeBtn) {
+        removeBtn.addEventListener('click', function() {
+            if (confirm('Are you sure you want to remove your profile picture?')) {
+                fetch('/api/remove-profile-pic', {
+                    method: 'POST'
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        originalSrc = data.profile_picture_url;
+                        previewImg.src = data.profile_picture_url;
+                        
+                        document.querySelectorAll('.user-profile-avatar-img').forEach(img => {
+                            img.src = data.profile_picture_url;
+                        });
+                        
+                        if (saveActions) saveActions.style.display = 'none';
+                        if (picInput) picInput.value = '';
+                        alert(data.message);
+                    } else {
+                        alert(data.message || 'Failed to remove photo.');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert('An error occurred during file removal.');
+                });
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

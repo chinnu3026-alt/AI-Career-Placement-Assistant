@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AI Career & Placement Assistant{% endblock %}</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="AI Career & Placement Assistant - Analyze your resume using AI, calculate placement probabilities, and match with the best career roles.">
+    <meta name="keywords" content="AI placement, career assistant, resume analyzer, placement probability, college placements">
+    <meta name="author" content="AI Assistant">
+    
+    <!-- Google Fonts (Inter and Outfit) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- FontAwesome for Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Frontend Assets - Custom Style Sheet -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+    <a href="#content" class="skip-link">Skip to main content</a>
+
+    <!-- Main Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top">
+        <div class="container">
+            <a class="navbar-brand navbar-brand-custom" href="{{ url_for('index') }}">
+                <i class="fa-solid fa-graduation-cap text-gradient me-2"></i>AI Career Assistant
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
+                    {% if session.get('user_id') %}
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-custom {% if request.path == '/dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">
+                                <i class="fa-solid fa-chart-line me-1"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item ms-3">
+                            <span class="text-secondary-custom fs-7">
+                                <i class="fa-solid fa-circle-user me-1 text-gradient-green"></i>Hello, <strong>{{ session.get('username') }}</strong>
+                            </span>
+                        </li>
+                        <li class="nav-item ms-3">
+                            <a class="btn btn-glass btn-sm" href="{{ url_for('logout') }}" id="btn-logout">
+                                <i class="fa-solid fa-right-from-bracket me-1"></i>Logout
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-custom {% if request.path == '/login' %}active{% endif %}" href="{{ url_for('login') }}" id="nav-login">
+                                Login
+                            </a>
+                        </li>
+                        <li class="nav-item ms-2">
+                            <a class="btn btn-premium btn-sm" href="{{ url_for('signup') }}" id="nav-signup">
+                                Sign Up
+                            </a>
+                        </li>
+                    {% endif %}
+                    <li class="nav-item ms-3">
+                        <button type="button" class="btn btn-glass p-1.5 border-0 text-white" id="theme-toggle-btn" title="Toggle theme layout" style="display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%;">
+                            <i class="fa-solid fa-moon fs-5" id="theme-toggle-icon"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main id="content" tabindex="-1" class="container my-5" style="min-height: calc(100vh - 280px);">
+        <!-- Flash Messages Display -->
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert-custom alert-{{ category }}-custom d-flex align-items-center" role="alert">
+                                {% if category == 'success' %}
+                                    <i class="fa-solid fa-circle-check me-2 fs-5"></i>
+                                {% elif category == 'danger' %}
+                                    <i class="fa-solid fa-circle-exclamation me-2 fs-5"></i>
+                                {% else %}
+                                    <i class="fa-solid fa-circle-info me-2 fs-5"></i>
+                                {% endif %}
+                                <div>{{ message }}</div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Shared Footer -->
+    <footer>
+        <div class="container">
+            <div class="row align-items-center justify-content-between">
+                <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                    <p class="footer-text mb-1 fw-bold text-white"><i class="fa-solid fa-graduation-cap text-gradient me-1.5"></i>AI Career & Placement Assistant</p>
+                    <p class="footer-text mb-0">&copy; 2026. All Rights Reserved.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <div class="d-flex flex-wrap justify-content-center justify-content-md-end mb-2">
+                        <a href="#" class="footer-link">Dashboard</a>
+                        <a href="#" class="footer-link">Documentation</a>
+                        <a href="#" class="footer-link">Support</a>
+                        <a href="#" class="footer-link"><i class="fa-brands fa-github me-1"></i>GitHub</a>
+                    </div>
+                    <span class="footer-text d-block">Built with <i class="fa-solid fa-heart text-danger mx-1"></i> Flask, SQLite & Bootstrap 5</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Frontend Assets - Custom Interactive JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+  <rect width="100" height="100" fill="#2874F0" rx="15"/>
+  <path d="M 30 40 L 70 40 L 75 85 L 25 85 Z" fill="#FFE11B"/>
+  <path d="M 40 40 A 10 10 0 0 1 60 40" fill="none" stroke="#2874F0" stroke-width="4.5"/>
+  <text x="50" y="65" font-family="'Outfit', sans-serif" font-weight="bold" font-size="22" fill="#2874F0" text-anchor="middle">f</text>
+</svg>
