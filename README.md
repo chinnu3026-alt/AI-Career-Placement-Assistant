@@ -32,4 +32,6 @@ A professional, modern, and placement-ready ATS analyzer and career roadmap engi
    python3 app.py
    ```
 
-3. Open your browser and navigate to `http://localhost:5001`. Log in with username `john_developer` and password `Password123` to test.
+3. Open your browser and navigate to http://localhost:5001.
+
+Create your own account or use the signup page to access the dashboard and features.
