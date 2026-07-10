@@ -5,17 +5,25 @@
 {% block content %}
 <div class="landing-page-wrapper">
     <!-- HERO SECTION -->
-    <section class="landing-section hero-section-centered">
-        <div class="container position-relative text-center" style="z-index: 2; max-width: 900px;">
-            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3.5 py-2 rounded-pill fs-9 mb-4 fw-bold tracking-wider text-uppercase" style="letter-spacing: 0.05em;">
-                <i class="fa-solid fa-sparkles me-1 text-gradient"></i> AI Career Intelligence Platform
-            </span>
-            <h1 class="display-3 fw-black text-white mb-4 text-gradient hero-title" style="font-family: 'Outfit', sans-serif; letter-spacing: -0.02em; line-height: 1.15; font-size: calc(2rem + 3.2vw);">
+    <section class="landing-section hero-section-centered" style="padding-top: 100px; padding-bottom: 100px;">
+        <div class="container text-center" style="max-width: 900px;">
+            <!-- Centered badge directly above heading -->
+            <div class="d-flex justify-content-center mb-3">
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3.5 py-2 rounded-pill fs-9 fw-bold tracking-wider text-uppercase" style="letter-spacing: 0.05em;">
+                    <i class="fa-solid fa-sparkles me-1 text-gradient"></i> AI Career Intelligence Platform
+                </span>
+            </div>
+            
+            <!-- Heading in single line, font size reduced by 30%, prevented from wrapping -->
+            <h1 class="fw-black text-white text-gradient hero-title mb-4" style="font-family: 'Outfit', sans-serif; letter-spacing: -0.02em; line-height: 1.15; font-size: calc(1.4rem + 2.2vw) !important; white-space: nowrap !important;">
                 Analyze • Learn • Get Hired
             </h1>
-            <p class="lead text-secondary-custom mx-auto mb-5" style="max-width: 680px; font-size: 1.1rem; line-height: 1.75; color: var(--text-secondary) !important;">
+            
+            <!-- Subtitle below the heading with 20px gap -->
+            <p class="lead text-secondary-custom mx-auto mb-5" style="max-width: 680px; margin-top: 20px; font-size: 1.1rem; line-height: 1.75; color: var(--text-secondary) !important;">
                 AI-powered career guidance platform for engineering students. Improve ATS scores, identify skill gaps, discover dream companies, and prepare for placements.
             </p>
+            
             <div class="d-flex flex-wrap justify-content-center gap-3">
                 {% if session.get('user_id') %}
                     <a href="{{ url_for('dashboard') }}" class="btn btn-premium px-5 py-3 fs-8 fw-semibold shadow-sm">
@@ -41,83 +49,77 @@
         </div>
         <div class="feature-cards-grid">
             <!-- Feature 1 -->
-            <div class="glass-panel p-4 text-center hover-glow-blue border-radius-20 d-flex flex-column align-items-center justify-content-between h-100">
-                <div class="mb-4">
-                    <div class="contact-icon-wrapper contact-email mx-auto mb-3.5 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px; background: rgba(59, 130, 246, 0.1); border-radius: 12px;">
-                        <i class="fa-solid fa-file-invoice fs-4 text-primary"></i>
-                    </div>
-                    <h3 class="h6 text-white fw-bold mb-2.5">ATS Resume Audit</h3>
-                    <p class="text-secondary-custom fs-9 mb-0" style="line-height: 1.6;">Upload and audit your resume against technical keywords and layout checks in real-time.</p>
+            <div class="glass-panel p-4 text-center hover-glow-blue border-radius-20 d-flex flex-column align-items-center justify-content-center h-100" style="padding: 32px !important;">
+                <div class="contact-icon-wrapper contact-email mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px; background: rgba(59, 130, 246, 0.1); border-radius: 12px; flex-shrink: 0;">
+                    <i class="fa-solid fa-file-invoice fs-4 text-primary"></i>
                 </div>
+                <h3 class="h6 text-white fw-bold mb-2" style="font-family: 'Outfit', sans-serif;">ATS Resume Audit</h3>
+                <p class="text-secondary-custom fs-9 mb-0" style="line-height: 1.6; max-width: 280px; margin: 0 auto;">Upload and audit your resume against technical keywords and layout checks in real-time.</p>
             </div>
             <!-- Feature 2 -->
-            <div class="glass-panel p-4 text-center hover-glow-blue border-radius-20 d-flex flex-column align-items-center justify-content-between h-100">
-                <div class="mb-4">
-                    <div class="contact-icon-wrapper contact-location mx-auto mb-3.5 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px; background: rgba(6, 182, 212, 0.1); border-radius: 12px;">
-                        <i class="fa-solid fa-gauge-high fs-4 text-cyan"></i>
-                    </div>
-                    <h3 class="h6 text-white fw-bold mb-2.5">Company Readiness</h3>
-                    <p class="text-secondary-custom fs-9 mb-0" style="line-height: 1.6;">Compute your percentage readiness scores tailored specifically for target hiring profiles.</p>
+            <div class="glass-panel p-4 text-center hover-glow-blue border-radius-20 d-flex flex-column align-items-center justify-content-center h-100" style="padding: 32px !important;">
+                <div class="contact-icon-wrapper contact-location mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px; background: rgba(6, 182, 212, 0.1); border-radius: 12px; flex-shrink: 0;">
+                    <i class="fa-solid fa-gauge-high fs-4 text-cyan"></i>
                 </div>
+                <h3 class="h6 text-white fw-bold mb-2" style="font-family: 'Outfit', sans-serif;">Company Readiness</h3>
+                <p class="text-secondary-custom fs-9 mb-0" style="line-height: 1.6; max-width: 280px; margin: 0 auto;">Compute your percentage readiness scores tailored specifically for target hiring profiles.</p>
             </div>
             <!-- Feature 3 -->
-            <div class="glass-panel p-4 text-center hover-glow-blue border-radius-20 d-flex flex-column align-items-center justify-content-between h-100">
-                <div class="mb-4">
-                    <div class="contact-icon-wrapper contact-linkedin mx-auto mb-3.5 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px; background: rgba(139, 92, 246, 0.1); border-radius: 12px;">
-                        <i class="fa-solid fa-route fs-4 text-purple"></i>
-                    </div>
-                    <h3 class="h6 text-white fw-bold mb-2.5">Skill Gap & Roadmaps</h3>
-                    <p class="text-secondary-custom fs-9 mb-0" style="line-height: 1.6;">Pinpoint missing developer stack criteria and view weekly modular learning guides.</p>
+            <div class="glass-panel p-4 text-center hover-glow-blue border-radius-20 d-flex flex-column align-items-center justify-content-center h-100" style="padding: 32px !important;">
+                <div class="contact-icon-wrapper contact-linkedin mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px; background: rgba(139, 92, 246, 0.1); border-radius: 12px; flex-shrink: 0;">
+                    <i class="fa-solid fa-route fs-4 text-purple"></i>
                 </div>
+                <h3 class="h6 text-white fw-bold mb-2" style="font-family: 'Outfit', sans-serif;">Skill Gap & Roadmaps</h3>
+                <p class="text-secondary-custom fs-9 mb-0" style="line-height: 1.6; max-width: 280px; margin: 0 auto;">Pinpoint missing developer stack criteria and view weekly modular learning guides.</p>
             </div>
             <!-- Feature 4 -->
-            <div class="glass-panel p-4 text-center hover-glow-blue border-radius-20 d-flex flex-column align-items-center justify-content-between h-100">
-                <div class="mb-4">
-                    <div class="contact-icon-wrapper contact-github mx-auto mb-3.5 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px; background: rgba(16, 185, 129, 0.1); border-radius: 12px;">
-                        <i class="fa-solid fa-comments fs-4 text-success"></i>
-                    </div>
-                    <h3 class="h6 text-white fw-bold mb-2.5">Mock Interview Simulator</h3>
-                    <p class="text-secondary-custom fs-9 mb-0" style="line-height: 1.6;">Generate conceptual questions based on individual skills to prepare for technical rounds.</p>
+            <div class="glass-panel p-4 text-center hover-glow-blue border-radius-20 d-flex flex-column align-items-center justify-content-center h-100" style="padding: 32px !important;">
+                <div class="contact-icon-wrapper contact-github mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px; background: rgba(16, 185, 129, 0.1); border-radius: 12px; flex-shrink: 0;">
+                    <i class="fa-solid fa-comments fs-4 text-success"></i>
                 </div>
+                <h3 class="h6 text-white fw-bold mb-2" style="font-family: 'Outfit', sans-serif;">Mock Interview Simulator</h3>
+                <p class="text-secondary-custom fs-9 mb-0" style="line-height: 1.6; max-width: 280px; margin: 0 auto;">Generate conceptual questions based on individual skills to prepare for technical rounds.</p>
             </div>
         </div>
     </section>
 
     <!-- COMPANY RECOMMENDATIONS SECTION -->
     <section class="landing-section bg-dark border border-secondary" style="border-radius: 24px !important; border-color: var(--border-color) !important; padding: 40px !important;">
-        <div class="d-flex justify-content-between align-items-center mb-5 flex-wrap gap-3">
-            <div>
-                <h2 class="h4 text-white mb-2 fw-bold"><i class="fa-solid fa-compass text-gradient me-2"></i>Dream Company Recommendations</h2>
-                <p class="text-secondary-custom fs-8 mb-0">Pre-ranked parameters based on compensation package, location, and eligibility alignment.</p>
-            </div>
-            <a href="{{ url_for('signup') }}" class="btn btn-glass btn-sm text-gradient fs-8 text-decoration-none" style="border: 1px solid rgba(255,255,255,0.06) !important; padding: 8px 16px;">Explore All Companies &rarr;</a>
+        <!-- Clean header with unused search/filter box deleted completely -->
+        <div class="mb-5">
+            <h2 class="h4 text-white mb-2 fw-bold"><i class="fa-solid fa-compass text-gradient me-2"></i>Dream Company Recommendations</h2>
+            <p class="text-secondary-custom fs-8 mb-0">Pre-ranked parameters based on compensation package, location, and eligibility alignment.</p>
         </div>
         
         <div class="company-cards-grid">
             {% if featured_companies %}
                 {% for comp in featured_companies %}
-                    <div class="glass-card p-4 border-radius-20 d-flex flex-column justify-content-between hover-glow-blue h-100" style="min-height: 200px; background: var(--bg-card) !important; border: 1px solid var(--border-color) !important;">
-                        <div>
-                            <!-- Header with Logo, Name & Badge -->
-                            <div class="d-flex align-items-start gap-3 mb-3">
-                                <div class="company-logo-wrapper p-1.5 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; flex-shrink: 0; background: rgba(255,255,255,0.05); border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
-                                    <img src="/static/images/companies/{{ comp.name.lower().replace(' ', '').replace('&', '').replace('/', '').replace('.', '').replace('-', '') }}.svg" 
-                                         onerror="this.onerror=null; this.outerHTML=window.getCompanyLogoFallback('{{ comp.name.replace("'", "\\'") }}');" 
-                                         class="w-100 h-100 object-fit-contain" alt="{{ comp.name }}">
-                                </div>
-                                <div class="text-truncate flex-grow-1">
-                                    <h4 class="fs-7 text-white mb-1.5 fw-bold text-truncate" style="font-family: 'Outfit', sans-serif;">{{ comp.name }}</h4>
-                                    <span class="badge bg-dark border text-secondary-custom py-1 px-2.5 fs-10 fw-semibold" style="font-size: 0.65rem; border-color: rgba(255,255,255,0.1) !important;">
-                                        Hiring Type: {{ comp.category }}
-                                    </span>
-                                </div>
+                    <div class="glass-card border-radius-20 d-flex flex-column h-100" style="background: var(--bg-card) !important; border: 1px solid var(--border-color) !important; padding: 24px !important;">
+                        <!-- Logo & Title Section -->
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="company-logo-wrapper p-1 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; flex-shrink: 0; background: rgba(255,255,255,0.05); border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+                                <img src="/static/images/companies/{{ comp.name.lower().replace(' ', '').replace('&', '').replace('/', '').replace('.', '').replace('-', '') }}.svg" 
+                                     onerror="this.onerror=null; this.outerHTML=window.getCompanyLogoFallback('{{ comp.name.replace("'", "\\'") }}');" 
+                                     class="w-100 h-100 object-fit-contain" alt="{{ comp.name }}">
+                            </div>
+                            <div class="text-truncate">
+                                <h4 class="fs-7 text-white mb-1.5 fw-bold text-truncate" style="font-family: 'Outfit', sans-serif; margin: 0;">{{ comp.name }}</h4>
+                                <span class="badge bg-dark border text-secondary-custom py-0.5 px-2 fs-10 fw-semibold" style="font-size: 0.65rem; border-color: rgba(255,255,255,0.1) !important;">
+                                    Hiring Type: {{ comp.category }}
+                                </span>
                             </div>
                         </div>
                         
-                        <!-- Details (Package & Location) -->
-                        <div class="pt-3 border-top d-flex justify-content-between fs-9 text-secondary-custom align-items-center" style="border-top-color: rgba(255,255,255,0.08) !important;">
-                            <span><i class="fa-solid fa-wallet me-1.5 text-success"></i><strong>{{ comp.package_range }}</strong></span>
-                            <span class="text-truncate" style="max-width: 140px;" title="{{ comp.location }}"><i class="fa-solid fa-location-dot me-1.5 text-danger"></i>{{ comp.location }}</span>
+                        <!-- Details Section -->
+                        <div class="d-flex flex-column gap-2 mt-auto pt-3 border-top" style="border-top-color: rgba(255,255,255,0.08) !important;">
+                            <div class="d-flex align-items-center fs-8 text-secondary-custom">
+                                <i class="fa-solid fa-wallet me-2 text-success" style="width: 16px; text-align: center;"></i>
+                                <span>Package: <strong class="text-white">{{ comp.package_range }}</strong></span>
+                            </div>
+                            <div class="d-flex align-items-center fs-8 text-secondary-custom">
+                                <i class="fa-solid fa-location-dot me-2 text-danger" style="width: 16px; text-align: center;"></i>
+                                <span>Location: <strong class="text-white">{{ comp.location }}</strong></span>
+                            </div>
                         </div>
                     </div>
                 {% endfor %}

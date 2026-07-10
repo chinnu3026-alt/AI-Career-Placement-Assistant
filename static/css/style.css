@@ -1769,10 +1769,28 @@ a.contact-card-value:hover {
 .landing-section {
     max-width: 1200px !important;
     margin: 0 auto !important;
-    padding: 0 24px !important;
     padding-top: 80px !important;
     padding-bottom: 80px !important;
+    padding-left: 80px !important;
+    padding-right: 80px !important;
     position: relative !important;
+}
+
+@media (max-width: 768px) {
+    .landing-section {
+        padding-left: 24px !important;
+        padding-right: 24px !important;
+        padding-top: 48px !important;
+        padding-bottom: 48px !important;
+    }
+}
+
+.auth-page-wrapper {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: calc(100vh - 280px) !important;
+    width: 100% !important;
 }
 
 /* Hero Section Centering */
