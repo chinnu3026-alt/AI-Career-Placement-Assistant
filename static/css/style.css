@@ -1745,23 +1745,7 @@ a.contact-card-value:hover {
     color: var(--text-muted);
 }
 
-/* Landing Page Hero Blur Glows & Hover Effects */
-.hero-blur-glow {
-    position: absolute;
-    width: 320px;
-    height: 320px;
-    background: radial-gradient(circle, rgba(37, 99, 235, 0.18) 0%, rgba(37, 99, 235, 0) 70%);
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    filter: blur(80px);
-    z-index: 1;
-    pointer-events: none;
-}
 
-[data-theme="light"] .hero-blur-glow {
-    background: radial-gradient(circle, rgba(37, 99, 235, 0.08) 0%, rgba(37, 99, 235, 0) 70%);
-}
 
 .hover-glow-blue {
     transition: var(--transition-smooth);
@@ -1782,20 +1766,12 @@ a.contact-card-value:hover {
 }
 
 /* Startup Spacing & Layout Utilities */
-.landing-page-wrapper {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 75px !important;
-    padding-top: 40px !important;
-    padding-bottom: 80px !important;
-}
-
 .landing-section {
     max-width: 1200px !important;
     margin: 0 auto !important;
     padding: 0 24px !important;
-    padding-top: 25px !important;
-    padding-bottom: 25px !important;
+    padding-top: 80px !important;
+    padding-bottom: 80px !important;
     position: relative !important;
 }
 
