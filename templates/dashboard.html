@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Dashboard - AI Career & Placement Assistant{% endblock %}
+{% block title %}Dashboard - AI Career Assistant{% endblock %}
 
 {% block content %}
 <!-- Activate body dashboard class to override global container layout -->
@@ -30,50 +30,17 @@
             <!-- Navigation Links -->
             <div class="mt-1"></div>
             
-            <a href="#view-dashboard" class="sidebar-link" data-tab="view-dashboard">
+            <a href="#view-dashboard" class="sidebar-link active" data-tab="view-dashboard">
                 <span class="sidebar-link-content">
                     <i class="fa-solid fa-chart-pie"></i>
                     <span>Dashboard</span>
                 </span>
             </a>
             
-            <a href="#view-profile" class="sidebar-link" data-tab="view-profile">
+            <a href="#view-resume-analyzer" class="sidebar-link" data-tab="view-resume-analyzer">
                 <span class="sidebar-link-content">
-                    <i class="fa-solid fa-circle-user"></i>
-                    <span>Profile Overview</span>
-                </span>
-            </a>
-            
-            <a href="#view-skills" class="sidebar-link" data-tab="view-skills">
-                <span class="sidebar-link-content">
-                    <i class="fa-solid fa-code"></i>
-                    <span>Professional Skills</span>
-                </span>
-                <span class="sidebar-badge" id="skills-badge-counter">{{ frontend_skills_count + backend_skills_count + other_skills|length }}</span>
-            </a>
-            
-            <a href="#view-certs" class="sidebar-link" data-tab="view-certs">
-                <span class="sidebar-link-content">
-                    <i class="fa-solid fa-award"></i>
-                    <span>Certifications</span>
-                </span>
-                <span class="sidebar-badge" id="certs-badge-counter">{{ certifications|length }}</span>
-            </a>
-            
-            <a href="#view-projects" class="sidebar-link" data-tab="view-projects">
-                <span class="sidebar-link-content">
-                    <i class="fa-solid fa-folder"></i>
-                    <span>Projects</span>
-                </span>
-                <span class="sidebar-badge" id="projects-badge-counter">{{ projects|length }}</span>
-            </a>
-
-            <div class="sidebar-separator border-top border-secondary my-3" style="opacity: 0.15; border-color: rgba(0, 170, 255, 0.15) !important;"></div>
-            
-            <a href="#view-dream-company" class="sidebar-link active" data-tab="view-dream-company">
-                <span class="sidebar-link-content">
-                    <i class="fa-solid fa-compass"></i>
-                    <span>Dream Company</span>
+                    <i class="fa-solid fa-file-invoice"></i>
+                    <span>Resume Analyzer</span>
                 </span>
             </a>
             
@@ -84,13 +51,6 @@
                 </span>
             </a>
             
-            <a href="#view-gap-analysis" class="sidebar-link" data-tab="view-gap-analysis">
-                <span class="sidebar-link-content">
-                    <i class="fa-solid fa-magnifying-glass-chart"></i>
-                    <span>Skill Gap Analysis</span>
-                </span>
-            </a>
-            
             <a href="#view-roadmap-weeks" class="sidebar-link" data-tab="view-roadmap-weeks">
                 <span class="sidebar-link-content">
                     <i class="fa-solid fa-route"></i>
@@ -98,69 +58,46 @@
                 </span>
             </a>
             
-            <a href="#view-resume-analyzer" class="sidebar-link" data-tab="view-resume-analyzer">
+            <a href="#view-dream-company" class="sidebar-link" data-tab="view-dream-company">
                 <span class="sidebar-link-content">
-                    <i class="fa-solid fa-file-invoice"></i>
-                    <span>AI Resume Analyzer</span>
+                    <i class="fa-solid fa-compass"></i>
+                    <span>Dream Companies</span>
                 </span>
             </a>
             
-            <a href="#view-placement-prediction" class="sidebar-link" data-tab="view-placement-prediction">
+            <a href="#view-ai-career-intelligence" class="sidebar-link" data-tab="view-ai-career-intelligence">
                 <span class="sidebar-link-content">
-                    <i class="fa-solid fa-brain"></i>
-                    <span>Placement Prediction</span>
+                    <i class="fa-solid fa-file-shield text-gradient"></i>
+                    <span>ATS Reports</span>
                 </span>
             </a>
 
-            <div class="sidebar-separator border-top border-secondary my-3" style="opacity: 0.15; border-color: rgba(0, 170, 255, 0.15) !important;"></div>
-            
+            <a href="#view-app-tracker" class="sidebar-link" data-tab="view-app-tracker">
+                <span class="sidebar-link-content">
+                    <i class="fa-solid fa-list-check text-info"></i>
+                    <span>Placement Tracker</span>
+                </span>
+                <span class="sidebar-badge" id="tracker-badge-counter">0</span>
+            </a>
+
             <a href="#view-saved-companies" class="sidebar-link" data-tab="view-saved-companies">
                 <span class="sidebar-link-content">
-                    <i class="fa-solid fa-bookmark"></i>
+                    <i class="fa-solid fa-bookmark text-warning"></i>
                     <span>Saved Companies</span>
                 </span>
                 <span class="sidebar-badge" id="saved-companies-badge">0</span>
             </a>
             
-            <a href="#view-app-tracker" class="sidebar-link" data-tab="view-app-tracker">
+            <a href="#view-contact" class="sidebar-link" data-tab="view-contact">
                 <span class="sidebar-link-content">
-                    <i class="fa-solid fa-list-check"></i>
-                    <span>Application Tracker</span>
-                </span>
-                <span class="sidebar-badge" id="tracker-badge-counter">0</span>
-            </a>
-
-            <a href="#view-placement-calendar" class="sidebar-link" data-tab="view-placement-calendar">
-                <span class="sidebar-link-content">
-                    <i class="fa-solid fa-calendar-days"></i>
-                    <span>Placement Calendar</span>
-                </span>
-            </a>
-
-            <a href="#view-coding-progress" class="sidebar-link" data-tab="view-coding-progress">
-                <span class="sidebar-link-content">
-                    <i class="fa-solid fa-laptop-code"></i>
-                    <span>Coding Progress</span>
-                </span>
-            </a>
-
-            <a href="#view-recruiter-evals" class="sidebar-link" data-tab="view-recruiter-evals">
-                <span class="sidebar-link-content">
-                    <i class="fa-solid fa-clipboard-check"></i>
-                    <span>Recruiter Evals</span>
-                </span>
-            </a>
-            
-            <a href="#view-interview-prep" class="sidebar-link" data-tab="view-interview-prep">
-                <span class="sidebar-link-content">
-                    <i class="fa-solid fa-comments"></i>
-                    <span>Interview Prep</span>
+                    <i class="fa-solid fa-paper-plane text-success"></i>
+                    <span>Contact</span>
                 </span>
             </a>
             
             <a href="#view-settings" class="sidebar-link" data-tab="view-settings">
                 <span class="sidebar-link-content">
-                    <i class="fa-solid fa-sliders"></i>
+                    <i class="fa-solid fa-sliders text-muted"></i>
                     <span>Settings</span>
                 </span>
             </a>
@@ -205,7 +142,7 @@
         <!-- Dynamic Content Workspace -->
         <div class="workspace-content">
             <!-- View 1: Main Dream Company Dashboard (Default active view) -->
-            <div id="view-dream-company" class="dashboard-view-panel">
+            <div id="view-dream-company" class="dashboard-view-panel" style="display: none;">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div>
                         <h2 class="h4 text-white mb-1">Dream Company Roadmap</h2>
@@ -464,7 +401,7 @@
             </div>
 
             <!-- View 2: Dashboard Statistics Panel (`#view-dashboard`) -->
-            <div id="view-dashboard" class="dashboard-view-panel" style="display: none;">
+            <div id="view-dashboard" class="dashboard-view-panel">
                 <h2 class="h4 text-white mb-2"><i class="fa-solid fa-chart-line me-2 text-gradient"></i>Console Dashboard</h2>
                 <p class="text-secondary-custom fs-8 mb-4">Real-time summaries of credentials metrics and placement predictions.</p>
                 
@@ -1028,6 +965,235 @@
                 </div>
             </div>
 
+            <!-- View 10.5: AI Career Intelligence Console (`#view-ai-career-intelligence`) -->
+            <div id="view-ai-career-intelligence" class="dashboard-view-panel" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                    <div>
+                        <h2 class="h4 text-white mb-0"><i class="fa-solid fa-sparkles text-gradient me-2"></i>AI Career Intelligence Console</h2>
+                        <p class="text-secondary-custom fs-8 mb-0">Unified dashboard for resume strength, match likelihoods, roadmaps, and placement odds.</p>
+                    </div>
+                    <button type="button" class="btn btn-glass btn-sm text-gradient-cyan" onclick="reloadAICareerIntelligence()">
+                        <i class="fa-solid fa-arrows-rotate me-1.5"></i>Sync Metrics
+                    </button>
+                </div>
+                
+                <!-- Loading State -->
+                <div id="ai-intelligence-loader" class="text-center py-5">
+                    <div class="spinner-grow text-primary" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="text-secondary-custom fs-8 mt-3">Synthesizing profile parameters, ATS scoring matrices, and learning guides...</p>
+                </div>
+
+                <!-- Main Console Container -->
+                <div id="ai-intelligence-console-content" style="display: none;">
+                    <!-- Stats Mini Row -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-3">
+                            <div class="glass-panel p-3 text-center border-radius-15">
+                                <span class="fs-9 text-muted d-block uppercase mb-1">ATS Score</span>
+                                <h3 class="text-white fs-4 font-black mb-0" id="ai-stat-ats">0%</h3>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="glass-panel p-3 text-center border-radius-15">
+                                <span class="fs-9 text-muted d-block uppercase mb-1">Placement Success</span>
+                                <h3 class="text-white fs-4 font-black mb-0 text-gradient-green" id="ai-stat-placement">0%</h3>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="glass-panel p-3 text-center border-radius-15">
+                                <span class="fs-9 text-muted d-block uppercase mb-1">Eligible Stacks</span>
+                                <h3 class="text-white fs-4 font-black mb-0 text-gradient-cyan" id="ai-stat-skills">0</h3>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="glass-panel p-3 text-center border-radius-15">
+                                <span class="fs-9 text-muted d-block uppercase mb-1">Academic CGPA</span>
+                                <h3 class="text-white fs-4 font-black mb-0 text-gradient-purple" id="ai-stat-cgpa">0.0</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Inner Console Tabs -->
+                    <ul class="nav nav-tabs border-secondary mb-4" id="ai-console-tabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link text-white active border-0 bg-transparent fs-8 px-3 py-2" id="ai-tab-resume" data-bs-toggle="tab" data-bs-target="#ai-pane-resume" type="button" role="tab">
+                                <i class="fa-solid fa-file-invoice me-1"></i> Resume & ATS
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link text-white border-0 bg-transparent fs-8 px-3 py-2" id="ai-tab-matching" data-bs-toggle="tab" data-bs-target="#ai-pane-matching" type="button" role="tab">
+                                <i class="fa-solid fa-compass me-1"></i> Company Matching
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link text-white border-0 bg-transparent fs-8 px-3 py-2" id="ai-tab-prediction" data-bs-toggle="tab" data-bs-target="#ai-pane-prediction" type="button" role="tab">
+                                <i class="fa-solid fa-brain me-1"></i> Placement Probability
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link text-white border-0 bg-transparent fs-8 px-3 py-2" id="ai-tab-roadmap" data-bs-toggle="tab" data-bs-target="#ai-pane-roadmap" type="button" role="tab">
+                                <i class="fa-solid fa-route me-1"></i> Career Roadmap
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link text-white border-0 bg-transparent fs-8 px-3 py-2" id="ai-tab-recs" data-bs-toggle="tab" data-bs-target="#ai-pane-recs" type="button" role="tab">
+                                <i class="fa-solid fa-wand-magic-sparkles me-1 text-warning"></i> Recommendations
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="ai-console-panes">
+                        
+                        <!-- TAB PANE: RESUME & ATS STRENGTH -->
+                        <div class="tab-pane fade show active" id="ai-pane-resume" role="tabpanel">
+                            <div class="row g-4">
+                                <div class="col-md-5">
+                                    <div class="glass-panel p-4 text-center border-radius-20">
+                                        <h4 class="fs-9 text-muted uppercase fw-bold mb-3">ATS Score Index</h4>
+                                        <div class="score-gauge-blue mx-auto mb-3" id="ai-resume-ats-gauge" style="width: 120px; height: 120px; font-size: 1.6rem;">
+                                            <span class="score-val-blue" id="ai-resume-ats-val">0</span>
+                                        </div>
+                                        <span class="d-block text-secondary-custom fs-9 mt-2">Latest Analyzed File</span>
+                                        <span class="d-block text-white fw-bold fs-8 mt-1" id="ai-resume-filename">No file analyzed yet</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-7">
+                                    <div class="glass-panel p-4 border-radius-20">
+                                        <h4 class="h6 text-white mb-4 fw-bold"><i class="fa-solid fa-chart-simple text-gradient me-2"></i>Resume Strength Metrics</h4>
+                                        
+                                        <!-- Formatting Strength -->
+                                        <div class="mb-3">
+                                            <div class="d-flex justify-content-between fs-9 text-secondary-custom mb-1">
+                                                <span>Layout Formatting Compatibility</span>
+                                                <span class="fw-bold text-white" id="ai-resume-format-percent">0%</span>
+                                            </div>
+                                            <div class="progress" style="height: 5px; background: rgba(255,255,255,0.06);">
+                                                <div class="progress-bar bg-info" role="progressbar" id="ai-resume-format-bar" style="width: 0%;"></div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Keyword Density -->
+                                        <div class="mb-3">
+                                            <div class="d-flex justify-content-between fs-9 text-secondary-custom mb-1">
+                                                <span>Keyword Density & Alignments</span>
+                                                <span class="fw-bold text-white" id="ai-resume-density-percent">0%</span>
+                                            </div>
+                                            <div class="progress" style="height: 5px; background: rgba(255,255,255,0.06);">
+                                                <div class="progress-bar bg-success" role="progressbar" id="ai-resume-density-bar" style="width: 0%;"></div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Section Completion -->
+                                        <div class="mb-4">
+                                            <div class="d-flex justify-content-between fs-9 text-secondary-custom mb-1">
+                                                <span>Section Completion Score</span>
+                                                <span class="fw-bold text-white" id="ai-resume-section-percent">0%</span>
+                                            </div>
+                                            <div class="progress" style="height: 5px; background: rgba(255,255,255,0.06);">
+                                                <div class="progress-bar bg-warning" role="progressbar" id="ai-resume-section-bar" style="width: 0%;"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="bg-dark p-3 rounded border border-secondary" style="border-radius: 12px !important;">
+                                            <span class="fs-9 text-warning font-bold d-block mb-1.5"><i class="fa-solid fa-list-check me-1"></i>SUGGESTED OPTIMIZATIONS:</span>
+                                            <ul class="ps-3 mb-0 fs-9 text-secondary-custom" id="ai-resume-suggestions-list">
+                                                <!-- Suggs list -->
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TAB PANE: COMPANY MATCHING ENGINE -->
+                        <div class="tab-pane fade" id="ai-pane-matching" role="tabpanel">
+                            <div class="glass-panel p-4 border-radius-20">
+                                <h4 class="h6 text-white mb-3 fw-bold"><i class="fa-solid fa-compass text-gradient-cyan me-2"></i>Suitable Company Placements</h4>
+                                <p class="text-secondary-custom fs-9 mb-4">Matches your local profile metadata and academic CGPA against company skillsets requirements.</p>
+                                
+                                <div class="row g-3" id="ai-matching-companies-list">
+                                    <!-- Companies lists Dynamic Injections -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TAB PANE: PLACEMENT PROBABILITY -->
+                        <div class="tab-pane fade" id="ai-pane-prediction" role="tabpanel">
+                            <div class="row g-4">
+                                <div class="col-md-5">
+                                    <div class="glass-panel p-4 text-center border-radius-20 h-100">
+                                        <h4 class="fs-9 text-muted uppercase fw-bold mb-3">Interview Success Odds</h4>
+                                        <div class="score-gauge-blue mx-auto mb-3" id="ai-placement-prob-gauge" style="width: 130px; height: 130px; font-size: 1.8rem;">
+                                            <span class="score-val-blue" id="ai-placement-prob-val">0%</span>
+                                        </div>
+                                        <span class="badge bg-success-subtle text-success py-1.5 px-3 fs-9 mt-2 rounded-pill border border-success-subtle">
+                                            Placement readiness coefficient
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-7">
+                                    <div class="glass-panel p-4 border-radius-20 h-100">
+                                        <h4 class="h6 text-white mb-3 fw-bold"><i class="fa-solid fa-chart-pie me-2 text-gradient-purple"></i>Readiness Weight Distribution</h4>
+                                        <div class="chart-container-canvas" style="height: 180px;">
+                                            <canvas id="ai-readiness-breakdown-chart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TAB PANE: CAREER ROADMAP -->
+                        <div class="tab-pane fade" id="ai-pane-roadmap" role="tabpanel">
+                            <div class="glass-panel p-4 border-radius-20">
+                                <h4 class="h6 text-white mb-2 fw-bold"><i class="fa-solid fa-route text-gradient-green me-2"></i>Structured Preparation Roadmap</h4>
+                                <p class="text-secondary-custom fs-9 mb-4">A weekly modular training timeline mapped out to bridge candidate qualification gaps.</p>
+                                
+                                <div class="row g-3" id="ai-roadmap-weeks-list">
+                                    <!-- Dynamic Weekly Accordion cards -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TAB PANE: AI RECOMMENDATIONS -->
+                        <div class="tab-pane fade" id="ai-pane-recs" role="tabpanel">
+                            <div class="row g-4">
+                                <div class="col-md-4">
+                                    <div class="glass-panel p-4 border-radius-20 h-100">
+                                        <h4 class="h6 text-white mb-3 fw-bold"><i class="fa-solid fa-circle-play text-gradient-cyan me-1.5"></i>Recommended Courses</h4>
+                                        <div class="d-flex flex-column gap-2.5" id="ai-recs-courses-container">
+                                            <!-- Courses list -->
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    <div class="glass-panel p-4 border-radius-20 h-100">
+                                        <h4 class="h6 text-white mb-3 fw-bold"><i class="fa-solid fa-certificate text-gradient me-1.5"></i>Certifications Checklist</h4>
+                                        <div class="d-flex flex-column gap-2.5" id="ai-recs-certs-container">
+                                            <!-- Certs list -->
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="glass-panel p-4 border-radius-20 h-100">
+                                        <h4 class="h6 text-white mb-3 fw-bold"><i class="fa-solid fa-folder-open text-gradient-purple me-1.5"></i>Target Projects to Build</h4>
+                                        <div class="d-flex flex-column gap-2.5" id="ai-recs-projects-container">
+                                            <!-- Projects list -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
             <!-- View 11: Placement Prediction (`#view-placement-prediction`) -->
             <div id="view-placement-prediction" class="dashboard-view-panel" style="display: none;">
                 <h2 class="h4 text-white mb-2"><i class="fa-solid fa-brain me-2"></i>AI Placement Predictor Engine</h2>
@@ -1359,6 +1525,153 @@
                             </button>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- View 13: Let's Connect (`#view-contact`) -->
+            <div id="view-contact" class="dashboard-view-panel" style="display: none;">
+                <h2 class="h4 text-white mb-2"><i class="fa-solid fa-paper-plane me-2 text-gradient"></i>Let's Connect</h2>
+                <p class="text-secondary-custom fs-8 mb-4">Have a project idea, internship opportunity, collaboration, or just want to connect? Feel free to reach out. I'd love to hear from you.</p>
+                
+                <div class="row g-4">
+                    <!-- Left Column: Contact Cards -->
+                    <div class="col-lg-5">
+                        <div class="d-flex flex-column gap-3">
+                            <!-- Email Card -->
+                            <div class="portfolio-contact-card p-4">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="contact-icon-wrapper contact-email">
+                                        <i class="fa-solid fa-envelope"></i>
+                                    </div>
+                                    <div>
+                                        <span class="contact-card-label d-block">Email Address</span>
+                                        <a href="mailto:chinnu3026@gmail.com" class="contact-card-value text-decoration-none">chinnu3026@gmail.com</a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Location Card -->
+                            <div class="portfolio-contact-card p-4">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="contact-icon-wrapper contact-location">
+                                        <i class="fa-solid fa-location-dot"></i>
+                                    </div>
+                                    <div>
+                                        <span class="contact-card-label d-block">Location</span>
+                                        <span class="contact-card-value">Bengaluru, Karnataka, India</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- LinkedIn Card -->
+                            <div class="portfolio-contact-card p-4">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="contact-icon-wrapper contact-linkedin">
+                                        <i class="fa-brands fa-linkedin-in"></i>
+                                    </div>
+                                    <div>
+                                        <span class="contact-card-label d-block">LinkedIn Profile</span>
+                                        <a href="https://linkedin.com/in/chinnu3026" target="_blank" rel="noopener noreferrer" class="contact-card-value text-decoration-none">Connect on LinkedIn <i class="fa-solid fa-arrow-up-right-from-square ms-1 fs-9"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- GitHub Card -->
+                            <div class="portfolio-contact-card p-4">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="contact-icon-wrapper contact-github">
+                                        <i class="fa-brands fa-github"></i>
+                                    </div>
+                                    <div>
+                                        <span class="contact-card-label d-block">GitHub Profile</span>
+                                        <a href="https://github.com/chinnu3026" target="_blank" rel="noopener noreferrer" class="contact-card-value text-decoration-none">View Repositories <i class="fa-solid fa-arrow-up-right-from-square ms-1 fs-9"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Contact Form Card -->
+                    <div class="col-lg-7">
+                        <div class="glass-panel contact-form-container p-4">
+                            <!-- Success State Container -->
+                            <div id="contact-success-state" class="text-center py-5" style="display: none;">
+                                <div class="success-animation mb-4">
+                                    <div class="success-icon-circle">
+                                        <i class="fa-solid fa-check"></i>
+                                    </div>
+                                </div>
+                                <h3 class="h4 text-white mb-2">Message Sent!</h3>
+                                <p class="text-secondary-custom fs-8 mb-4 mx-auto" style="max-width: 400px;" id="contact-success-message">
+                                    Thank you! Your message has been sent successfully. I will get back to you as soon as possible.
+                                </p>
+                                <button type="button" class="btn btn-premium btn-sm" id="btn-contact-reset">
+                                    Send Another Message <i class="fa-solid fa-arrows-rotate ms-1"></i>
+                                </button>
+                            </div>
+
+                            <!-- Form Form Wrapper -->
+                            <div id="contact-form-wrapper">
+                                <h3 class="h5 text-white mb-3"><i class="fa-solid fa-comment-dots me-2 text-gradient-cyan"></i>Send a Message</h3>
+                                <form id="portfolio-contact-form" class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="contact-name" class="form-label fs-8 text-secondary-custom">Full Name</label>
+                                        <input type="text" class="form-control contact-input py-2.5 fs-8 w-100" id="contact-name" name="name" 
+                                               value="{{ user.username if user else '' }}" placeholder="Enter your full name" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="contact-email" class="form-label fs-8 text-secondary-custom">Email Address</label>
+                                        <input type="email" class="form-control contact-input py-2.5 fs-8 w-100" id="contact-email" name="email" 
+                                               value="{{ user.email if user else '' }}" placeholder="Enter your email address" required>
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="contact-subject" class="form-label fs-8 text-secondary-custom">Subject</label>
+                                        <input type="text" class="form-control contact-input py-2.5 fs-8 w-100" id="contact-subject" name="subject" 
+                                               placeholder="How can I help you?" required>
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="contact-message" class="form-label fs-8 text-secondary-custom">Message</label>
+                                        <textarea class="form-control contact-input py-2.5 fs-8 w-100" id="contact-message" name="message" 
+                                                  rows="5" placeholder="Write your message here..." required></textarea>
+                                    </div>
+                                    <div class="col-12 mt-4">
+                                        <button type="submit" class="btn btn-premium w-100 py-2.5" id="btn-contact-submit">
+                                            <span class="btn-text">Send Message <i class="fa-solid fa-paper-plane ms-1.5"></i></span>
+                                            <span class="spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true" style="display: none;" id="contact-submit-spinner"></span>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                            
+                            <!-- Premium Action Buttons -->
+                            <div class="mt-4 pt-4 border-top border-secondary-subtle contact-action-divider">
+                                <div class="row g-3">
+                                    <div class="col-sm-4">
+                                        <a href="{{ url_for('download_resume') }}" class="btn btn-action-premium w-100 btn-resume-download" title="Download my latest resume PDF">
+                                            <i class="fa-solid fa-download me-2"></i>Download Resume
+                                        </a>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <a href="https://linkedin.com/in/chinnu3026" target="_blank" rel="noopener noreferrer" class="btn btn-action-premium w-100 btn-linkedin-connect" title="Open my LinkedIn profile in a new tab">
+                                            <i class="fa-brands fa-linkedin-in me-2"></i>Connect on LinkedIn
+                                        </a>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <a href="https://github.com/chinnu3026" target="_blank" rel="noopener noreferrer" class="btn btn-action-premium w-100 btn-github-view" title="Open my GitHub profile in a new tab">
+                                            <i class="fa-brands fa-github me-2"></i>View GitHub
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Footer Text -->
+                <div class="mt-5 text-center contact-footer-text">
+                    <p class="text-secondary-custom fs-8 mb-0" style="opacity: 0.85;">
+                        Thanks for visiting my portfolio. Let's build something amazing together.
+                    </p>
                 </div>
             </div>
         </div>

@@ -174,6 +174,10 @@ document.addEventListener('DOMContentLoaded', function () {
             
             activateDashboardView(tabId);
             
+            if (tabId === 'view-ai-career-intelligence') {
+                loadAICareerIntelligence();
+            }
+            
             // Close mobile offcanvas if open
             const offcanvasEl = document.getElementById('sidebarOffcanvas');
             if (offcanvasEl && window.bootstrap) {
@@ -1823,8 +1827,8 @@ document.addEventListener('DOMContentLoaded', function () {
         // Load default explorer grids
         fetchAndRenderCompanies();
         
-        // Set view to default Dream Company
-        activateDashboardView('view-dream-company');
+        // Set view to default Dashboard
+        activateDashboardView('view-dashboard');
         
         // Render bookmark grid and Kanban application tracker board
         renderSavedCompaniesList();
@@ -1861,4 +1865,300 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
+
+    // -------------------------------------------------------------
+    // Portfolio Contact Form AJAX Submission
+    // -------------------------------------------------------------
+    const contactForm = document.getElementById('portfolio-contact-form');
+    const contactFormWrapper = document.getElementById('contact-form-wrapper');
+    const contactSuccessState = document.getElementById('contact-success-state');
+    const btnContactSubmit = document.getElementById('btn-contact-submit');
+    const contactSubmitSpinner = document.getElementById('contact-submit-spinner');
+    const btnContactReset = document.getElementById('btn-contact-reset');
+
+    if (contactForm) {
+        contactForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            
+            // Show loading state
+            btnContactSubmit.disabled = true;
+            if (contactSubmitSpinner) contactSubmitSpinner.style.display = 'inline-block';
+            
+            const formData = new FormData(this);
+            
+            fetch('/api/contact', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Reset loading state
+                btnContactSubmit.disabled = false;
+                if (contactSubmitSpinner) contactSubmitSpinner.style.display = 'none';
+                
+                if (data.success) {
+                    // Update success message text if customized by backend
+                    const successMsgEl = document.getElementById('contact-success-message');
+                    if (successMsgEl && data.message) {
+                        successMsgEl.innerText = data.message;
+                    }
+                    
+                    // Trigger fade-out on form and fade-in on success
+                    if (contactFormWrapper) {
+                        contactFormWrapper.style.display = 'none';
+                    }
+                    if (contactSuccessState) {
+                        contactSuccessState.style.display = 'block';
+                        contactSuccessState.classList.add('fade-in-up');
+                    }
+                    
+                    // Reset the form fields
+                    contactForm.reset();
+                } else {
+                    alert(data.message || 'An error occurred while sending your message. Please check the fields and try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error submitting contact form:', error);
+                btnContactSubmit.disabled = false;
+                if (contactSubmitSpinner) contactSubmitSpinner.style.display = 'none';
+                alert('A network error occurred. Please check your connection and try again.');
+            });
+        });
+    }
+
+    if (btnContactReset) {
+        btnContactReset.addEventListener('click', function () {
+            if (contactSuccessState) {
+                contactSuccessState.style.display = 'none';
+                contactSuccessState.classList.remove('fade-in-up');
+            }
+            if (contactFormWrapper) {
+                contactFormWrapper.style.display = 'block';
+                contactFormWrapper.classList.add('fade-in-up');
+            }
+        });
+    }
+
+    let aiChartInstance = null;
+
+    window.reloadAICareerIntelligence = function() {
+        loadAICareerIntelligence();
+    };
+
+    window.loadAICareerIntelligence = function() {
+        const loader = document.getElementById('ai-intelligence-loader');
+        const content = document.getElementById('ai-intelligence-console-content');
+        
+        if (loader) loader.style.display = 'block';
+        if (content) content.style.display = 'none';
+
+        fetch('/api/ai-career-intelligence/data')
+            .then(res => res.json())
+            .then(data => {
+                if (loader) loader.style.display = 'none';
+                if (content) content.style.display = 'block';
+
+                if (data.success) {
+                    // Update mini stats
+                    document.getElementById('ai-stat-ats').innerText = data.ats_score + '%';
+                    document.getElementById('ai-stat-placement').innerText = data.placement_prediction.score + '%';
+                    document.getElementById('ai-stat-skills').innerText = data.skills.length;
+                    document.getElementById('ai-stat-cgpa').innerText = data.cgpa.toFixed(2);
+
+                    // ATS Score Gauge
+                    document.getElementById('ai-resume-ats-val').innerText = data.ats_score + '%';
+                    document.getElementById('ai-resume-filename').innerText = data.filename || 'No file analyzed yet';
+
+                    // Progress Bars
+                    document.getElementById('ai-resume-format-percent').innerText = data.resume_strength.formatting + '%';
+                    document.getElementById('ai-resume-format-bar').style.width = data.resume_strength.formatting + '%';
+                    
+                    document.getElementById('ai-resume-density-percent').innerText = data.resume_strength.keyword_density + '%';
+                    document.getElementById('ai-resume-density-bar').style.width = data.resume_strength.keyword_density + '%';
+
+                    document.getElementById('ai-resume-section-percent').innerText = data.resume_strength.section_completion + '%';
+                    document.getElementById('ai-resume-section-bar').style.width = data.resume_strength.section_completion + '%';
+
+                    // Suggestions Bullet Points
+                    const suggsContainer = document.getElementById('ai-resume-suggestions-list');
+                    suggsContainer.innerHTML = '';
+                    data.resume_strength.suggestions.forEach(sugg => {
+                        suggsContainer.innerHTML += `<li><i class="fa-solid fa-chevron-right text-warning me-1.5 fs-10"></i>${sugg}</li>`;
+                    });
+
+                    // Suitable Company Placements List
+                    const companiesList = document.getElementById('ai-matching-companies-list');
+                    companiesList.innerHTML = '';
+                    
+                    if (data.matching_companies.length === 0) {
+                        companiesList.innerHTML = `
+                            <div class="col-12 text-center text-secondary-custom py-4">
+                                No companies matching your profile yet. Add skills/projects to start matching!
+                            </div>`;
+                    } else {
+                        data.matching_companies.forEach(comp => {
+                            const badgeClass = comp.eligible ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-danger-subtle text-danger border border-danger-subtle';
+                            const badgeText = comp.eligible ? 'Eligible' : 'Needs CGPA Upgrade';
+                            const matchBadgeColor = comp.match_percent >= 80 ? 'text-success' : (comp.match_percent >= 60 ? 'text-info' : 'text-warning');
+                            
+                            const matchedSkillsBadges = comp.skills_compare.matched.map(s => `<span class="badge bg-success-subtle text-success fs-10 px-2 py-1"><i class="fa-solid fa-check me-1"></i>${s}</span>`).join(' ') || '<span class="text-secondary-custom fs-9">None</span>';
+                            const missingSkillsBadges = comp.skills_compare.missing.map(s => `<span class="badge bg-danger-subtle text-danger fs-10 px-2 py-1"><i class="fa-solid fa-xmark me-1"></i>${s}</span>`).join(' ') || '<span class="text-success-custom fs-9">All Matched!</span>';
+
+                            companiesList.innerHTML += `
+                                <div class="col-md-6">
+                                    <div class="glass-card p-3" style="border: 1px solid rgba(255,255,255,0.06); border-radius: 15px;">
+                                        <div class="d-flex justify-content-between align-items-start mb-2 flex-wrap gap-2">
+                                            <div class="d-flex gap-2.5">
+                                                <div class="company-logo-wrapper" style="width: 38px; height: 38px; padding: 2px;">
+                                                    <img src="/static/images/companies/${comp.logo}" class="company-logo-img" alt="${comp.name}">
+                                                </div>
+                                                <div>
+                                                    <h5 class="text-white fs-8 mb-0.5 fw-bold">${comp.name}</h5>
+                                                    <span class="fs-9 text-muted d-block">${comp.category} | ${comp.package}</span>
+                                                </div>
+                                            </div>
+                                            <div class="text-end">
+                                                <span class="fs-7 fw-black d-block ${matchBadgeColor}">${comp.match_percent}% Match</span>
+                                                <span class="badge ${badgeClass} fs-9 py-0.5 px-2 mt-1">${badgeText}</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mt-2.5 border-top border-secondary pt-2.5">
+                                            <div class="row g-2">
+                                                <div class="col-6">
+                                                    <span class="fs-9 text-secondary-custom fw-bold d-block mb-1">Matched Skills:</span>
+                                                    <div class="d-flex flex-wrap gap-1">${matchedSkillsBadges}</div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <span class="fs-9 text-secondary-custom fw-bold d-block mb-1">Missing Skills:</span>
+                                                    <div class="d-flex flex-wrap gap-1">${missingSkillsBadges}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    }
+
+                    // Placement Prediction Gauge & Chart
+                    document.getElementById('ai-placement-prob-val').innerText = data.placement_prediction.score + '%';
+
+                    const chartCtx = document.getElementById('ai-readiness-breakdown-chart');
+                    if (chartCtx) {
+                        if (aiChartInstance) {
+                            aiChartInstance.destroy();
+                        }
+                        aiChartInstance = new Chart(chartCtx, {
+                            type: 'bar',
+                            data: {
+                                labels: ['CGPA Weight', 'Skills Factor', 'Projects Volume', 'Certifications'],
+                                datasets: [{
+                                    data: [
+                                        data.placement_prediction.breakdown.cgpa,
+                                        data.placement_prediction.breakdown.skills,
+                                        data.placement_prediction.breakdown.projects,
+                                        data.placement_prediction.breakdown.certs
+                                    ],
+                                    backgroundColor: ['#22d3ee', '#10b981', '#a855f7', '#ec4899'],
+                                    borderRadius: 5,
+                                    barPercentage: 0.55
+                                }]
+                            },
+                            options: {
+                                indexAxis: 'y',
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: { legend: { display: false } },
+                                scales: {
+                                    x: {
+                                        ticks: { color: '#cbd5e1', font: { family: "'Outfit', 'Inter', sans-serif", size: 10 } },
+                                        grid: { color: 'rgba(148, 163, 184, 0.1)' }
+                                    },
+                                    y: {
+                                        ticks: { color: '#cbd5e1', font: { family: "'Outfit', 'Inter', sans-serif", size: 10, weight: '500' } },
+                                        grid: { display: false }
+                                    }
+                                }
+                            }
+                        });
+                    }
+
+                    // Career Roadmap Weeks
+                    const roadmapContainer = document.getElementById('ai-roadmap-weeks-list');
+                    roadmapContainer.innerHTML = '';
+                    data.roadmap.weeks.forEach(w => {
+                        roadmapContainer.innerHTML += `
+                            <div class="col-md-6">
+                                <div class="glass-card p-3.5 h-100" style="border: 1px solid rgba(255,255,255,0.06); border-radius: 15px;">
+                                    <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-1">
+                                        <span class="badge bg-primary-subtle text-primary py-1 px-2.5 fs-9 fw-bold">WEEK ${w.week}</span>
+                                        <span class="fs-9 text-muted font-bold">Preparation Target</span>
+                                    </div>
+                                    <h5 class="text-white fs-7 mb-2 fw-black">${w.title}</h5>
+                                    <p class="fs-8 text-secondary-custom mb-3">${w.goal}</p>
+                                    
+                                    <div class="bg-dark-subtle p-2.5 rounded border border-secondary" style="border-radius: 10px !important;">
+                                        <div class="mb-1.5"><i class="fa-solid fa-book-open text-info me-1.5 fs-9"></i><strong class="fs-9 text-secondary-custom">Resource:</strong> <span class="fs-9 text-secondary-custom">${w.resources}</span></div>
+                                        <div><i class="fa-solid fa-square-check text-success me-1.5 fs-9"></i><strong class="fs-9 text-secondary-custom">Action:</strong> <span class="fs-9 text-secondary-custom">${w.action_item}</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    // AI Recommendations
+                    const coursesContainer = document.getElementById('ai-recs-courses-container');
+                    coursesContainer.innerHTML = '';
+                    data.ai_recommendations.courses.forEach(c => {
+                        coursesContainer.innerHTML += `
+                            <div class="d-flex align-items-center gap-3 p-2.5 rounded bg-dark border border-secondary" style="border-radius: 12px !important;">
+                                <div class="fs-5 text-gradient-cyan"><i class="fa-solid fa-circle-play"></i></div>
+                                <div>
+                                    <span class="fs-8 text-white fw-bold d-block" style="line-height: 1.25;">${c.title}</span>
+                                    <span class="fs-9 text-muted d-block mt-0.5">${c.platform}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    const certsContainer = document.getElementById('ai-recs-certs-container');
+                    certsContainer.innerHTML = '';
+                    data.ai_recommendations.certs.forEach(crt => {
+                        certsContainer.innerHTML += `
+                            <div class="d-flex align-items-center gap-3 p-2.5 rounded bg-dark border border-secondary" style="border-radius: 12px !important;">
+                                <div class="fs-5 text-warning"><i class="fa-solid fa-certificate"></i></div>
+                                <div>
+                                    <span class="fs-8 text-white fw-bold d-block" style="line-height: 1.25;">${crt.name}</span>
+                                    <span class="fs-9 text-muted d-block mt-0.5">${crt.org}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    const projectsContainer = document.getElementById('ai-recs-projects-container');
+                    projectsContainer.innerHTML = '';
+                    data.ai_recommendations.projects.forEach(p => {
+                        projectsContainer.innerHTML += `
+                            <div class="d-flex align-items-center gap-3 p-2.5 rounded bg-dark border border-secondary" style="border-radius: 12px !important;">
+                                <div class="fs-5 text-gradient-purple"><i class="fa-solid fa-folder-open"></i></div>
+                                <div>
+                                    <span class="fs-8 text-white fw-bold d-block" style="line-height: 1.25;">${p.title}</span>
+                                    <span class="fs-9 text-muted d-block mt-0.5">${p.tech}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                } else {
+                    alert(data.message || 'Error loading career intelligence metrics.');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                if (loader) loader.style.display = 'none';
+                alert('Connection failure: unable to sync career intelligence.');
+            });
+    };
 });

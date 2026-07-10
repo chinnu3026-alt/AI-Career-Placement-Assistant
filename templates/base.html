@@ -9,7 +9,7 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}AI Career & Placement Assistant{% endblock %}</title>
+    <title>{% block title %}AI Career Assistant - Empowering Students for Better Careers{% endblock %}</title>
     
     <!-- SEO Meta Tags -->
     <meta name="description" content="AI Career & Placement Assistant - Analyze your resume using AI, calculate placement probabilities, and match with the best career roles.">
@@ -49,8 +49,18 @@
             
             <div class="collapse navbar-collapse" id="navbarContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom {% if request.path == '/' %}active{% endif %}" href="{{ url_for('index') }}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom {% if request.path == '/features' %}active{% endif %}" href="{{ url_for('features_page') }}">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom {% if request.path == '/contact' %}active{% endif %}" href="{{ url_for('contact_page') }}">Contact</a>
+                    </li>
+                    
                     {% if session.get('user_id') %}
-                        <li class="nav-item">
+                        <li class="nav-item ms-2">
                             <a class="nav-link nav-link-custom {% if request.path == '/dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">
                                 <i class="fa-solid fa-chart-line me-1"></i>Dashboard
                             </a>
@@ -66,7 +76,7 @@
                             </a>
                         </li>
                     {% else %}
-                        <li class="nav-item">
+                        <li class="nav-item ms-2">
                             <a class="nav-link nav-link-custom {% if request.path == '/login' %}active{% endif %}" href="{{ url_for('login') }}" id="nav-login">
                                 Login
                             </a>
@@ -116,20 +126,32 @@
 
     <!-- Shared Footer -->
     <footer>
-        <div class="container">
-            <div class="row align-items-center justify-content-between">
-                <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-                    <p class="footer-text mb-1 fw-bold text-white"><i class="fa-solid fa-graduation-cap text-gradient me-1.5"></i>AI Career & Placement Assistant</p>
-                    <p class="footer-text mb-0">&copy; 2026. All Rights Reserved.</p>
-                </div>
-                <div class="col-md-6 text-center text-md-end">
-                    <div class="d-flex flex-wrap justify-content-center justify-content-md-end mb-2">
-                        <a href="#" class="footer-link">Dashboard</a>
-                        <a href="#" class="footer-link">Documentation</a>
-                        <a href="#" class="footer-link">Support</a>
-                        <a href="#" class="footer-link"><i class="fa-brands fa-github me-1"></i>GitHub</a>
+        <div class="container text-center">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <h5 class="h5 text-white mb-2 fw-bold" style="font-family: 'Outfit', sans-serif;"><i class="fa-solid fa-graduation-cap text-gradient me-2"></i>AI Career Assistant</h5>
+                    <p class="footer-text mb-2 text-secondary-custom" style="font-size: 0.85rem; opacity: 0.95;">
+                        Built by Chinmayi S R | B.E CSE Student | Sapthagiri NPS University
+                    </p>
+                    <p class="footer-text mb-3.5 text-secondary-custom" style="font-size: 0.85rem;">
+                        Email: <a href="mailto:chinnu3026@gmail.com" class="text-gradient fw-bold text-decoration-none">chinnu3026@gmail.com</a>
+                    </p>
+                    
+                    <div class="d-flex flex-wrap justify-content-center gap-3 mb-4">
+                        <a href="https://github.com/chinnu3026" target="_blank" rel="noopener noreferrer" class="btn btn-glass px-3.5 py-2 fs-9 text-white d-flex align-items-center gap-1.5" style="border: 1px solid rgba(255,255,255,0.1) !important;" title="View GitHub">
+                            <i class="fa-brands fa-github text-white"></i> GitHub
+                        </a>
+                        <a href="https://linkedin.com/in/chinnu3026" target="_blank" rel="noopener noreferrer" class="btn btn-glass px-3.5 py-2 fs-9 text-white d-flex align-items-center gap-1.5" style="border: 1px solid rgba(255,255,255,0.1) !important;" title="Connect on LinkedIn">
+                            <i class="fa-brands fa-linkedin-in text-info"></i> LinkedIn
+                        </a>
+                        <a href="{{ url_for('download_portfolio_resume') }}" class="btn btn-glass px-3.5 py-2 fs-9 text-white d-flex align-items-center gap-1.5" style="border: 1px solid rgba(255,255,255,0.1) !important;" title="Download Resume">
+                            <i class="fa-solid fa-file-pdf text-danger"></i> Resume Download
+                        </a>
                     </div>
-                    <span class="footer-text d-block">Built with <i class="fa-solid fa-heart text-danger mx-1"></i> Flask, SQLite & Bootstrap 5</span>
+                    
+                    <p class="footer-text mb-0" style="font-size: 0.75rem; opacity: 0.5;">
+                        &copy; 2026 All Rights Reserved
+                    </p>
                 </div>
             </div>
         </div>

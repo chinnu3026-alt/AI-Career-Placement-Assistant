@@ -1,0 +1,458 @@
+{% extends 'base.html' %}
+
+{% block title %}Portfolio | Chinmayi S R{% endblock %}
+
+{% block content %}
+<div class="container py-4 position-relative">
+    <!-- Background Radial Blur Glows -->
+    <div class="hero-blur-glow position-absolute top-0 start-50 translate-middle-x" style="width: 500px; height: 500px; background: radial-gradient(circle, rgba(37, 99, 235, 0.08) 0%, transparent 70%); pointer-events: none; z-index: -1;"></div>
+
+    <!-- 1. Hero Header Banner Section -->
+    <div class="text-center mb-5 mt-3 position-relative">
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3.5 py-2 rounded-pill fs-9 mb-3 fw-bold text-uppercase tracking-wider">
+            <i class="fa-solid fa-sparkles text-gradient me-1.5 animate-pulse"></i> Recruiter-Ready Portfolio
+        </span>
+        <h1 class="display-4 fw-black text-white mb-2" style="font-family: 'Outfit', sans-serif; letter-spacing: -0.02em;">
+            Chinmayi S R
+        </h1>
+        <p class="fs-6 text-gradient-cyan fw-bold mb-4">
+            Computer Science Engineer | AI Enthusiast | Full Stack Developer
+        </p>
+        
+        <!-- Social and Action Row -->
+        <div class="d-flex justify-content-center align-items-center gap-3 flex-wrap mb-4">
+            <a href="{{ url_for('download_portfolio_resume') }}" class="btn btn-premium px-4 py-2.5 fs-8">
+                <i class="fa-solid fa-download me-2"></i>Download Resume PDF
+            </a>
+            <a href="https://linkedin.com/in/chinnu3026" target="_blank" rel="noopener noreferrer" class="btn btn-glass px-3.5 py-2.5 fs-8 text-white" style="border: 1px solid rgba(255,255,255,0.1) !important;">
+                <i class="fa-brands fa-linkedin-in me-1.5 text-info"></i>LinkedIn
+            </a>
+            <a href="https://github.com/chinnu3026" target="_blank" rel="noopener noreferrer" class="btn btn-glass px-3.5 py-2.5 fs-8 text-white" style="border: 1px solid rgba(255,255,255,0.1) !important;">
+                <i class="fa-brands fa-github me-1.5 text-white"></i>GitHub
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Grid Row -->
+    <div class="row g-4 mb-5">
+        
+        <!-- 2. About Me Section (Left Side) -->
+        <div class="col-lg-7">
+            <div class="glass-panel p-4 h-100 border-radius-20 position-relative overflow-hidden">
+                <div class="position-absolute top-0 end-0 p-3 text-secondary-custom opacity-10 fs-1"><i class="fa-solid fa-address-card"></i></div>
+                <h3 class="h5 text-white mb-3 fw-bold"><i class="fa-solid fa-user-tag text-gradient-cyan me-2"></i>About Me</h3>
+                <p class="text-secondary-custom fs-8 mb-3" style="line-height: 1.6;">
+                    Hello! I'm <strong>Chinmayi S R</strong>, an engineering student specializing in Computer Science & Engineering based in Bengaluru, Karnataka, India. I am passionate about developing scalable SaaS web applications, database performance tuning, and exploring AI-driven intelligence models to streamline real-world challenges.
+                </p>
+                <p class="text-secondary-custom fs-8 mb-4" style="line-height: 1.6;">
+                    With an academic focus on algorithms, system design, and database schema layouts, I love building applications that merge frontend aesthetics with robust backend operations. This placement assistant portal is a representation of my vision: translating student credentials into actionable career analytics.
+                </p>
+
+                <h4 class="fs-9 text-muted uppercase fw-bold mb-3 tracking-wider">Key Metrics</h4>
+                <div class="row g-3">
+                    <div class="col-6 col-sm-3">
+                        <div class="p-3 bg-dark border border-secondary text-center" style="border-radius: 12px !important;">
+                            <span class="d-block text-white fs-4 fw-black">9.10</span>
+                            <span class="fs-10 text-muted uppercase">CSE CGPA</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <div class="p-3 bg-dark border border-secondary text-center" style="border-radius: 12px !important;">
+                            <span class="d-block text-white fs-4 fw-black">B.E.</span>
+                            <span class="fs-10 text-muted uppercase">CSE Branch</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <div class="p-3 bg-dark border border-secondary text-center" style="border-radius: 12px !important;">
+                            <span class="d-block text-white fs-4 fw-black">3+</span>
+                            <span class="fs-10 text-muted uppercase">SaaS Projects</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <div class="p-3 bg-dark border border-secondary text-center" style="border-radius: 12px !important;">
+                            <span class="d-block text-white fs-4 fw-black">3+</span>
+                            <span class="fs-10 text-muted uppercase">Professional Certs</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Skills Matrix (Right Side) -->
+        <div class="col-lg-5">
+            <div class="glass-panel p-4 h-100 border-radius-20">
+                <h3 class="h5 text-white mb-3 fw-bold"><i class="fa-solid fa-code text-gradient-green me-2"></i>Technical Skillset</h3>
+                <p class="text-secondary-custom fs-8 mb-4">Competency levels across languages and stacks.</p>
+                
+                <!-- Frontend -->
+                <div class="mb-3.5">
+                    <span class="d-flex justify-content-between fs-9 text-secondary-custom mb-1.5 fw-bold uppercase">
+                        <span>Frontend Stack (React, ES6, CSS Grid)</span>
+                        <span class="text-white">90%</span>
+                    </span>
+                    <div class="progress" style="height: 5px; background: rgba(255,255,255,0.06);">
+                        <div class="progress-bar bg-info" role="progressbar" style="width: 90%;"></div>
+                    </div>
+                </div>
+
+                <!-- Backend -->
+                <div class="mb-3.5">
+                    <span class="d-flex justify-content-between fs-9 text-secondary-custom mb-1.5 fw-bold uppercase">
+                        <span>Backend Stacks (Flask, Node.js REST API)</span>
+                        <span class="text-white">85%</span>
+                    </span>
+                    <div class="progress" style="height: 5px; background: rgba(255,255,255,0.06);">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: 85%;"></div>
+                    </div>
+                </div>
+
+                <!-- Database -->
+                <div class="mb-3.5">
+                    <span class="d-flex justify-content-between fs-9 text-secondary-custom mb-1.5 fw-bold uppercase">
+                        <span>Databases (PostgreSQL, SQLite, Tuning)</span>
+                        <span class="text-white">80%</span>
+                    </span>
+                    <div class="progress" style="height: 5px; background: rgba(255,255,255,0.06);">
+                        <div class="progress-bar bg-warning" role="progressbar" style="width: 80%;"></div>
+                    </div>
+                </div>
+
+                <!-- System Tools -->
+                <div class="mb-4">
+                    <span class="d-flex justify-content-between fs-9 text-secondary-custom mb-1.5 fw-bold uppercase">
+                        <span>Deployment Tools (Git, Docker, System Design)</span>
+                        <span class="text-white">75%</span>
+                    </span>
+                    <div class="progress" style="height: 5px; background: rgba(255,255,255,0.06);">
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: 75%;"></div>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-wrap gap-1.5 mt-2">
+                    <span class="badge bg-dark border border-secondary text-secondary-custom py-1.5 px-2.5 fs-9">Python</span>
+                    <span class="badge bg-dark border border-secondary text-secondary-custom py-1.5 px-2.5 fs-9">JavaScript</span>
+                    <span class="badge bg-dark border border-secondary text-secondary-custom py-1.5 px-2.5 fs-9">HTML/CSS</span>
+                    <span class="badge bg-dark border border-secondary text-secondary-custom py-1.5 px-2.5 fs-9">Bootstrap 5</span>
+                    <span class="badge bg-dark border border-secondary text-secondary-custom py-1.5 px-2.5 fs-9">REST APIs</span>
+                    <span class="badge bg-dark border border-secondary text-secondary-custom py-1.5 px-2.5 fs-9">Git/GitHub</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Projects Showcase Section -->
+    <div class="mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <h3 class="h4 text-white mb-0"><i class="fa-solid fa-folder-open text-gradient me-2"></i>Featured Engineering Projects</h3>
+                <p class="text-secondary-custom fs-8 mb-0">Production-ready SaaS frameworks built with modern deployment patterns.</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <!-- Project 1 -->
+            <div class="col-md-4">
+                <div class="glass-panel p-4 h-100 border-radius-20 d-flex flex-column justify-content-between project-card">
+                    <div>
+                        <div class="fs-4 text-gradient-cyan mb-2.5"><i class="fa-solid fa-brain"></i></div>
+                        <h4 class="text-white fs-7 mb-2.5 fw-bold">AI Career Placement Assistant</h4>
+                        <p class="text-secondary-custom fs-8 mb-4">
+                            Integrated SaaS platform featuring resume parsing ATS grade models, student skill-gap analyzers, company eligibility matcher, and weekly learning roadmap accordion modules.
+                        </p>
+                    </div>
+                    <div>
+                        <div class="d-flex flex-wrap gap-1.5 mb-3">
+                            <span class="badge bg-dark border border-secondary text-secondary-custom fs-10 px-2 py-1">Flask</span>
+                            <span class="badge bg-dark border border-secondary text-secondary-custom fs-10 px-2 py-1">SQLite</span>
+                            <span class="badge bg-dark border border-secondary text-secondary-custom fs-10 px-2 py-1">ChartJS</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project 2 -->
+            <div class="col-md-4">
+                <div class="glass-panel p-4 h-100 border-radius-20 d-flex flex-column justify-content-between project-card">
+                    <div>
+                        <div class="fs-4 text-gradient-green mb-2.5"><i class="fa-solid fa-chart-line"></i></div>
+                        <h4 class="text-white fs-7 mb-2.5 fw-bold">Distributed Cohort Tracker</h4>
+                        <p class="text-secondary-custom fs-8 mb-4">
+                            Administrative analytics workspace tracking placement statistics, active messaging mailboxes, role-based decorators, and Excel streaming modules using HTML payload buffers.
+                        </p>
+                    </div>
+                    <div>
+                        <div class="d-flex flex-wrap gap-1.5 mb-3">
+                            <span class="badge bg-dark border border-secondary text-secondary-custom fs-10 px-2 py-1">Python</span>
+                            <span class="badge bg-dark border border-secondary text-secondary-custom fs-10 px-2 py-1">SQLite</span>
+                            <span class="badge bg-dark border border-secondary text-secondary-custom fs-10 px-2 py-1">Excel API</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project 3 -->
+            <div class="col-md-4">
+                <div class="glass-panel p-4 h-100 border-radius-20 d-flex flex-column justify-content-between project-card">
+                    <div>
+                        <div class="fs-4 text-gradient-purple mb-2.5"><i class="fa-solid fa-signature"></i></div>
+                        <h4 class="text-white fs-7 mb-2.5 fw-bold">ATS Layout Scanners</h4>
+                        <p class="text-secondary-custom fs-8 mb-4">
+                            PDF parsing script that identifies section coordinates, measures text counts, and extracts key competencies to evaluate scanner layout compatibility.
+                        </p>
+                    </div>
+                    <div>
+                        <div class="d-flex flex-wrap gap-1.5 mb-3">
+                            <span class="badge bg-dark border border-secondary text-secondary-custom fs-10 px-2 py-1">Python</span>
+                            <span class="badge bg-dark border border-secondary text-secondary-custom fs-10 px-2 py-1">pdfminer</span>
+                            <span class="badge bg-dark border border-secondary text-secondary-custom fs-10 px-2 py-1">NLP</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. Certifications & Achievements Section -->
+    <div class="row g-4 mb-5">
+        <!-- Certifications -->
+        <div class="col-md-6">
+            <div class="glass-panel p-4 h-100 border-radius-20">
+                <h3 class="h5 text-white mb-3 fw-bold"><i class="fa-solid fa-certificate text-gradient-cyan me-2"></i>Professional Certifications</h3>
+                <p class="text-secondary-custom fs-8 mb-4">Industry credentials validating technology domains.</p>
+                
+                <div class="d-flex flex-column gap-3">
+                    <div class="d-flex align-items-center gap-3 p-2.5 rounded bg-dark border border-secondary" style="border-radius: 12px !important;">
+                        <div class="fs-4 text-warning"><i class="fa-solid fa-award"></i></div>
+                        <div>
+                            <span class="fs-8 text-white fw-bold d-block">AWS Certified Cloud Practitioner</span>
+                            <span class="fs-9 text-muted d-block mt-0.5">Amazon Web Services (CCP-2025)</span>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex align-items-center gap-3 p-2.5 rounded bg-dark border border-secondary" style="border-radius: 12px !important;">
+                        <div class="fs-4 text-gradient-cyan"><i class="fa-solid fa-chart-pie"></i></div>
+                        <div>
+                            <span class="fs-8 text-white fw-bold d-block">Advanced Data Analytics Professional</span>
+                            <span class="fs-9 text-muted d-block mt-0.5">Google Career Certificate (2025)</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-3 p-2.5 rounded bg-dark border border-secondary" style="border-radius: 12px !important;">
+                        <div class="fs-4 text-gradient-purple"><i class="fa-solid fa-circle-play"></i></div>
+                        <div>
+                            <span class="fs-8 text-white fw-bold d-block">Meta Frontend Developer Certificate</span>
+                            <span class="fs-9 text-muted d-block mt-0.5">Coursera Professional Program</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Achievements -->
+        <div class="col-md-6">
+            <div class="glass-panel p-4 h-100 border-radius-20">
+                <h3 class="h5 text-white mb-3 fw-bold"><i class="fa-solid fa-trophy text-gradient me-2"></i>Achievements & Milestones</h3>
+                <p class="text-secondary-custom fs-8 mb-4">Summary of academic and developer milestones.</p>
+                
+                <div class="d-flex flex-column gap-3 fs-8 text-secondary-custom">
+                    <div class="d-flex gap-2.5 align-items-start">
+                        <i class="fa-solid fa-circle-check text-gradient-green mt-1"></i>
+                        <div>
+                            <strong class="text-white">Smart India Hackathon 2025 Winner</strong>
+                            <span class="d-block mt-0.5">Led a team of 4 to design a student placement tracking system incorporating skill-gap charts.</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2.5 align-items-start">
+                        <i class="fa-solid fa-circle-check text-gradient-green mt-1"></i>
+                        <div>
+                            <strong class="text-white">Academic Merit Honors</strong>
+                            <span class="d-block mt-0.5">Maintained an elite cumulative GPA of 9.10/10.0 across all semesters of BE Computer Science.</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2.5 align-items-start">
+                        <i class="fa-solid fa-circle-check text-gradient-green mt-1"></i>
+                        <div>
+                            <strong class="text-white">Open Source Contributor</strong>
+                            <span class="d-block mt-0.5">Contributed keyword matching and parsing models to localized ATS resume analyzers.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. Contact & Resume Download Section -->
+    <div class="row g-4 mb-5">
+        <!-- Contact Information Cards -->
+        <div class="col-lg-5">
+            <div class="d-flex flex-column gap-3">
+                <div class="portfolio-contact-card p-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="contact-icon-wrapper contact-email">
+                            <i class="fa-solid fa-envelope"></i>
+                        </div>
+                        <div>
+                            <span class="contact-card-label d-block">Email Address</span>
+                            <a href="mailto:chinnu3026@gmail.com" class="contact-card-value text-decoration-none">chinnu3026@gmail.com</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="portfolio-contact-card p-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="contact-icon-wrapper contact-location">
+                            <i class="fa-solid fa-location-dot"></i>
+                        </div>
+                        <div>
+                            <span class="contact-card-label d-block">Location</span>
+                            <span class="contact-card-value">Bengaluru, Karnataka, India</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="portfolio-contact-card p-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="contact-icon-wrapper contact-linkedin">
+                            <i class="fa-brands fa-linkedin-in"></i>
+                        </div>
+                        <div>
+                            <span class="contact-card-label d-block">LinkedIn Connection</span>
+                            <a href="https://linkedin.com/in/chinnu3026" target="_blank" rel="noopener noreferrer" class="contact-card-value text-decoration-none">Connect on LinkedIn <i class="fa-solid fa-arrow-up-right-from-square ms-1 fs-9"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="portfolio-contact-card p-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="contact-icon-wrapper contact-github">
+                            <i class="fa-brands fa-github"></i>
+                        </div>
+                        <div>
+                            <span class="contact-card-label d-block">GitHub Profile</span>
+                            <a href="https://github.com/chinnu3026" target="_blank" rel="noopener noreferrer" class="contact-card-value text-decoration-none">View Repositories <i class="fa-solid fa-arrow-up-right-from-square ms-1 fs-9"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Form Card -->
+        <div class="col-lg-7">
+            <div class="glass-panel p-4 h-100 border-radius-20">
+                <!-- Success State Container -->
+                <div id="contact-success-state" class="text-center py-5" style="display: none;">
+                    <div class="success-animation mb-4">
+                        <div class="success-icon-circle">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                    </div>
+                    <h3 class="h4 text-white mb-2">Message Sent!</h3>
+                    <p class="text-secondary-custom fs-8 mb-4 mx-auto" style="max-width: 400px;" id="contact-success-message">
+                        Thank you! Your message has been sent successfully. I will get back to you as soon as possible.
+                    </p>
+                    <button type="button" class="btn btn-premium btn-sm" id="btn-contact-reset">
+                        Send Another Message <i class="fa-solid fa-arrows-rotate ms-1"></i>
+                    </button>
+                </div>
+
+                <!-- Form Wrapper -->
+                <div id="contact-form-wrapper">
+                    <h3 class="h5 text-white mb-3"><i class="fa-solid fa-comment-dots me-2 text-gradient-cyan"></i>Send a Message</h3>
+                    <form id="portfolio-contact-form" class="row g-3">
+                        <div class="col-md-6">
+                            <label for="contact-name" class="form-label fs-8 text-secondary-custom">Full Name</label>
+                            <input type="text" class="form-control contact-input py-2.5 fs-8 w-100" id="contact-name" name="name" 
+                                   value="{{ user.username if user else '' }}" placeholder="Enter your full name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="contact-email" class="form-label fs-8 text-secondary-custom">Email Address</label>
+                            <input type="email" class="form-control contact-input py-2.5 fs-8 w-100" id="contact-email" name="email" 
+                                   value="{{ user.email if user else '' }}" placeholder="Enter your email address" required>
+                        </div>
+                        <div class="col-12">
+                            <label for="contact-subject" class="form-label fs-8 text-secondary-custom">Subject</label>
+                            <input type="text" class="form-control contact-input py-2.5 fs-8 w-100" id="contact-subject" name="subject" 
+                                   placeholder="How can I help you?" required>
+                        </div>
+                        <div class="col-12">
+                            <label for="contact-message" class="form-label fs-8 text-secondary-custom">Message</label>
+                            <textarea class="form-control contact-input py-2.5 fs-8 w-100" id="contact-message" name="message" 
+                                      rows="5" placeholder="Write your message here..." required></textarea>
+                        </div>
+                        <div class="col-12 mt-4">
+                            <button type="submit" class="btn btn-premium w-100 py-2.5" id="btn-contact-submit">
+                                <span class="btn-text">Send Message <i class="fa-solid fa-paper-plane ms-1.5"></i></span>
+                                <span class="spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true" style="display: none;" id="contact-submit-spinner"></span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const contactForm = document.getElementById('portfolio-contact-form');
+    const contactFormWrapper = document.getElementById('contact-form-wrapper');
+    const contactSuccessState = document.getElementById('contact-success-state');
+    const btnContactSubmit = document.getElementById('btn-contact-submit');
+    const contactSubmitSpinner = document.getElementById('contact-submit-spinner');
+    const btnContactReset = document.getElementById('btn-contact-reset');
+
+    if (contactForm) {
+        contactForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            btnContactSubmit.disabled = true;
+            if (contactSubmitSpinner) contactSubmitSpinner.style.display = 'inline-block';
+
+            const formData = new FormData(this);
+            fetch('/api/contact', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                btnContactSubmit.disabled = false;
+                if (contactSubmitSpinner) contactSubmitSpinner.style.display = 'none';
+
+                if (data.success) {
+                    if (contactFormWrapper) {
+                        contactFormWrapper.style.display = 'none';
+                    }
+                    if (contactSuccessState) {
+                        contactSuccessState.style.display = 'block';
+                        contactSuccessState.classList.add('fade-in-up');
+                    }
+                    contactForm.reset();
+                } else {
+                    alert(data.message || 'An error occurred. Please check the fields and try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error submitting contact form:', error);
+                btnContactSubmit.disabled = false;
+                if (contactSubmitSpinner) contactSubmitSpinner.style.display = 'none';
+                alert('A network error occurred. Please check your connection and try again.');
+            });
+        });
+    }
+
+    if (btnContactReset) {
+        btnContactReset.addEventListener('click', function () {
+            if (contactSuccessState) {
+                contactSuccessState.style.display = 'none';
+                contactSuccessState.classList.remove('fade-in-up');
+            }
+            if (contactFormWrapper) {
+                contactFormWrapper.style.display = 'block';
+                contactFormWrapper.classList.add('fade-in-up');
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

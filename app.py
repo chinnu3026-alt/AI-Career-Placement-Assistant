@@ -320,7 +320,29 @@ def init_db():
                 FOREIGN KEY (user_id) REFERENCES users (id)
             )
         ''')
+        
+        # 18. contact_messages table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS contact_messages (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER,
+                name TEXT NOT NULL,
+                email TEXT NOT NULL,
+                subject TEXT NOT NULL,
+                message TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                resolved INTEGER DEFAULT 0,
+                FOREIGN KEY (user_id) REFERENCES users (id)
+            )
+        ''')
         db.commit()
+        
+        # Schema migration to add resolved column if needed
+        try:
+            cursor.execute("ALTER TABLE contact_messages ADD COLUMN resolved INTEGER DEFAULT 0")
+            db.commit()
+        except Exception:
+            pass
         
         # Seed default users and jobs if database is empty
         cursor.execute("SELECT COUNT(*) as count FROM users")
@@ -552,16 +574,33 @@ def uploaded_file(filename):
 # -------------------------------------------------------------
 @app.route('/')
 def index():
+    db = get_db()
+    cursor = db.cursor()
+    
+    # Fetch a few featured companies for recommendations
+    cursor.execute("""
+        SELECT name, logo_url AS logo, type AS category, package_range, city AS location 
+        FROM companies 
+        WHERE name IN ('Google', 'Microsoft', 'Amazon', 'Adobe', 'Infosys', 'TCS', 'Wipro', 'Accenture') AND city = 'Bangalore' 
+        ORDER BY CASE name 
+            WHEN 'Google' THEN 1 
+            WHEN 'Microsoft' THEN 2 
+            WHEN 'Amazon' THEN 3 
+            WHEN 'Adobe' THEN 4 
+            WHEN 'Infosys' THEN 5 
+            WHEN 'TCS' THEN 6 
+            WHEN 'Wipro' THEN 7 
+            WHEN 'Accenture' THEN 8 
+        END
+    """)
+    featured_companies = cursor.fetchall()
+    
+    user = None
     if 'user_id' in session:
-        # Check role
-        db = get_db()
-        cursor = db.cursor()
-        cursor.execute("SELECT is_admin FROM users WHERE id = ?", (session['user_id'],))
+        cursor.execute("SELECT username, email, branch, cgpa FROM users WHERE id = ?", (session['user_id'],))
         user = cursor.fetchone()
-        if user and user['is_admin']:
-            return redirect(url_for('admin_dashboard'))
-        return redirect(url_for('dashboard'))
-    return redirect(url_for('login'))
+        
+    return render_template('index.html', featured_companies=featured_companies, user=user)
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -1371,6 +1410,223 @@ def predict_placement():
         }
     })
 
+# AI-Powered Career Intelligence Console API
+@app.route('/api/ai-career-intelligence/data', methods=['GET'])
+@login_required
+def get_ai_career_intelligence_data():
+    db = get_db()
+    cursor = db.cursor()
+    user_id = session['user_id']
+    
+    # 1. Fetch user profile
+    cursor.execute('SELECT username, email, cgpa, branch, gender FROM users WHERE id = ?', (user_id,))
+    user = cursor.fetchone()
+    if not user:
+        return jsonify({'success': False, 'message': 'User profile not found.'}), 404
+        
+    cgpa = user['cgpa'] if user['cgpa'] is not None else 0.0
+    
+    # 2. Fetch logged skills, projects, certifications
+    cursor.execute('SELECT skill_name FROM skills WHERE user_id = ?', (user_id,))
+    skills = [row['skill_name'] for row in cursor.fetchall()]
+    
+    cursor.execute('SELECT title, technologies, description FROM projects WHERE user_id = ?', (user_id,))
+    projects = [dict(row) for row in cursor.fetchall()]
+    
+    cursor.execute('SELECT cert_name, issuing_org FROM certifications WHERE user_id = ?', (user_id,))
+    certs = [dict(row) for row in cursor.fetchall()]
+    
+    # 3. Fetch latest resume
+    cursor.execute('SELECT id, filename, ats_score, extracted_text FROM resumes WHERE user_id = ? ORDER BY analyzed_at DESC LIMIT 1', (user_id,))
+    latest_resume = cursor.fetchone()
+    
+    ats_score = latest_resume['ats_score'] if latest_resume else 0
+    resume_text = latest_resume['extracted_text'] if latest_resume else ""
+    
+    # 4. ATS & Resume Strength Analysis
+    word_count = len(resume_text.split()) if resume_text else 0
+    formatting_strength = 0
+    keyword_density = 0
+    section_completion = 0
+    
+    if latest_resume:
+        formatting_strength = min(100, 60 + (ats_score // 5) + min(15, word_count // 30))
+        keyword_density = min(100, len(skills) * 8 + (ats_score // 3))
+        sections_found = sum(1 for sec in ['experience', 'education', 'projects', 'skills'] if sec in resume_text.lower())
+        section_completion = 40 + sections_found * 15
+    else:
+        formatting_strength = 0
+        keyword_density = 0
+        section_completion = 0
+        
+    # Improvement suggestions
+    suggestions = []
+    if not latest_resume:
+        suggestions.append("Upload a resume to analyze your layout parser compatibility.")
+    else:
+        if word_count < 180:
+            suggestions.append("Increase descriptions density: include at least 180 words inside details columns.")
+        if len(skills) < 4:
+            suggestions.append("Integrate keyword matches: add key programming languages directly to your Skills header.")
+        if formatting_strength < 75:
+            suggestions.append("Avoid graphic boxes: clean complex layout layers to assist recruiter ATS scanners.")
+        if len(suggestions) == 0:
+            suggestions.append("Excellent layout. Add numeric metrics to highlight project deliverables.")
+            
+    # 5. Matching companies engine
+    cursor.execute('SELECT * FROM companies LIMIT 6')
+    companies_rows = cursor.fetchall()
+    
+    matching_companies = []
+    for c in companies_rows:
+        req_skills_raw = c['tech_skills'] if c['tech_skills'] else ''
+        req_skills = [s.strip().lower() for s in req_skills_raw.split(',') if s.strip()]
+        
+        user_skills_lower = [s.lower() for s in skills]
+        matched = [s for s in req_skills if s in user_skills_lower]
+        missing = [s for s in req_skills if s not in user_skills_lower]
+        
+        base_match = 40.0
+        if len(req_skills) > 0:
+            base_match += (len(matched) / len(req_skills)) * 40.0
+        
+        company_min_cgpa = c['min_cgpa'] if c['min_cgpa'] is not None else 6.0
+        if cgpa >= company_min_cgpa:
+            base_match += 15.0
+        else:
+            base_match += 5.0
+            
+        if len(projects) > 0:
+            base_match += min(5.0, len(projects) * 2.0)
+            
+        match_percentage = min(99.0, round(base_match, 1))
+        
+        eligible = True
+        reasons = []
+        if cgpa < company_min_cgpa:
+            eligible = False
+            reasons.append(f"CGPA score below company minimum threshold ({company_min_cgpa})")
+        if len(missing) > 2:
+            eligible = False
+            reasons.append(f"Missing tech stacks: {', '.join(missing[:2])}")
+            
+        matching_companies.append({
+            'name': c['name'],
+            'logo': c['logo_url'] if c['logo_url'] else 'default_logo.svg',
+            'category': c['type'],
+            'package': c['package_range'],
+            'match_percent': match_percentage,
+            'eligible': eligible,
+            'reasons': reasons,
+            'skills_compare': {
+                'matched': [s.title() for s in matched],
+                'missing': [s.title() for s in missing]
+            }
+        })
+        
+    matching_companies.sort(key=lambda x: x['match_percent'], reverse=True)
+    
+    # 6. Placement Readiness & Success Odds
+    prob = 35.0
+    cgpa_contrib = (cgpa / 10.0) * 30.0
+    prob += cgpa_contrib
+    skills_contrib = min(15.0, len(skills) * 3.0)
+    prob += skills_contrib
+    projects_contrib = min(12.0, len(projects) * 6.0)
+    prob += projects_contrib
+    certs_contrib = min(8.0, len(certs) * 4.0)
+    prob += certs_contrib
+    
+    final_prob = min(99.0, round(prob, 1))
+    
+    # 7. AI Recommendations
+    courses = []
+    recommended_certs = []
+    recommended_projects = []
+    
+    user_skills_lower = [s.lower() for s in skills]
+    if 'python' not in user_skills_lower:
+        courses.append({'title': 'Complete Python Bootcamp From Zero to Hero', 'platform': 'Udemy'})
+        recommended_projects.append({'title': 'Algorithmic Trading Bot in Python', 'tech': 'Python, API calls'})
+    if 'react' not in user_skills_lower:
+        courses.append({'title': 'React - The Complete Guide (incl. React Router)', 'platform': 'Udemy'})
+        recommended_projects.append({'title': 'Interactive SaaS Placement Board Dashboard', 'tech': 'React, CSS Grid'})
+    if len(certs) == 0:
+        recommended_certs.append({'name': 'AWS Certified Cloud Practitioner', 'org': 'Amazon Web Services'})
+        recommended_certs.append({'name': 'Google Advanced Data Analytics Certificate', 'org': 'Google'})
+    else:
+        recommended_certs.append({'name': 'HashiCorp Certified: Terraform Associate', 'org': 'HashiCorp'})
+        
+    if len(courses) < 2:
+        courses.append({'title': 'System Design Interview Guide', 'platform': 'ByteByteGo'})
+        courses.append({'title': 'SQL for Data Analytics and Analytics Engineering', 'platform': 'Coursera'})
+    if len(recommended_projects) < 2:
+        recommended_projects.append({'title': 'Task Manager REST API', 'tech': 'Node.js, SQLite, JWT'})
+        recommended_projects.append({'title': 'Automated ATS File Parsing Scanner', 'tech': 'Flask, pdf-parser'})
+        
+    # 8. Weekly learning roadmap goals (beginner to advanced)
+    weeks = [
+        {
+            'week': 1,
+            'title': 'Core Language Foundation & Syntax',
+            'goal': 'Master OOP principles, code structure conventions, and core loops.',
+            'resources': 'Udemy Python/Java track, documentation guidelines.',
+            'action_item': 'Implement sample CRUD logic inside a sandbox console.'
+        },
+        {
+            'week': 2,
+            'title': 'Relational Databases & SQL Schema Design',
+            'goal': 'Design database blueprints, write index queries, and join tables.',
+            'resources': 'SQLite documentation, schema builder tutorials.',
+            'action_item': 'Build database schemas storing student activity logs.'
+        },
+        {
+            'week': 3,
+            'title': 'REST API Architecture & Frameworks Integration',
+            'goal': 'Set up local dev servers, define REST request methods, verify tokens.',
+            'resources': 'Flask / Express documentation guides.',
+            'action_item': 'Coded Flask backend paths returning JSON payloads.'
+        },
+        {
+            'week': 4,
+            'title': 'Interview Simulation & Mock Practice',
+            'goal': 'Simulate technical interview rounds covering data structures and mock logic.',
+            'resources': 'LeetCode arrays, placement preparation manuals.',
+            'action_item': 'Complete 5 conceptual exercises with time complexity bounds.'
+        }
+    ]
+    
+    return jsonify({
+        'success': True,
+        'cgpa': cgpa,
+        'skills': skills,
+        'ats_score': ats_score,
+        'resume_strength': {
+            'formatting': formatting_strength,
+            'keyword_density': keyword_density,
+            'section_completion': section_completion,
+            'suggestions': suggestions
+        },
+        'matching_companies': matching_companies,
+        'placement_prediction': {
+            'score': final_prob,
+            'breakdown': {
+                'cgpa': round(cgpa_contrib, 1),
+                'skills': round(skills_contrib, 1),
+                'projects': round(projects_contrib, 1),
+                'certs': round(certs_contrib, 1)
+            }
+        },
+        'ai_recommendations': {
+            'courses': courses,
+            'certs': recommended_certs,
+            'projects': recommended_projects
+        },
+        'roadmap': {
+            'weeks': weeks
+        }
+    })
+
 # -------------------------------------------------------------
 # Production Module 1: Job Matching Module
 # -------------------------------------------------------------
@@ -1669,15 +1925,51 @@ def admin_dashboard():
     db = get_db()
     cursor = db.cursor()
     
-    # 1. Total Students count
-    cursor.execute('SELECT COUNT(*) as count FROM users WHERE is_admin = 0')
-    total_students = cursor.fetchone()['count']
+    # 1. Overview counts
+    cursor.execute('SELECT COUNT(*) as count FROM users')
+    total_users = cursor.fetchone()['count']
     
-    # 2. Total Resumes count
     cursor.execute('SELECT COUNT(*) as count FROM resumes')
     total_resumes = cursor.fetchone()['count']
     
-    # 3. Top Skills aggregated
+    cursor.execute('SELECT COUNT(*) as count FROM contact_messages')
+    total_messages = cursor.fetchone()['count']
+    
+    cursor.execute('''
+        SELECT COUNT(DISTINCT user_id) as count FROM (
+            SELECT user_id FROM skills 
+            UNION 
+            SELECT user_id FROM projects 
+            UNION 
+            SELECT user_id FROM resumes
+        )
+    ''')
+    active_users = cursor.fetchone()['count']
+    
+    # 2. Recent Registrations (limit 5)
+    cursor.execute('SELECT id, username, email, is_admin, created_at FROM users ORDER BY created_at DESC LIMIT 5')
+    recent_registrations = cursor.fetchall()
+    
+    # 3. Resume Statistics
+    cursor.execute('SELECT AVG(ats_score) as avg_score, MAX(ats_score) as max_score, MIN(ats_score) as min_score FROM resumes')
+    res_stats = cursor.fetchone()
+    resume_stats = {
+        'avg': round(res_stats['avg_score'], 1) if res_stats['avg_score'] is not None else 0.0,
+        'max': res_stats['max_score'] if res_stats['max_score'] is not None else 0,
+        'min': res_stats['min_score'] if res_stats['min_score'] is not None else 0,
+        'total': total_resumes
+    }
+    
+    # 4. Detailed list of uploaded resumes
+    cursor.execute('''
+        SELECT r.id, r.filename, r.ats_score, r.analyzed_at, u.username, u.email 
+        FROM resumes r 
+        JOIN users u ON r.user_id = u.id 
+        ORDER BY r.analyzed_at DESC
+    ''')
+    resumes_list = cursor.fetchall()
+    
+    # 5. Top Skills aggregated
     cursor.execute('''
         SELECT skill_name, COUNT(*) as count 
         FROM skills 
@@ -1687,32 +1979,28 @@ def admin_dashboard():
     ''')
     top_skills = cursor.fetchall()
     
-    # 4. Fetch all students profiles for roster and cohort analytics
-    cursor.execute('SELECT id, username, email, cgpa FROM users WHERE is_admin = 0')
-    students_rows = cursor.fetchall()
+    # 6. Fetch all users for roster and user management
+    cursor.execute('SELECT id, username, email, cgpa, branch, gender, is_admin, created_at FROM users')
+    users_rows = cursor.fetchall()
     
     students_list = []
     total_probability = 0
     calculated_cohort_count = 0
     
-    for s in students_rows:
-        s_id = s['id']
-        cgpa = s['cgpa']
+    for u in users_rows:
+        u_id = u['id']
+        cgpa = u['cgpa']
         
-        # Calculate skills count
-        cursor.execute('SELECT COUNT(*) as count FROM skills WHERE user_id = ?', (s_id,))
+        cursor.execute('SELECT COUNT(*) as count FROM skills WHERE user_id = ?', (u_id,))
         sc = cursor.fetchone()['count']
         
-        # Calculate projects count
-        cursor.execute('SELECT COUNT(*) as count FROM projects WHERE user_id = ?', (s_id,))
+        cursor.execute('SELECT COUNT(*) as count FROM projects WHERE user_id = ?', (u_id,))
         pc = cursor.fetchone()['count']
         
-        # Calculate certs count
-        cursor.execute('SELECT COUNT(*) as count FROM certifications WHERE user_id = ?', (s_id,))
+        cursor.execute('SELECT COUNT(*) as count FROM certifications WHERE user_id = ?', (u_id,))
         cc = cursor.fetchone()['count']
         
-        # Calculate latest resume ATS
-        cursor.execute('SELECT ats_score, id FROM resumes WHERE user_id = ? ORDER BY analyzed_at DESC LIMIT 1', (s_id,))
+        cursor.execute('SELECT ats_score, id FROM resumes WHERE user_id = ? ORDER BY analyzed_at DESC LIMIT 1', (u_id,))
         latest = cursor.fetchone()
         ats = latest['ats_score'] if latest else None
         res_id = latest['id'] if latest else None
@@ -1725,35 +2013,61 @@ def admin_dashboard():
             total_probability += prob
             calculated_cohort_count += 1
             
+        # Build user activity list dynamically based on database contents
+        activities = []
+        if ats is not None:
+            activities.append(f"Uploaded resume (ATS: {ats}%)")
+        if sc > 0:
+            activities.append(f"Logged {sc} technical skill parameters")
+        if pc > 0:
+            activities.append(f"Created {pc} codebase project profiles")
+        if not activities:
+            activities.append("User account registered (no resume/skills logged yet)")
+            
         students_list.append({
-            'id': s_id,
-            'username': s['username'],
-            'email': s['email'],
+            'id': u_id,
+            'username': u['username'],
+            'email': u['email'],
             'cgpa': cgpa,
+            'branch': u['branch'] if u['branch'] else 'N/A',
+            'gender': u['gender'] if u['gender'] else 'N/A',
+            'is_admin': u['is_admin'],
+            'created_at': u['created_at'],
             'skills_count': sc,
             'projects_count': pc,
             'certs_count': cc,
             'ats_score': ats,
             'resume_id': res_id,
-            'placement_probability': prob if cgpa is not None else 'N/A'
+            'placement_probability': prob if cgpa is not None else 'N/A',
+            'activities': activities
         })
         
     avg_probability = 0.0
     if calculated_cohort_count > 0:
         avg_probability = round(total_probability / calculated_cohort_count, 1)
         
-    # 5. Fetch all jobs
+    # 7. Fetch all jobs
     cursor.execute('SELECT * FROM jobs ORDER BY created_at DESC')
     jobs = cursor.fetchall()
     
+    # 8. Fetch contact inquiries (including resolved status)
+    cursor.execute('SELECT id, name, email, subject, message, created_at, resolved FROM contact_messages ORDER BY created_at DESC')
+    inquiries = cursor.fetchall()
+    
     return render_template(
         'admin.html',
-        total_students=total_students,
+        total_users=total_users,
         total_resumes=total_resumes,
+        total_messages=total_messages,
+        active_users=active_users,
+        recent_registrations=recent_registrations,
+        resume_stats=resume_stats,
+        resumes_list=resumes_list,
         avg_probability=avg_probability,
         top_skills=top_skills,
         students=students_list,
-        jobs=jobs
+        jobs=jobs,
+        inquiries=inquiries
     )
 
 # Admin Add Job Endpoint
@@ -1853,6 +2167,35 @@ def admin_charts_data():
             else:
                 placement_ranges['Guaranteed Match (85%+)'] += 1
                 
+    # 4. Most selected companies (Target check)
+    cursor.execute('''
+        SELECT company_name, COUNT(*) as count 
+        FROM user_dream_company 
+        GROUP BY LOWER(company_name) 
+        ORDER BY count DESC 
+        LIMIT 5
+    ''')
+    companies_rows = cursor.fetchall()
+    companies_labels = [row['company_name'] for row in companies_rows]
+    companies_counts = [row['count'] for row in companies_rows]
+    
+    # 5. User growth over time (cumulative count of all users)
+    cursor.execute('''
+        SELECT strftime('%Y-%m', created_at) as month, COUNT(*) as count 
+        FROM users 
+        GROUP BY month 
+        ORDER BY month ASC
+    ''')
+    growth_rows = cursor.fetchall()
+    growth_labels = []
+    growth_counts = []
+    cumulative = 0
+    for row in growth_rows:
+        m = row['month'] if row['month'] else '2026-07'
+        cumulative += row['count']
+        growth_labels.append(m)
+        growth_counts.append(cumulative)
+        
     return jsonify({
         'success': True,
         'skills': {
@@ -1866,6 +2209,14 @@ def admin_charts_data():
         'placement': {
             'labels': list(placement_ranges.keys()),
             'data': list(placement_ranges.values())
+        },
+        'companies': {
+            'labels': companies_labels,
+            'data': companies_counts
+        },
+        'growth': {
+            'labels': growth_labels,
+            'data': growth_counts
         }
     })
 
@@ -2212,6 +2563,586 @@ def get_roadmap_analysis():
         'missing_projects': missing_projects,
         'roadmap': roadmap
     })
+
+# Portfolio Contact API route - open for public recruiter outreach
+@app.route('/api/contact', methods=['POST'])
+def contact():
+    name = request.form.get('name', '').strip()
+    email = request.form.get('email', '').strip()
+    subject = request.form.get('subject', '').strip()
+    message = request.form.get('message', '').strip()
+    
+    if not name or not email or not subject or not message:
+        return jsonify({'success': False, 'message': 'All fields are required.'}), 400
+        
+    if '@' not in email or '.' not in email:
+        return jsonify({'success': False, 'message': 'Please provide a valid email address.'}), 400
+        
+    user_id = session.get('user_id') if 'user_id' in session else None
+    
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('''
+        INSERT INTO contact_messages (user_id, name, email, subject, message)
+        VALUES (?, ?, ?, ?, ?)
+    ''', (user_id, name, email, subject, message))
+    db.commit()
+    
+    # Mock simulated email dispatch in terminal logs
+    print("\n" + "="*50)
+    print("MOCK SMTP EMAIL SENT:")
+    print(f"From: {email} ({name})")
+    print(f"To: portfolio-owner@placement-assistant.com")
+    print(f"Subject: [Portfolio Contact] {subject}")
+    print(f"Message Content:\n{message}")
+    print("="*50 + "\n")
+    
+    return jsonify({'success': True, 'message': 'Thank you! Your message has been sent successfully.'})
+
+# Public Pages Routes
+@app.route('/about')
+def about():
+    user = None
+    if 'user_id' in session:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT username, email, branch, cgpa FROM users WHERE id = ?", (session['user_id'],))
+        user = cursor.fetchone()
+    return render_template('about.html', user=user)
+
+@app.route('/features')
+def features_page():
+    user = None
+    if 'user_id' in session:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT username, email, branch, cgpa FROM users WHERE id = ?", (session['user_id'],))
+        user = cursor.fetchone()
+    return render_template('features.html', user=user)
+
+@app.route('/contact')
+def contact_page():
+    user = None
+    if 'user_id' in session:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT username, email, branch, cgpa FROM users WHERE id = ?", (session['user_id'],))
+        user = cursor.fetchone()
+    return render_template('contact.html', user=user)
+
+# Public Portfolio Resume dynamic PDF download route
+@app.route('/contact/resume/download', methods=['GET'])
+def download_portfolio_resume():
+    pdf = ResumePDF()
+    pdf.alias_nb_pages()
+    pdf.add_page()
+    
+    # Header Banner - Accent Blue
+    pdf.set_fill_color(37, 99, 235) # #2563EB
+    pdf.rect(10, 10, 190, 8, 'F')
+    pdf.ln(12)
+    
+    # Title / Name
+    pdf.set_text_color(30, 41, 59) # Slate 800
+    pdf.set_font('Helvetica', 'B', 22)
+    pdf.cell(0, 10, "Chinmayi S R", ln=1, align='L')
+    
+    # Subtitle / Education Area
+    pdf.set_text_color(37, 99, 235) # Blue Accent
+    pdf.set_font('Helvetica', 'B', 11)
+    pdf.cell(0, 6, "BE CSE Student | Web Developer | AI Enthusiast", ln=1, align='L')
+    
+    # Contacts
+    pdf.set_text_color(71, 85, 105) # Slate 600
+    pdf.set_font('Helvetica', '', 9.5)
+    pdf.cell(0, 6, "Email: chinnu3026@gmail.com | Location: Bengaluru, Karnataka, India", ln=1, align='L')
+    pdf.cell(0, 6, "LinkedIn: linkedin.com/in/chinnu3026 | GitHub: github.com/chinnu3026", ln=1, align='L')
+    pdf.ln(4)
+    
+    # Horizontal line separator
+    pdf.set_draw_color(226, 232, 240)
+    pdf.line(10, pdf.get_y(), 200, pdf.get_y())
+    pdf.ln(5)
+    
+    # ACADEMIC PROFILE
+    pdf.set_text_color(30, 41, 59)
+    pdf.set_font('Helvetica', 'B', 13)
+    pdf.cell(0, 8, "ACADEMIC PROFILE", ln=1)
+    pdf.set_font('Helvetica', '', 10)
+    pdf.cell(0, 6, "Degree: Bachelor of Engineering in Computer Science & Engineering", ln=1)
+    pdf.cell(0, 6, "Institution: Visvesvaraya Technological University (VTU) Affiliate | CGPA: 9.10/10.00", ln=1)
+    pdf.ln(4)
+    
+    # TECHNICAL SKILLS
+    pdf.set_font('Helvetica', 'B', 13)
+    pdf.cell(0, 8, "TECHNICAL SKILLS", ln=1)
+    pdf.set_font('Helvetica', '', 10)
+    pdf.multi_cell(0, 6, "Languages: Python, JavaScript, HTML5, CSS3, SQL\n"
+                          "Frameworks & Libraries: Flask, React, Bootstrap 5, Express.js\n"
+                          "Tools & Databases: Git, SQLite, PostgreSQL, REST APIs, AI Prompting")
+    pdf.ln(4)
+        
+    # PROJECTS
+    pdf.set_font('Helvetica', 'B', 13)
+    pdf.cell(0, 8, "ACADEMIC & PERSONAL PROJECTS", ln=1)
+    
+    pdf.set_font('Helvetica', 'B', 10.5)
+    pdf.cell(0, 6, "AI Career & Placement Assistant Platform | Stack: Flask, SQLite, Bootstrap 5, Chart.js", ln=1)
+    pdf.set_font('Helvetica', '', 9.5)
+    pdf.multi_cell(0, 5, "Developed a modern placement intelligence panel storing candidate profiles, tracking interview evaluations, and calculating job readiness indicators. Built a real-time resume audit check, skill gap recommendation engine, and dynamic company tracking.")
+    pdf.ln(2.5)
+
+    pdf.set_font('Helvetica', 'B', 10.5)
+    pdf.cell(0, 6, "Chat & Collaboration Dashboard | Stack: React, CSS variables, Node.js", ln=1)
+    pdf.set_font('Helvetica', '', 9.5)
+    pdf.multi_cell(0, 5, "Designed a real-time responsive chat and work monitoring app using modern glassmorphism design parameters, responsive layouts, and micro-animations.")
+    pdf.ln(4)
+        
+    # CERTIFICATIONS
+    pdf.set_font('Helvetica', 'B', 13)
+    pdf.cell(0, 8, "CERTIFICATIONS", ln=1)
+    pdf.set_font('Helvetica', '', 10)
+    pdf.cell(0, 6, "- AWS Certified Cloud Practitioner (Amazon Web Services)", ln=1)
+    pdf.cell(0, 6, "- Google Advanced AI Professional Certificate (Google)", ln=1)
+        
+    response = make_response(pdf.output())
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = 'attachment; filename=Resume_Chinmayi_SR.pdf'
+    return response
+
+# Resume dynamic PDF generator helper class
+class ResumePDF(FPDF):
+    def header(self):
+        pass
+    def footer(self):
+        self.set_y(-15)
+        self.set_text_color(156, 163, 175)
+        self.set_font('Helvetica', 'I', 8)
+        self.cell(0, 10, 'Generated via AI Career & Placement Assistant Portfolio', align='C')
+
+# Dynamic portfolio resume download route
+@app.route('/api/contact/resume/download', methods=['GET'])
+@login_required
+def download_resume():
+    db = get_db()
+    cursor = db.cursor()
+    user_id = session['user_id']
+    
+    # 1. Try to fetch the latest uploaded resume PDF from the ATS resumes database
+    cursor.execute('SELECT filename FROM resumes WHERE user_id = ? ORDER BY analyzed_at DESC LIMIT 1', (user_id,))
+    row = cursor.fetchone()
+    if row and row['filename']:
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], row['filename'])
+        if os.path.exists(file_path):
+            return send_from_directory(app.config['UPLOAD_FOLDER'], row['filename'], as_attachment=True)
+            
+    # 2. Fallback: dynamically generate a beautiful resume report from database data
+    cursor.execute('SELECT username, email, branch, cgpa FROM users WHERE id = ?', (user_id,))
+    user = cursor.fetchone()
+    
+    cursor.execute('SELECT skill_name, proficiency FROM skills WHERE user_id = ?', (user_id,))
+    skills = cursor.fetchall()
+    
+    cursor.execute('SELECT cert_name, issuing_org, issue_date FROM certifications WHERE user_id = ?', (user_id,))
+    certs = cursor.fetchall()
+    
+    cursor.execute('SELECT title, description, technologies FROM projects WHERE user_id = ?', (user_id,))
+    projects = cursor.fetchall()
+    
+    pdf = ResumePDF()
+    pdf.alias_nb_pages()
+    pdf.add_page()
+    
+    # Header Banner - Accent Blue
+    pdf.set_fill_color(37, 99, 235) # #2563EB
+    pdf.rect(10, 10, 190, 8, 'F')
+    pdf.ln(12)
+    
+    # Title / Name
+    pdf.set_text_color(30, 41, 59) # Slate 800
+    pdf.set_font('Helvetica', 'B', 22)
+    name = user['username'].replace('_', ' ').title() if user else 'John Developer'
+    pdf.cell(0, 10, name, ln=1, align='L')
+    
+    # Subtitle / Education Area
+    pdf.set_text_color(37, 99, 235) # Blue Accent
+    pdf.set_font('Helvetica', 'B', 11)
+    branch_name = user['branch'] if (user and user['branch']) else 'Computer Science Engineering'
+    pdf.cell(0, 6, f"Candidate for B.E. in {branch_name}", ln=1, align='L')
+    
+    # Contacts
+    pdf.set_text_color(71, 85, 105) # Slate 600
+    pdf.set_font('Helvetica', '', 9.5)
+    email_addr = user['email'] if user else 'chinnu3026@gmail.com'
+    pdf.cell(0, 6, f"Email: {email_addr} | Location: Bengaluru, Karnataka, India", ln=1, align='L')
+    pdf.cell(0, 6, "LinkedIn: linkedin.com/in/chinnu3026 | GitHub: github.com/chinnu3026", ln=1, align='L')
+    pdf.ln(4)
+    
+    # Horizontal line separator
+    pdf.set_draw_color(226, 232, 240)
+    pdf.line(10, pdf.get_y(), 200, pdf.get_y())
+    pdf.ln(5)
+    
+    # ACADEMIC PROFILE
+    pdf.set_text_color(30, 41, 59)
+    pdf.set_font('Helvetica', 'B', 13)
+    pdf.cell(0, 8, "ACADEMIC PROFILE", ln=1)
+    pdf.set_font('Helvetica', '', 10)
+    cgpa_val = f"{user['cgpa']:.2f}" if (user and user['cgpa'] is not None) else "8.50"
+    pdf.cell(0, 6, f"Institution: Visvesvaraya Technological University Affiliate | CGPA: {cgpa_val}/10.00", ln=1)
+    pdf.cell(0, 6, f"Degree: Bachelor of Engineering in {branch_name}", ln=1)
+    pdf.ln(4)
+    
+    # TECHNICAL SKILLS
+    if skills:
+        pdf.set_font('Helvetica', 'B', 13)
+        pdf.cell(0, 8, "TECHNICAL SKILLS", ln=1)
+        pdf.set_font('Helvetica', '', 10)
+        skills_str = ", ".join([f"{s['skill_name']} ({s['proficiency']})" for s in skills])
+        pdf.multi_cell(0, 6, skills_str)
+        pdf.ln(4)
+    else:
+        pdf.set_font('Helvetica', 'B', 13)
+        pdf.cell(0, 8, "TECHNICAL SKILLS", ln=1)
+        pdf.set_font('Helvetica', '', 10)
+        pdf.cell(0, 6, "Python (Advanced), SQL (Intermediate), Git (Intermediate)", ln=1)
+        pdf.ln(4)
+        
+    # PROJECTS
+    pdf.set_font('Helvetica', 'B', 13)
+    pdf.cell(0, 8, "ACADEMIC & PERSONAL PROJECTS", ln=1)
+    if projects:
+        for proj in projects:
+            pdf.set_font('Helvetica', 'B', 10.5)
+            pdf.cell(0, 6, f"{proj['title']} | Stack: {proj['technologies']}", ln=1)
+            pdf.set_font('Helvetica', '', 9.5)
+            pdf.multi_cell(0, 5, proj['description'])
+            pdf.ln(2.5)
+    else:
+        pdf.set_font('Helvetica', 'B', 10.5)
+        pdf.cell(0, 6, "AI Career Assistant Portal | Stack: Flask, SQLite, Bootstrap 5", ln=1)
+        pdf.set_font('Helvetica', '', 9.5)
+        pdf.multi_cell(0, 5, "Developed a modern placement intelligence panel storing candidate profiles, tracking interview evaluations, and calculating job readiness indicators.")
+        pdf.ln(2.5)
+    pdf.ln(2)
+        
+    # CERTIFICATIONS
+    pdf.set_font('Helvetica', 'B', 13)
+    pdf.cell(0, 8, "CERTIFICATIONS", ln=1)
+    pdf.set_font('Helvetica', '', 10)
+    if certs:
+        for cert in certs:
+            pdf.cell(0, 6, f"- {cert['cert_name']} (Issued by {cert['issuing_org']}, {cert['issue_date']})", ln=1)
+    else:
+        pdf.cell(0, 6, "- AWS Certified Cloud Practitioner (Amazon Web Services)", ln=1)
+        
+    response = make_response(pdf.output())
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = f'attachment; filename=Resume_{user["username"] if user else "Candidate"}.pdf'
+    return response
+
+# CSV / Excel export APIs
+import csv
+from io import StringIO
+
+@app.route('/admin/api/export/students', methods=['GET'])
+@login_required
+def export_students_csv():
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('SELECT is_admin FROM users WHERE id = ?', (session['user_id'],))
+    admin_user = cursor.fetchone()
+    if not admin_user or not admin_user['is_admin']:
+        return "Unauthorized", 403
+        
+    cursor.execute('SELECT id, username, email, cgpa, branch, gender, is_admin FROM users')
+    users = cursor.fetchall()
+    
+    si = StringIO()
+    cw = csv.writer(si)
+    cw.writerow(['ID', 'Username', 'Email', 'CGPA', 'Branch', 'Gender', 'Role', 'Skills Count', 'Projects Count', 'Certifications Count', 'Latest ATS Score', 'Estimated Placement Odds'])
+    
+    for u in users:
+        u_id = u['id']
+        cursor.execute('SELECT COUNT(*) as count FROM skills WHERE user_id = ?', (u_id,))
+        sc = cursor.fetchone()['count']
+        cursor.execute('SELECT COUNT(*) as count FROM projects WHERE user_id = ?', (u_id,))
+        pc = cursor.fetchone()['count']
+        cursor.execute('SELECT COUNT(*) as count FROM certifications WHERE user_id = ?', (u_id,))
+        cc = cursor.fetchone()['count']
+        cursor.execute('SELECT ats_score FROM resumes WHERE user_id = ? ORDER BY analyzed_at DESC LIMIT 1', (u_id,))
+        latest = cursor.fetchone()
+        ats = latest['ats_score'] if latest else 'N/A'
+        
+        prob = 'N/A'
+        if u['cgpa'] is not None:
+            prob_calc = 35.0 + ((u['cgpa'] / 10.0) * 30.0) + min(15.0, sc * 3.0) + min(12.0, pc * 6.0) + min(8.0, cc * 4.0)
+            prob = f"{min(99.0, round(prob_calc, 1))}%"
+            
+        role = 'Admin' if u['is_admin'] else 'Student'
+        cw.writerow([
+            u['id'],
+            u['username'],
+            u['email'],
+            u['cgpa'] if u['cgpa'] is not None else 'N/A',
+            u['branch'] if u['branch'] else 'N/A',
+            u['gender'] if u['gender'] else 'N/A',
+            role,
+            sc,
+            pc,
+            cc,
+            ats,
+            prob
+        ])
+        
+    response = make_response(si.getvalue())
+    response.headers['Content-Disposition'] = 'attachment; filename=student_cohort_roster.csv'
+    response.headers['Content-Type'] = 'text/csv'
+    return response
+
+@app.route('/admin/api/export/inquiries', methods=['GET'])
+@login_required
+def export_inquiries_csv():
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('SELECT is_admin FROM users WHERE id = ?', (session['user_id'],))
+    admin_user = cursor.fetchone()
+    if not admin_user or not admin_user['is_admin']:
+        return "Unauthorized", 403
+        
+    cursor.execute('SELECT * FROM contact_messages ORDER BY created_at DESC')
+    inquiries = cursor.fetchall()
+    
+    si = StringIO()
+    cw = csv.writer(si)
+    cw.writerow(['Message ID', 'Sender Name', 'Sender Email', 'Subject', 'Message Content', 'Created At'])
+    
+    for inq in inquiries:
+        cw.writerow([
+            inq['id'],
+            inq['name'],
+            inq['email'],
+            inq['subject'],
+            inq['message'],
+            inq['created_at']
+        ])
+        
+    response = make_response(si.getvalue())
+    response.headers['Content-Disposition'] = 'attachment; filename=contact_inquiries.csv'
+    response.headers['Content-Type'] = 'text/csv'
+    return response
+
+# User Management APIs (Toggle Role, Delete User)
+@app.route('/admin/api/user/toggle-role', methods=['POST'])
+@login_required
+def toggle_user_role():
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('SELECT is_admin FROM users WHERE id = ?', (session['user_id'],))
+    admin_user = cursor.fetchone()
+    if not admin_user or not admin_user['is_admin']:
+        return jsonify({'success': False, 'message': 'Unauthorized access.'}), 403
+        
+    target_user_id = request.form.get('user_id')
+    if not target_user_id:
+        return jsonify({'success': False, 'message': 'Missing user ID.'}), 400
+        
+    if int(target_user_id) == session['user_id']:
+        return jsonify({'success': False, 'message': 'You cannot change your own role.'}), 400
+        
+    cursor.execute('SELECT is_admin FROM users WHERE id = ?', (target_user_id,))
+    target_user = cursor.fetchone()
+    if not target_user:
+        return jsonify({'success': False, 'message': 'User not found.'}), 404
+        
+    new_role = 0 if target_user['is_admin'] else 1
+    cursor.execute('UPDATE users SET is_admin = ? WHERE id = ?', (new_role, target_user_id))
+    db.commit()
+    
+    role_name = 'Admin' if new_role else 'Student'
+    return jsonify({'success': True, 'message': f'User role updated to {role_name} successfully.'})
+
+@app.route('/admin/api/user/delete', methods=['POST'])
+@login_required
+def delete_user():
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('SELECT is_admin FROM users WHERE id = ?', (session['user_id'],))
+    admin_user = cursor.fetchone()
+    if not admin_user or not admin_user['is_admin']:
+        return jsonify({'success': False, 'message': 'Unauthorized access.'}), 403
+        
+    target_user_id = request.form.get('user_id')
+    if not target_user_id:
+        return jsonify({'success': False, 'message': 'Missing user ID.'}), 400
+        
+    if int(target_user_id) == session['user_id']:
+        return jsonify({'success': False, 'message': 'You cannot delete your own account.'}), 400
+        
+    cursor.execute('DELETE FROM users WHERE id = ?', (target_user_id,))
+    cursor.execute('DELETE FROM skills WHERE user_id = ?', (target_user_id,))
+    cursor.execute('DELETE FROM certifications WHERE user_id = ?', (target_user_id,))
+    cursor.execute('DELETE FROM projects WHERE user_id = ?', (target_user_id,))
+    cursor.execute('DELETE FROM resumes WHERE user_id = ?', (target_user_id,))
+    cursor.execute('DELETE FROM user_dream_company WHERE user_id = ?', (target_user_id,))
+    cursor.execute('DELETE FROM saved_companies WHERE user_id = ?', (target_user_id,))
+    cursor.execute('DELETE FROM application_tracker WHERE user_id = ?', (target_user_id,))
+    cursor.execute('DELETE FROM placement_calendar WHERE user_id = ?', (target_user_id,))
+    cursor.execute('DELETE FROM coding_progress WHERE user_id = ?', (target_user_id,))
+    cursor.execute('DELETE FROM recruiter_evaluations WHERE user_id = ?', (target_user_id,))
+    cursor.execute('DELETE FROM readiness_scores WHERE user_id = ?', (target_user_id,))
+    db.commit()
+    
+    return jsonify({'success': True, 'message': 'User account deleted successfully.'})
+
+# Contact Inquiry Management API (Delete Inquiry)
+@app.route('/admin/api/inquiry/delete', methods=['POST'])
+@login_required
+def delete_inquiry():
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('SELECT is_admin FROM users WHERE id = ?', (session['user_id'],))
+    admin_user = cursor.fetchone()
+    if not admin_user or not admin_user['is_admin']:
+        return jsonify({'success': False, 'message': 'Unauthorized access.'}), 403
+        
+    inquiry_id = request.form.get('inquiry_id')
+    if not inquiry_id:
+        return jsonify({'success': False, 'message': 'Missing inquiry ID.'}), 400
+        
+    cursor.execute('DELETE FROM contact_messages WHERE id = ?', (inquiry_id,))
+    db.commit()
+    return jsonify({'success': True, 'message': 'Inquiry message deleted successfully.'})
+
+# Admin Resolve Inquiry Endpoint
+@app.route('/admin/api/inquiry/resolve', methods=['POST'])
+@login_required
+def resolve_inquiry():
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('SELECT is_admin FROM users WHERE id = ?', (session['user_id'],))
+    admin_user = cursor.fetchone()
+    if not admin_user or not admin_user['is_admin']:
+        return jsonify({'success': False, 'message': 'Unauthorized access.'}), 403
+        
+    inquiry_id = request.form.get('inquiry_id')
+    if not inquiry_id:
+        return jsonify({'success': False, 'message': 'Missing inquiry ID.'}), 400
+        
+    cursor.execute('SELECT resolved FROM contact_messages WHERE id = ?', (inquiry_id,))
+    row = cursor.fetchone()
+    if not row:
+        return jsonify({'success': False, 'message': 'Inquiry not found.'}), 404
+        
+    new_status = 0 if row['resolved'] else 1
+    cursor.execute('UPDATE contact_messages SET resolved = ? WHERE id = ?', (new_status, inquiry_id))
+    db.commit()
+    
+    status_text = 'Resolved' if new_status else 'Unresolved'
+    return jsonify({'success': True, 'message': f'Inquiry marked as {status_text} successfully.', 'resolved': new_status})
+
+# Admin Edit User Details Endpoint
+@app.route('/admin/api/user/edit', methods=['POST'])
+@login_required
+def admin_edit_user():
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('SELECT is_admin FROM users WHERE id = ?', (session['user_id'],))
+    admin_user = cursor.fetchone()
+    if not admin_user or not admin_user['is_admin']:
+        return jsonify({'success': False, 'message': 'Unauthorized access.'}), 403
+        
+    target_user_id = request.form.get('user_id')
+    username = request.form.get('username', '').strip()
+    email = request.form.get('email', '').strip()
+    cgpa_raw = request.form.get('cgpa', '').strip()
+    branch = request.form.get('branch', '').strip()
+    
+    if not target_user_id or not username or not email:
+        return jsonify({'success': False, 'message': 'Missing required fields.'}), 400
+        
+    try:
+        cgpa = float(cgpa_raw) if cgpa_raw else None
+    except ValueError:
+        return jsonify({'success': False, 'message': 'Invalid CGPA value.'}), 400
+        
+    cursor.execute('UPDATE users SET username = ?, email = ?, cgpa = ?, branch = ? WHERE id = ?', 
+                   (username, email, cgpa, branch, target_user_id))
+    db.commit()
+    return jsonify({'success': True, 'message': 'User details updated successfully.'})
+
+# Admin Download Resume Endpoint
+@app.route('/admin/api/resume/download/<int:resume_id>', methods=['GET'])
+@login_required
+def admin_download_resume(resume_id):
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('SELECT is_admin FROM users WHERE id = ?', (session['user_id'],))
+    admin_user = cursor.fetchone()
+    if not admin_user or not admin_user['is_admin']:
+        return "Unauthorized", 403
+        
+    cursor.execute('SELECT filename FROM resumes WHERE id = ?', (resume_id,))
+    row = cursor.fetchone()
+    if row and row['filename']:
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], row['filename'])
+        if os.path.exists(file_path):
+            return send_from_directory(app.config['UPLOAD_FOLDER'], row['filename'], as_attachment=True)
+    return "Resume file not found.", 404
+
+# Export students to Excel (compatibility mode XLS)
+@app.route('/admin/api/export/students/excel', methods=['GET'])
+@login_required
+def export_students_excel():
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('SELECT is_admin FROM users WHERE id = ?', (session['user_id'],))
+    admin_user = cursor.fetchone()
+    if not admin_user or not admin_user['is_admin']:
+        return "Unauthorized", 403
+        
+    cursor.execute('SELECT id, username, email, cgpa, branch, gender, is_admin FROM users')
+    users = cursor.fetchall()
+    
+    html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">'
+    html += '<head><meta http-equiv="Content-type" content="text/html;charset=utf-8" /></head><body>'
+    html += '<table border="1">'
+    html += '<tr>'
+    html += '<th>ID</th><th>Username</th><th>Email</th><th>CGPA</th><th>Branch</th><th>Gender</th><th>Role</th><th>Skills Count</th><th>Projects Count</th><th>Certifications Count</th><th>Latest ATS Score</th><th>Estimated Placement Odds</th>'
+    html += '</tr>'
+    
+    for u in users:
+        u_id = u['id']
+        cursor.execute('SELECT COUNT(*) as count FROM skills WHERE user_id = ?', (u_id,))
+        sc = cursor.fetchone()['count']
+        cursor.execute('SELECT COUNT(*) as count FROM projects WHERE user_id = ?', (u_id,))
+        pc = cursor.fetchone()['count']
+        cursor.execute('SELECT COUNT(*) as count FROM certifications WHERE user_id = ?', (u_id,))
+        cc = cursor.fetchone()['count']
+        cursor.execute('SELECT ats_score FROM resumes WHERE user_id = ? ORDER BY analyzed_at DESC LIMIT 1', (u_id,))
+        latest = cursor.fetchone()
+        ats = latest['ats_score'] if latest else 'N/A'
+        
+        prob = 'N/A'
+        if u['cgpa'] is not None:
+            prob_calc = 35.0 + ((u['cgpa'] / 10.0) * 30.0) + min(15.0, sc * 3.0) + min(12.0, pc * 6.0) + min(8.0, cc * 4.0)
+            prob = f"{min(99.0, round(prob_calc, 1))}%"
+            
+        role = 'Admin' if u['is_admin'] else 'Student'
+        html += f'<tr>'
+        html += f'<td>{u["id"]}</td><td>{u["username"]}</td><td>{u["email"]}</td>'
+        html += f'<td>{u["cgpa"] if u["cgpa"] is not None else "N/A"}</td>'
+        html += f'<td>{u["branch"] if u["branch"] else "N/A"}</td>'
+        html += f'<td>{u["gender"] if u["gender"] else "N/A"}</td>'
+        html += f'<td>{role}</td><td>{sc}</td><td>{pc}</td><td>{cc}</td><td>{ats}</td><td>{prob}</td>'
+        html += '</tr>'
+        
+    html += '</table></body></html>'
+    
+    response = make_response(html)
+    response.headers['Content-Disposition'] = 'attachment; filename=student_cohort_roster.xls'
+    response.headers['Content-Type'] = 'application/vnd.ms-excel'
+    return response
 
 import os
 

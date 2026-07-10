@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block title %}Contact - AI Career Assistant{% endblock %}
+
+{% block content %}
+<div class="contact-page-wrapper py-4">
+    <!-- Header Banner -->
+    <div class="text-center mb-5">
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill fs-9 mb-3 fw-bold tracking-wider text-uppercase">
+            <i class="fa-solid fa-paper-plane me-1"></i> Contact Portal
+        </span>
+        <h1 class="display-5 fw-extrabold text-white mb-2" style="font-family: 'Outfit', sans-serif;">Let's Connect</h1>
+        <p class="text-secondary-custom fs-7 mx-auto" style="max-width: 600px;">
+            Have a project idea, internship opportunity, collaboration, or just want to connect? Feel free to reach out. I'd love to hear from you.
+        </p>
+    </div>
+
+    <div class="row g-4">
+        <!-- Left Column: Contact Cards -->
+        <div class="col-lg-5">
+            <div class="d-flex flex-column gap-3">
+                <!-- Email Card -->
+                <div class="portfolio-contact-card p-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="contact-icon-wrapper contact-email">
+                            <i class="fa-solid fa-envelope"></i>
+                        </div>
+                        <div>
+                            <span class="contact-card-label d-block">Email Address</span>
+                            <a href="mailto:chinnu3026@gmail.com" class="contact-card-value text-decoration-none">chinnu3026@gmail.com</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Location Card -->
+                <div class="portfolio-contact-card p-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="contact-icon-wrapper contact-location">
+                            <i class="fa-solid fa-location-dot"></i>
+                        </div>
+                        <div>
+                            <span class="contact-card-label d-block">Location</span>
+                            <span class="contact-card-value">Bengaluru, Karnataka, India</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LinkedIn Card -->
+                <div class="portfolio-contact-card p-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="contact-icon-wrapper contact-linkedin">
+                            <i class="fa-brands fa-linkedin-in"></i>
+                        </div>
+                        <div>
+                            <span class="contact-card-label d-block">LinkedIn Profile</span>
+                            <a href="https://linkedin.com/in/chinnu3026" target="_blank" rel="noopener noreferrer" class="contact-card-value text-decoration-none">Connect on LinkedIn <i class="fa-solid fa-arrow-up-right-from-square ms-1 fs-9"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GitHub Card -->
+                <div class="portfolio-contact-card p-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="contact-icon-wrapper contact-github">
+                            <i class="fa-brands fa-github"></i>
+                        </div>
+                        <div>
+                            <span class="contact-card-label d-block">GitHub Profile</span>
+                            <a href="https://github.com/chinnu3026" target="_blank" rel="noopener noreferrer" class="contact-card-value text-decoration-none">View Repositories <i class="fa-solid fa-arrow-up-right-from-square ms-1 fs-9"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Contact Form Card -->
+        <div class="col-lg-7">
+            <div class="glass-panel contact-form-container p-4">
+                <!-- Success State Container -->
+                <div id="contact-success-state" class="text-center py-5" style="display: none;">
+                    <div class="success-animation mb-4">
+                        <div class="success-icon-circle">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                    </div>
+                    <h3 class="h4 text-white mb-2">Message Sent!</h3>
+                    <p class="text-secondary-custom fs-8 mb-4 mx-auto" style="max-width: 400px;" id="contact-success-message">
+                        Thank you! Your message has been sent successfully. I will get back to you as soon as possible.
+                    </p>
+                    <button type="button" class="btn btn-premium btn-sm" id="btn-contact-reset">
+                        Send Another Message <i class="fa-solid fa-arrows-rotate ms-1"></i>
+                    </button>
+                </div>
+
+                <!-- Form Form Wrapper -->
+                <div id="contact-form-wrapper">
+                    <h3 class="h5 text-white mb-3"><i class="fa-solid fa-comment-dots me-2 text-gradient-cyan"></i>Send a Message</h3>
+                    <form id="portfolio-contact-form" class="row g-3">
+                        <div class="col-md-6">
+                            <label for="contact-name" class="form-label fs-8 text-secondary-custom">Full Name</label>
+                            <input type="text" class="form-control contact-input py-2.5 fs-8 w-100" id="contact-name" name="name" 
+                                   value="{{ user.username if user else '' }}" placeholder="Enter your full name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="contact-email" class="form-label fs-8 text-secondary-custom">Email Address</label>
+                            <input type="email" class="form-control contact-input py-2.5 fs-8 w-100" id="contact-email" name="email" 
+                                   value="{{ user.email if user else '' }}" placeholder="Enter your email address" required>
+                        </div>
+                        <div class="col-12">
+                            <label for="contact-subject" class="form-label fs-8 text-secondary-custom">Subject</label>
+                            <input type="text" class="form-control contact-input py-2.5 fs-8 w-100" id="contact-subject" name="subject" 
+                                   placeholder="How can I help you?" required>
+                        </div>
+                        <div class="col-12">
+                            <label for="contact-message" class="form-label fs-8 text-secondary-custom">Message</label>
+                            <textarea class="form-control contact-input py-2.5 fs-8 w-100" id="contact-message" name="message" 
+                                      rows="5" placeholder="Write your message here..." required></textarea>
+                        </div>
+                        <div class="col-12 mt-4">
+                            <button type="submit" class="btn btn-premium w-100 py-2.5" id="btn-contact-submit">
+                                <span class="btn-text">Send Message <i class="fa-solid fa-paper-plane ms-1.5"></i></span>
+                                <span class="spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true" style="display: none;" id="contact-submit-spinner"></span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Premium Action Buttons -->
+                <div class="mt-4 pt-4 border-top border-secondary-subtle contact-action-divider">
+                    <div class="row g-3">
+                        <div class="col-sm-4">
+                            <a href="{{ url_for('download_portfolio_resume') }}" class="btn btn-action-premium w-100 btn-resume-download" title="Download my latest resume PDF">
+                                <i class="fa-solid fa-download me-2"></i>Download Resume
+                            </a>
+                        </div>
+                        <div class="col-sm-4">
+                            <a href="https://linkedin.com/in/chinnu3026" target="_blank" rel="noopener noreferrer" class="btn btn-action-premium w-100 btn-linkedin-connect" title="Open my LinkedIn profile in a new tab">
+                                <i class="fa-brands fa-linkedin-in me-2"></i>Connect on LinkedIn
+                            </a>
+                        </div>
+                        <div class="col-sm-4">
+                            <a href="https://github.com/chinnu3026" target="_blank" rel="noopener noreferrer" class="btn btn-action-premium w-100 btn-github-view" title="Open my GitHub profile in a new tab">
+                                <i class="fa-brands fa-github me-2"></i>View GitHub
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,290 @@
+{% extends 'base.html' %}
+
+{% block title %}AI Career Assistant - Analyze. Learn. Get Hired.{% endblock %}
+
+{% block content %}
+<div class="landing-page-wrapper">
+    <!-- HERO SECTION -->
+    <section class="landing-section hero-section-centered">
+        <div class="hero-blur-glow" style="position: absolute; top: -100px; left: 50%; transform: translateX(-50%); width: 600px; height: 300px; background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0) 70%); pointer-events: none; z-index: 1;"></div>
+        <div class="container position-relative text-center" style="z-index: 2; max-width: 900px;">
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3.5 py-2 rounded-pill fs-9 mb-4 fw-bold tracking-wider text-uppercase" style="letter-spacing: 0.05em;">
+                <i class="fa-solid fa-sparkles me-1 text-gradient"></i> AI Career Intelligence Platform
+            </span>
+            <h1 class="display-3 fw-black text-white mb-4 text-gradient hero-title" style="font-family: 'Outfit', sans-serif; letter-spacing: -0.02em; line-height: 1.15; font-size: calc(2rem + 3.2vw);">
+                Analyze • Learn • Get Hired
+            </h1>
+            <p class="lead text-secondary-custom mx-auto mb-5" style="max-width: 680px; font-size: 1.1rem; line-height: 1.75; color: var(--text-secondary) !important;">
+                AI-powered career guidance platform for engineering students. Improve ATS scores, identify skill gaps, discover dream companies, and prepare for placements.
+            </p>
+            <div class="d-flex flex-wrap justify-content-center gap-3">
+                {% if session.get('user_id') %}
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-premium px-5 py-3 fs-8 fw-semibold shadow-sm">
+                        Go to Dashboard <i class="fa-solid fa-arrow-right ms-2"></i>
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('signup') }}" class="btn btn-premium px-5 py-3 fs-8 fw-semibold shadow-sm">
+                        Get Started Free <i class="fa-solid fa-rocket ms-2"></i>
+                    </a>
+                {% endif %}
+                <a href="{{ url_for('features_page') }}" class="btn btn-glass px-5 py-3 fs-8 text-white fw-semibold" style="border: 1px solid rgba(255, 255, 255, 0.1) !important;">
+                    Explore Features <i class="fa-solid fa-circle-info ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- CORE FEATURES SECTION -->
+    <section class="landing-section">
+        <div class="text-center mb-5">
+            <h2 class="h3 text-white fw-bold mb-2"><i class="fa-solid fa-cubes me-2 text-gradient"></i>Platform Core Features</h2>
+            <p class="text-secondary-custom fs-8 mx-auto" style="max-width: 550px;">Explore the smart capabilities built to assist engineering candidates in securing top placements.</p>
+        </div>
+        <div class="feature-cards-grid">
+            <!-- Feature 1 -->
+            <div class="glass-panel p-4 text-center hover-glow-blue border-radius-20 d-flex flex-column align-items-center justify-content-between h-100">
+                <div class="mb-4">
+                    <div class="contact-icon-wrapper contact-email mx-auto mb-3.5 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px; background: rgba(59, 130, 246, 0.1); border-radius: 12px;">
+                        <i class="fa-solid fa-file-invoice fs-4 text-primary"></i>
+                    </div>
+                    <h3 class="h6 text-white fw-bold mb-2.5">ATS Resume Audit</h3>
+                    <p class="text-secondary-custom fs-9 mb-0" style="line-height: 1.6;">Upload and audit your resume against technical keywords and layout checks in real-time.</p>
+                </div>
+            </div>
+            <!-- Feature 2 -->
+            <div class="glass-panel p-4 text-center hover-glow-blue border-radius-20 d-flex flex-column align-items-center justify-content-between h-100">
+                <div class="mb-4">
+                    <div class="contact-icon-wrapper contact-location mx-auto mb-3.5 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px; background: rgba(6, 182, 212, 0.1); border-radius: 12px;">
+                        <i class="fa-solid fa-gauge-high fs-4 text-cyan"></i>
+                    </div>
+                    <h3 class="h6 text-white fw-bold mb-2.5">Company Readiness</h3>
+                    <p class="text-secondary-custom fs-9 mb-0" style="line-height: 1.6;">Compute your percentage readiness scores tailored specifically for target hiring profiles.</p>
+                </div>
+            </div>
+            <!-- Feature 3 -->
+            <div class="glass-panel p-4 text-center hover-glow-blue border-radius-20 d-flex flex-column align-items-center justify-content-between h-100">
+                <div class="mb-4">
+                    <div class="contact-icon-wrapper contact-linkedin mx-auto mb-3.5 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px; background: rgba(139, 92, 246, 0.1); border-radius: 12px;">
+                        <i class="fa-solid fa-route fs-4 text-purple"></i>
+                    </div>
+                    <h3 class="h6 text-white fw-bold mb-2.5">Skill Gap & Roadmaps</h3>
+                    <p class="text-secondary-custom fs-9 mb-0" style="line-height: 1.6;">Pinpoint missing developer stack criteria and view weekly modular learning guides.</p>
+                </div>
+            </div>
+            <!-- Feature 4 -->
+            <div class="glass-panel p-4 text-center hover-glow-blue border-radius-20 d-flex flex-column align-items-center justify-content-between h-100">
+                <div class="mb-4">
+                    <div class="contact-icon-wrapper contact-github mx-auto mb-3.5 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px; background: rgba(16, 185, 129, 0.1); border-radius: 12px;">
+                        <i class="fa-solid fa-comments fs-4 text-success"></i>
+                    </div>
+                    <h3 class="h6 text-white fw-bold mb-2.5">Mock Interview Simulator</h3>
+                    <p class="text-secondary-custom fs-9 mb-0" style="line-height: 1.6;">Generate conceptual questions based on individual skills to prepare for technical rounds.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- COMPANY RECOMMENDATIONS SECTION -->
+    <section class="landing-section bg-dark border border-secondary" style="border-radius: 24px !important; border-color: var(--border-color) !important; padding: 40px !important;">
+        <div class="d-flex justify-content-between align-items-center mb-5 flex-wrap gap-3">
+            <div>
+                <h2 class="h4 text-white mb-2 fw-bold"><i class="fa-solid fa-compass text-gradient me-2"></i>Dream Company Recommendations</h2>
+                <p class="text-secondary-custom fs-8 mb-0">Pre-ranked parameters based on compensation package, location, and eligibility alignment.</p>
+            </div>
+            <a href="{{ url_for('signup') }}" class="btn btn-glass btn-sm text-gradient fs-8 text-decoration-none" style="border: 1px solid rgba(255,255,255,0.06) !important; padding: 8px 16px;">Explore All Companies &rarr;</a>
+        </div>
+        
+        <div class="company-cards-grid">
+            {% if featured_companies %}
+                {% for comp in featured_companies %}
+                    <div class="glass-card p-4 border-radius-20 d-flex flex-column justify-content-between hover-glow-blue h-100" style="min-height: 200px; background: var(--bg-card) !important; border: 1px solid var(--border-color) !important;">
+                        <div>
+                            <!-- Header with Logo, Name & Badge -->
+                            <div class="d-flex align-items-start gap-3 mb-3">
+                                <div class="company-logo-wrapper p-1.5 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; flex-shrink: 0; background: rgba(255,255,255,0.05); border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+                                    <img src="/static/images/companies/{{ comp.name.lower().replace(' ', '').replace('&', '').replace('/', '').replace('.', '').replace('-', '') }}.svg" 
+                                         onerror="this.onerror=null; this.outerHTML=window.getCompanyLogoFallback('{{ comp.name.replace("'", "\\'") }}');" 
+                                         class="w-100 h-100 object-fit-contain" alt="{{ comp.name }}">
+                                </div>
+                                <div class="text-truncate flex-grow-1">
+                                    <h4 class="fs-7 text-white mb-1.5 fw-bold text-truncate" style="font-family: 'Outfit', sans-serif;">{{ comp.name }}</h4>
+                                    <span class="badge bg-dark border text-secondary-custom py-1 px-2.5 fs-10 fw-semibold" style="font-size: 0.65rem; border-color: rgba(255,255,255,0.1) !important;">
+                                        Hiring Type: {{ comp.category }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Details (Package & Location) -->
+                        <div class="pt-3 border-top d-flex justify-content-between fs-9 text-secondary-custom align-items-center" style="border-top-color: rgba(255,255,255,0.08) !important;">
+                            <span><i class="fa-solid fa-wallet me-1.5 text-success"></i><strong>{{ comp.package_range }}</strong></span>
+                            <span class="text-truncate" style="max-width: 140px;" title="{{ comp.location }}"><i class="fa-solid fa-location-dot me-1.5 text-danger"></i>{{ comp.location }}</span>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12 text-center text-muted fs-8 py-4">
+                    No recommendations found. Seeding the database record tables...
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- RESUME ANALYZER PROMO SECTION -->
+    <section class="landing-section">
+        <div class="row align-items-stretch g-4">
+            <div class="col-lg-6">
+                <div class="glass-panel p-4.5 border-radius-20 h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <span class="badge bg-primary text-white py-1 px-2.5 fs-9 mb-3 fw-bold uppercase tracking-wider">ATS Scanner</span>
+                        <h2 class="h3 text-white mb-3 fw-bold" style="font-family: 'Outfit', sans-serif;">Does your resume beat recruiter parsing filters?</h2>
+                        <p class="text-secondary-custom fs-8 mb-4" style="line-height: 1.75;">
+                            Most companies use Applicant Tracking Systems (ATS) to filter out resumes. Upload your resume to calculate your score, find missing industry keywords, and obtain automated feedback on layout structures.
+                        </p>
+                        <div class="d-flex flex-column gap-3 mb-4.5 fs-8 text-white">
+                            <div class="d-flex align-items-center"><i class="fa-solid fa-circle-check text-gradient-green me-2.5 fs-7"></i> Real-time keyword alignment metrics</div>
+                            <div class="d-flex align-items-center"><i class="fa-solid fa-circle-check text-gradient-green me-2.5 fs-7"></i> File parsing validation (PDF structure checks)</div>
+                            <div class="d-flex align-items-center"><i class="fa-solid fa-circle-check text-gradient-green me-2.5 fs-7"></i> Interactive placement readiness scorecard report</div>
+                        </div>
+                    </div>
+                    <div>
+                        <a href="{{ url_for('signup') }}" class="btn btn-premium btn-sm fs-8 py-2.5 px-4 fw-semibold shadow-sm">Verify Your Resume <i class="fa-solid fa-file-invoice ms-1.5"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <!-- Simulated resume scoring graphic card -->
+                <div class="glass-panel p-4.5 text-center border-radius-20 position-relative overflow-hidden h-100 d-flex flex-column justify-content-center" style="background: var(--bg-card-secondary) !important;">
+                    <div class="score-radial-progress mx-auto my-3" style="width: 130px; height: 130px; position: relative;">
+                        <div class="score-gauge-blue w-100 h-100 fs-3 fw-black" style="font-size: 1.75rem; background: conic-gradient(var(--accent-blue) 88%, rgba(34, 211, 238, 0.1) 88%);">
+                            <span class="score-val-blue">88%</span>
+                        </div>
+                    </div>
+                    <h3 class="h5 text-white mb-1.5 fw-bold" style="font-family: 'Outfit', sans-serif;">ATS Score: Excellent</h3>
+                    <p class="text-secondary-custom fs-9 mb-3.5">Analyzed Resume: <em>SaaS_Resume_CSE_Student.pdf</em></p>
+                    <div class="bg-dark p-3.5 rounded-3 text-start border border-secondary" style="border-radius: 12px !important; border-color: rgba(255,255,255,0.08) !important;">
+                        <span class="fs-9 text-gradient fw-bold uppercase d-block mb-2">RECOMMENDED OPTIMIZATIONS</span>
+                        <ul class="ps-3 mb-0 fs-9 text-secondary-custom" style="line-height: 1.65;">
+                            <li class="mb-1">Include missing skill keyword: **Kubernetes**</li>
+                            <li class="mb-1">Use active voice metrics in project summaries</li>
+                            <li>Format contact handles inside clean document lists</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SKILL GAP PREVIEW SECTION -->
+    <section class="landing-section bg-dark border border-secondary" style="border-radius: 24px !important; border-color: var(--border-color) !important; padding: 40px !important;">
+        <div class="row align-items-center g-4">
+            <div class="col-md-5 order-md-2">
+                <h2 class="h3 text-white mb-3 fw-bold" style="font-family: 'Outfit', sans-serif;">Close the Skill Gap Before Applying</h2>
+                <p class="text-secondary-custom fs-8 mb-4" style="line-height: 1.75;">
+                    Our platform compares your declared developer skillset against what companies list in their active job requirements. It pinpoints exactly what you lack to optimize your placement readiness.
+                </p>
+                <div class="row g-3 mb-4.5">
+                    <div class="col-6">
+                        <div class="p-3 bg-dark border border-secondary text-center rounded-3" style="border-radius: 12px !important; border-color: rgba(255,255,255,0.06) !important;">
+                            <span class="d-block text-white fs-4 fw-black">12+</span>
+                            <span class="fs-10 text-muted uppercase">Target Matches</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3 bg-dark border border-secondary text-center rounded-3" style="border-radius: 12px !important; border-color: rgba(255,255,255,0.06) !important;">
+                            <span class="d-block text-white fs-4 fw-black">100%</span>
+                            <span class="fs-10 text-muted uppercase">Roadmap Guides</span>
+                        </div>
+                    </div>
+                </div>
+                <a href="{{ url_for('signup') }}" class="btn btn-premium btn-sm fs-8 text-white w-100 py-2.5 fw-semibold shadow-sm">Select Dream Company &rarr;</a>
+            </div>
+            <div class="col-md-7 order-md-1">
+                <!-- Graphic displaying missing tech metrics -->
+                <div class="glass-panel p-4 border-radius-20" style="background: var(--bg-card) !important;">
+                    <h3 class="h6 text-white mb-3 fw-bold" style="font-family: 'Outfit', sans-serif;"><i class="fa-solid fa-triangle-exclamation text-warning me-2"></i>Skill Match Checklist (Amazon Web Services)</h3>
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between fs-9 text-secondary-custom mb-1.5">
+                            <span>Matched Required Stack</span>
+                            <span class="text-gradient-green font-bold">75%</span>
+                        </div>
+                        <div class="progress" style="height: 6px; background-color: rgba(255,255,255,0.06); border-radius: 4px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 75%;" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+                        <span class="badge bg-success-subtle text-success border border-success-subtle py-1.5 px-2.5 fs-9" style="font-size: 0.65rem;"><i class="fa-solid fa-circle-check me-1"></i>Python</span>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle py-1.5 px-2.5 fs-9" style="font-size: 0.65rem;"><i class="fa-solid fa-circle-check me-1"></i>SQL</span>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle py-1.5 px-2.5 fs-9" style="font-size: 0.65rem;"><i class="fa-solid fa-circle-check me-1"></i>Git</span>
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle py-1.5 px-2.5 fs-9" style="font-size: 0.65rem;"><i class="fa-solid fa-circle-xmark me-1"></i>AWS (EC2/S3)</span>
+                    </div>
+ 
+                    <div class="bg-dark p-3.5 rounded border border-secondary" style="border-radius: 12px !important; border-color: rgba(255,255,255,0.08) !important;">
+                        <span class="fs-9 text-warning font-bold d-block mb-1.5"><i class="fa-solid fa-circle-nodes me-1.5"></i>RECOMMENDED STUDY MODULE:</span>
+                        <p class="text-secondary-custom fs-9 mb-0">Learn Cloud Storage deployments via **AWS S3 Standard buckets**. Integrate FATE SDK files for access logic.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TESTIMONIALS SECTION -->
+    <section class="landing-section">
+        <div class="text-center mb-5">
+            <h2 class="h3 text-white fw-bold mb-2"><i class="fa-solid fa-quote-left me-2 text-gradient"></i>What Placement Mentors Say</h2>
+            <p class="text-secondary-custom fs-8 mx-auto" style="max-width: 500px;">See how coordinators and engineering experts review our platform's capabilities.</p>
+        </div>
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-4">
+                <div class="glass-panel p-4 hover-glow-blue border-radius-20 d-flex flex-column justify-content-between h-100">
+                    <p class="text-secondary-custom fs-9 mb-4 italic" style="line-height: 1.75; font-style: italic;">
+                        "The ATS audit scores are remarkably precise. It prevents students from making basic formatting mistakes and ensures their technical skills are parseable by screening parsers."
+                    </p>
+                    <div class="d-flex align-items-center gap-3 mt-auto">
+                        <span class="d-inline-flex align-items-center justify-content-center bg-dark border border-secondary rounded-circle" style="width: 44px; height: 44px; flex-shrink: 0;">
+                            <i class="fa-solid fa-user-tie text-gradient-cyan fs-5"></i>
+                        </span>
+                        <div class="text-truncate">
+                            <h4 class="fs-8 text-white mb-0 fw-bold text-truncate" style="font-family: 'Outfit', sans-serif;">Amit K. Sharma</h4>
+                            <span class="text-secondary-custom fs-9 text-truncate d-block">Senior HR Director, RecruitLink</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="glass-panel p-4 hover-glow-blue border-radius-20 d-flex flex-column justify-content-between h-100">
+                    <p class="text-secondary-custom fs-9 mb-4 italic" style="line-height: 1.75; font-style: italic;">
+                        "Selecting a target company on the dream checklist and generating the missing skills roadmap helped me optimize my study schedule. The roadmap guides are clear and highly modular."
+                    </p>
+                    <div class="d-flex align-items-center gap-3 mt-auto">
+                        <span class="d-inline-flex align-items-center justify-content-center bg-dark border border-secondary rounded-circle" style="width: 44px; height: 44px; flex-shrink: 0;">
+                            <i class="fa-solid fa-user-graduate text-gradient-purple fs-5"></i>
+                        </span>
+                        <div class="text-truncate">
+                            <h4 class="fs-8 text-white mb-0 fw-bold text-truncate" style="font-family: 'Outfit', sans-serif;">Sneha Reddy</h4>
+                            <span class="text-secondary-custom fs-9 text-truncate d-block">Candidate placed at TCS</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="glass-panel p-4 hover-glow-blue border-radius-20 d-flex flex-column justify-content-between h-100">
+                    <p class="text-secondary-custom fs-9 mb-4 italic" style="line-height: 1.75; font-style: italic;">
+                        "Empowering student coordinators to inspect recruiter metrics, application histories, and student readiness metrics has streamlined our college career coaching pipelines."
+                    </p>
+                    <div class="d-flex align-items-center gap-3 mt-auto">
+                        <span class="d-inline-flex align-items-center justify-content-center bg-dark border border-secondary rounded-circle" style="width: 44px; height: 44px; flex-shrink: 0;">
+                            <i class="fa-solid fa-chalkboard-user text-gradient-green fs-5"></i>
+                        </span>
+                        <div class="text-truncate">
+                            <h4 class="fs-8 text-white mb-0 fw-bold text-truncate" style="font-family: 'Outfit', sans-serif;">Dr. Rajesh Gowda</h4>
+                            <span class="text-secondary-custom fs-9 text-truncate d-block">Placement Officer, VTU Affiliate</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

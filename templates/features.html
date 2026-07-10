@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}Platform Features - Chinmayi AI Career Assistant{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header Banner -->
+    <div class="text-center mb-5">
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill fs-9 mb-3 fw-bold tracking-wider text-uppercase">
+            <i class="fa-solid fa-layer-group me-1"></i> Technical Subsystems
+        </span>
+        <h1 class="display-5 fw-extrabold text-white mb-2" style="font-family: 'Outfit', sans-serif;">Platform Capabilities</h1>
+        <p class="text-secondary-custom fs-7 mx-auto" style="max-width: 600px;">
+            A structural look at the backend algorithms and analytics driving candidate evaluation scores.
+        </p>
+    </div>
+
+    <!-- Feature Detailed Grid -->
+    <div class="row g-4 mb-5">
+        <!-- ATS Parsing System -->
+        <div class="col-md-6">
+            <div class="glass-panel p-4 h-100 border-radius-20">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="contact-icon-wrapper contact-email">
+                        <i class="fa-solid fa-file-invoice"></i>
+                    </div>
+                    <h2 class="h5 text-white mb-0 fw-bold">1. ATS Resume Parser</h2>
+                </div>
+                <p class="text-secondary-custom fs-8 mb-3" style="line-height: 1.5;">
+                    The system implements pythonic PDF parsers to extract candidate headers, email tags, and education credentials. It checks spelling structures, document page bounds, and compares textual content against target job keywords.
+                </p>
+                <div class="bg-dark p-3 rounded-3 border border-secondary" style="border-radius: 12px !important;">
+                    <span class="fs-9 text-gradient fw-bold uppercase d-block mb-1">AUDIT CHECKS INVOLVED</span>
+                    <ul class="ps-3 mb-0 fs-9 text-secondary-custom">
+                        <li>Keyword density calculations (Python, Git, Docker, REST APIs).</li>
+                        <li>Structural layout flags (detecting illegal graphic layers).</li>
+                        <li>Page volume limits (penalizing redundant pages for freshers).</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fit & Readiness Score Engine -->
+        <div class="col-md-6">
+            <div class="glass-panel p-4 h-100 border-radius-20">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="contact-icon-wrapper contact-location">
+                        <i class="fa-solid fa-gauge-high"></i>
+                    </div>
+                    <h2 class="h5 text-white mb-0 fw-bold">2. Readiness Score Engine</h2>
+                </div>
+                <p class="text-secondary-custom fs-8 mb-3" style="line-height: 1.5;">
+                    Uses multi-criteria decision scoring. The algorithm aggregates a candidate's overall academic CGPA, active certifications, registered projects, and skills to output a percentage match grade against individual company benchmarks.
+                </p>
+                <div class="bg-dark p-3 rounded-3 border border-secondary" style="border-radius: 12px !important;">
+                    <span class="fs-9 text-gradient fw-bold uppercase d-block mb-1">SCORE METRIC FORMULA</span>
+                    <ul class="ps-3 mb-0 fs-9 text-secondary-custom">
+                        <li>Academic weightage (based on engineering branch matching).</li>
+                        <li>Project complexity weights (languages used, summaries).</li>
+                        <li>Verification checks (certificates matching target company stacks).</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Learning Roadmaps & Gap Check -->
+        <div class="col-md-6">
+            <div class="glass-panel p-4 h-100 border-radius-20">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="contact-icon-wrapper contact-linkedin">
+                        <i class="fa-solid fa-route"></i>
+                    </div>
+                    <h2 class="h5 text-white mb-0 fw-bold">3. Skill Gap & Learning Paths</h2>
+                </div>
+                <p class="text-secondary-custom fs-8 mb-3" style="line-height: 1.5;">
+                    Once a target company is chosen, the engine performs a set difference operations between the company requirements and candidate skills. It highlights missing elements and generates weekly learning guides dynamically.
+                </p>
+                <div class="bg-dark p-3 rounded-3 border border-secondary" style="border-radius: 12px !important;">
+                    <span class="fs-9 text-gradient fw-bold uppercase d-block mb-1">ROADMAP MODULES</span>
+                    <ul class="ps-3 mb-0 fs-9 text-secondary-custom">
+                        <li>Highlights missing languages, frameworks, or certifications.</li>
+                        <li>Weekly modular resource guides pulled from curriculum structures.</li>
+                        <li>Action items for database, styling, or architecture tasks.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mock Simulator -->
+        <div class="col-md-6">
+            <div class="glass-panel p-4 h-100 border-radius-20">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="contact-icon-wrapper contact-github">
+                        <i class="fa-solid fa-comments"></i>
+                    </div>
+                    <h2 class="h5 text-white mb-0 fw-bold">4. Interview Simulation</h2>
+                </div>
+                <p class="text-secondary-custom fs-8 mb-3" style="line-height: 1.5;">
+                    Simulates technical rounds. The system queries specific skill categories and generates targeted questions (Conceptual, Coding, or Debugging) to prepare candidates for verbal and logic reviews.
+                </p>
+                <div class="bg-dark p-3 rounded-3 border border-secondary" style="border-radius: 12px !important;">
+                    <span class="fs-9 text-gradient fw-bold uppercase d-block mb-1">SIMULATION ENGINE LOGIC</span>
+                    <ul class="ps-3 mb-0 fs-9 text-secondary-custom">
+                        <li>Pre-loaded skill indices matching interview checklists.</li>
+                        <li>Dynamic question generation covering OOPs, databases, and APIs.</li>
+                        <li>Self-paced evaluation checks with developer documentation links.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

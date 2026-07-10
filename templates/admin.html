@@ -1,202 +1,626 @@
 {% extends 'base.html' %}
 
-{% block title %}Admin Dashboard - AI Career & Placement Assistant{% endblock %}
+{% block title %}Admin Console - Chinmayi AI Career Assistant{% endblock %}
 
 {% block content %}
-<div class="row g-4">
-    <!-- Admin stats widgets -->
-    <div class="col-md-4">
-        <div class="glass-panel p-4 text-center">
-            <span class="fs-9 text-muted d-block uppercase fw-semibold mb-1">TOTAL STUDENT COHORTS</span>
-            <h2 class="text-white fs-1 font-extrabold mb-0 text-gradient">{{ total_students }}</h2>
-            <p class="text-secondary-custom fs-9 mt-1 mb-0"><i class="fa-solid fa-users me-1"></i>Enrolled Candidates</p>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="glass-panel p-4 text-center">
-            <span class="fs-9 text-muted d-block uppercase fw-semibold mb-1">RESUMES ANALYZED</span>
-            <h2 class="text-white fs-1 font-extrabold mb-0 text-gradient-cyan">{{ total_resumes }}</h2>
-            <p class="text-secondary-custom fs-9 mt-1 mb-0"><i class="fa-solid fa-file-invoice me-1"></i>ATS Upload Audits</p>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="glass-panel p-4 text-center">
-            <span class="fs-9 text-muted d-block uppercase fw-semibold mb-1">AVG COHORT MATCH odds</span>
-            <h2 class="text-white fs-1 font-extrabold mb-0 text-gradient-green">{{ avg_probability }}%</h2>
-            <p class="text-secondary-custom fs-9 mt-1 mb-0"><i class="fa-solid fa-chart-line me-1"></i>Placement Likelihood</p>
-        </div>
-    </div>
-</div>
+<style>
+    /* SaaS Admin Panel Styling */
+    .admin-sidebar {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        padding: 20px 12px;
+        height: fit-content;
+        position: sticky;
+        top: 90px;
+    }
+    .admin-sidebar .nav-link {
+        color: var(--text-muted);
+        border-radius: 12px;
+        padding: 11px 16px;
+        margin-bottom: 6px;
+        font-family: 'Outfit', sans-serif;
+        font-weight: 500;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transition: all 0.2s ease;
+        border: none;
+        background: transparent;
+        width: 100%;
+        text-align: left;
+    }
+    .admin-sidebar .nav-link:hover {
+        background: rgba(37, 99, 235, 0.06);
+        color: var(--primary-color);
+    }
+    .admin-sidebar .nav-link.active {
+        background: var(--primary-color) !important;
+        color: #FFFFFF !important;
+        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.25);
+    }
+    .admin-kpi-card {
+        border-radius: 20px;
+        border: 1px solid var(--border-color);
+        background: var(--card-bg);
+        padding: 22px;
+        transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .admin-kpi-card:hover {
+        transform: translateY(-2px);
+        border-color: var(--primary-color);
+        box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.08);
+    }
+    .activity-timeline {
+        position: relative;
+        padding-left: 20px;
+        border-left: 2px solid var(--border-color);
+    }
+    .activity-dot {
+        position: absolute;
+        left: -6px;
+        top: 6px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--primary-color);
+    }
+    .custom-badge-resolved {
+        background: rgba(16, 185, 129, 0.12);
+        color: #10B981;
+        border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+    .custom-badge-unresolved {
+        background: rgba(245, 158, 11, 0.12);
+        color: #F59E0B;
+        border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+</style>
 
-<div class="row g-4 mt-1">
-    <!-- Visual Charts Panel -->
-    <div class="col-lg-8">
-        <div class="glass-panel p-4 h-100">
-            <h3 class="h5 text-white mb-3"><i class="fa-solid fa-chart-simple me-2 text-gradient"></i>Visual Cohort Analytics</h3>
-            <p class="text-secondary-custom fs-8 mb-4">Distribution maps of student profiles, ATS scores, and placement predictions.</p>
+<div class="row g-4 mb-5">
+    <!-- Left Sidebar Column -->
+    <div class="col-lg-3 col-xl-2.5">
+        <div class="admin-sidebar shadow-sm">
+            <div class="px-3 mb-3.5">
+                <span class="fs-9 text-muted uppercase fw-bold tracking-wider">Navigation Menu</span>
+            </div>
+            <div class="nav flex-column nav-pills" id="admin-tabs" role="tablist" aria-orientation="vertical">
+                <button class="nav-link active" id="tab-overview" data-bs-toggle="pill" data-bs-target="#pane-overview" type="button" role="tab">
+                    <i class="fa-solid fa-gauge-high"></i> Overview
+                </button>
+                <button class="nav-link" id="tab-users" data-bs-toggle="pill" data-bs-target="#pane-users" type="button" role="tab">
+                    <i class="fa-solid fa-users"></i> User Management
+                </button>
+                <button class="nav-link" id="tab-resumes" data-bs-toggle="pill" data-bs-target="#pane-resumes" type="button" role="tab">
+                    <i class="fa-solid fa-file-invoice"></i> Resumes Log
+                </button>
+                <button class="nav-link" id="tab-inquiries" data-bs-toggle="pill" data-bs-target="#pane-inquiries" type="button" role="tab">
+                    <i class="fa-solid fa-envelope-open-text"></i> Contact Mail
+                </button>
+                <button class="nav-link" id="tab-jobs" data-bs-toggle="pill" data-bs-target="#pane-jobs" type="button" role="tab">
+                    <i class="fa-solid fa-briefcase"></i> Post Openings
+                </button>
+                <button class="nav-link" id="tab-analytics" data-bs-toggle="pill" data-bs-target="#pane-analytics" type="button" role="tab">
+                    <i class="fa-solid fa-chart-simple"></i> Analytics Insights
+                </button>
+            </div>
             
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <div class="bg-dark p-3 rounded border border-secondary text-center" style="min-height: 250px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                        <span class="fs-9 text-muted fw-bold d-block mb-3">TOP DEMANDED SKILLS</span>
-                        <div style="position: relative; width: 100%; height: 180px;">
-                            <canvas id="skillsChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="bg-dark p-3 rounded border border-secondary text-center" style="min-height: 250px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                        <span class="fs-9 text-muted fw-bold d-block mb-3">ATS QUALITY SCORES</span>
-                        <div style="position: relative; width: 100%; height: 180px;">
-                            <canvas id="atsChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12">
-                    <div class="bg-dark p-3 rounded border border-secondary text-center" style="min-height: 250px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                        <span class="fs-9 text-muted fw-bold d-block mb-3">PLACEMENT READINESS BANDS</span>
-                        <div style="position: relative; width: 100%; height: 180px;">
-                            <canvas id="placementChart"></canvas>
-                        </div>
-                    </div>
+            <div class="border-top border-secondary-subtle mt-4 pt-3 px-3">
+                <span class="fs-9 text-muted d-block uppercase fw-bold mb-2">Export Data</span>
+                <div class="d-flex flex-column gap-2">
+                    <a href="{{ url_for('export_students_csv') }}" class="btn btn-glass btn-xs text-start text-white">
+                        <i class="fa-solid fa-file-csv me-2 text-gradient"></i>Export to CSV
+                    </a>
+                    <a href="{{ url_for('export_students_excel') }}" class="btn btn-glass btn-xs text-start text-white">
+                        <i class="fa-solid fa-file-excel me-2 text-gradient-green"></i>Export to Excel
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Add Job Panel -->
-    <div class="col-lg-4">
-        <div class="glass-panel p-4 h-100">
-            <h3 class="h5 text-white mb-2"><i class="fa-solid fa-briefcase me-2 text-gradient-cyan"></i>Post Placement Opening</h3>
-            <p class="text-secondary-custom fs-8 mb-4">Publish real-time career positions for candidates' tracked boards.</p>
+    <!-- Right Content Column -->
+    <div class="col-lg-9 col-xl-9.5">
+        <div class="tab-content" id="admin-tabs-content">
             
-            <form id="admin-add-job-form">
-                <div class="mb-3">
-                    <label for="job_title" class="form-label fs-8 text-secondary-custom">Job Title</label>
-                    <input type="text" class="form-control glass-input w-100 py-2 fs-8" id="job_title" name="title" placeholder="e.g. Associate Software Engineer" required>
+            <!-- OVERVIEW PANE -->
+            <div class="tab-pane fade show active" id="pane-overview" role="tabpanel">
+                <div class="row g-3.5 mb-4">
+                    <!-- Cards counts metrics -->
+                    <div class="col-md-3">
+                        <div class="admin-kpi-card text-center">
+                            <span class="fs-9 text-muted d-block uppercase fw-bold mb-1">TOTAL USERS</span>
+                            <h2 class="text-white fs-2 font-black mb-0 text-gradient">{{ total_users }}</h2>
+                            <p class="text-secondary-custom fs-9 mt-1 mb-0"><i class="fa-solid fa-user-group me-1"></i>System Registrations</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="admin-kpi-card text-center">
+                            <span class="fs-9 text-muted d-block uppercase fw-bold mb-1">RESUMES PARSED</span>
+                            <h2 class="text-white fs-2 font-black mb-0 text-gradient-cyan">{{ total_resumes }}</h2>
+                            <p class="text-secondary-custom fs-9 mt-1 mb-0"><i class="fa-solid fa-file-pdf me-1"></i>ATS Upload Audits</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="admin-kpi-card text-center">
+                            <span class="fs-9 text-muted d-block uppercase fw-bold mb-1">OUTREACH MESSAGES</span>
+                            <h2 class="text-white fs-2 font-black mb-0 text-gradient-purple">{{ total_messages }}</h2>
+                            <p class="text-secondary-custom fs-9 mt-1 mb-0"><i class="fa-solid fa-comment-dots me-1"></i>Contact Inquiries</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="admin-kpi-card text-center">
+                            <span class="fs-9 text-muted d-block uppercase fw-bold mb-1">ACTIVE CANDIDATES</span>
+                            <h2 class="text-white fs-2 font-black mb-0 text-gradient-green">{{ active_users }}</h2>
+                            <p class="text-secondary-custom fs-9 mt-1 mb-0"><i class="fa-solid fa-circle-check me-1"></i>Active Data Logs</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <label for="job_company" class="form-label fs-8 text-secondary-custom">Hiring Company</label>
-                    <input type="text" class="form-control glass-input w-100 py-2 fs-8" id="job_company" name="company" placeholder="e.g. Google" required>
+
+                <!-- Graphs distribution maps preview -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-7">
+                        <div class="glass-panel p-4 h-100">
+                            <h3 class="h6 text-white mb-3 fw-bold"><i class="fa-solid fa-chart-line me-2 text-gradient"></i>Cumulative User Growth</h3>
+                            <div style="position: relative; height: 230px;">
+                                <canvas id="growthChartOverview"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="glass-panel p-4 h-100">
+                            <h3 class="h6 text-white mb-3 fw-bold"><i class="fa-solid fa-chart-pie me-2 text-gradient-cyan"></i>ATS Quality Scores</h3>
+                            <div style="position: relative; height: 230px;">
+                                <canvas id="atsChartOverview"></canvas>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <label for="job_description" class="form-label fs-8 text-secondary-custom">Description & Role Overview</label>
-                    <textarea class="form-control glass-input w-100 py-2 fs-8" id="job_description" name="description" placeholder="Explain roles, daily tasks, and opportunities..." style="height: 80px;" required></textarea>
+
+                <!-- Recent registrations -->
+                <div class="glass-panel p-4">
+                    <h3 class="h6 text-white mb-3 fw-bold"><i class="fa-solid fa-clock-rotate-left me-2 text-gradient-purple"></i>Recent User Registrations</h3>
+                    <div class="table-responsive">
+                        <table class="table align-middle custom-table-dark">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Email Address</th>
+                                    <th>Role</th>
+                                    <th>Registered Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if recent_registrations %}
+                                    {% for r in recent_registrations %}
+                                        <tr>
+                                            <td class="fw-bold"><i class="fa-solid fa-circle-user me-2 text-muted"></i>{{ r.username }}</td>
+                                            <td>{{ r.email }}</td>
+                                            <td>
+                                                {% if r.is_admin %}
+                                                    <span class="badge bg-primary">Admin</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary text-light">Student</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ r.created_at.split(' ')[0] if r.created_at else '-' }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="4" class="text-center py-3 text-muted">No users found.</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <div class="mb-4">
-                    <label for="job_requirements" class="form-label fs-8 text-secondary-custom">Requirements (Skills / Experience)</label>
-                    <textarea class="form-control glass-input w-100 py-2 fs-8" id="job_requirements" name="requirements" placeholder="DSA, SQL, Cloud deployment, 8.0+ CGPA..." style="height: 80px;" required></textarea>
+            </div>
+
+            <!-- USER MANAGEMENT PANE -->
+            <div class="tab-pane fade" id="pane-users" role="tabpanel">
+                <div class="glass-panel p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                        <div>
+                            <h3 class="h5 text-white mb-1"><i class="fa-solid fa-users me-2 text-gradient-cyan"></i>User Account Management</h3>
+                            <p class="text-secondary-custom fs-8 mb-0">Search registered profiles, alter records, or view individual candidate activities.</p>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <input type="text" class="form-control glass-input py-1.5 px-3 fs-8" id="search-user-input" placeholder="Search by name or email..." style="width: 240px;" onkeyup="filterUserTable()">
+                            <select class="form-select glass-input py-1.5 fs-8" id="filter-user-role" style="width: 130px;" onchange="filterUserTable()">
+                                <option value="all">All Roles</option>
+                                <option value="admin">Admin</option>
+                                <option value="student">Student</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table align-middle custom-table-dark" id="user-roster-table">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>CGPA</th>
+                                    <th>Branch</th>
+                                    <th>Odds</th>
+                                    <th>Role</th>
+                                    <th>Metadata</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if students %}
+                                    {% for s in students %}
+                                        <tr data-role="{% if s.is_admin %}admin{% else %}student{% endif %}">
+                                            <td class="fw-bold search-cell-name"><i class="fa-solid fa-circle-user me-2 text-gradient"></i>{{ s.username }}</td>
+                                            <td class="search-cell-email">{{ s.email }}</td>
+                                            <td>{{ '%.2f' | format(s.cgpa) if s.cgpa is not none else 'N/A' }}</td>
+                                            <td>{{ s.branch }}</td>
+                                            <td class="text-gradient-green font-bold">
+                                                {% if s.placement_probability != 'N/A' %}
+                                                    {{ s.placement_probability }}%
+                                                {% else %}
+                                                    N/A
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if s.is_admin %}
+                                                    <span class="badge bg-primary">Admin</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary text-light">Student</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <button type="button" class="btn btn-glass btn-xs text-white" 
+                                                        onclick="viewActivityLogs('{{ s.username }}', '{{ s.activities | join('|') }}')">
+                                                    <i class="fa-solid fa-clock-rotate-left me-1"></i>Logs
+                                                </button>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex gap-1.5">
+                                                    <button type="button" class="btn btn-glass btn-xs" 
+                                                            onclick="openEditUserModal({{ s.id }}, '{{ s.username }}', '{{ s.email }}', '{{ s.cgpa if s.cgpa is not none else '' }}', '{{ s.branch if s.branch != 'N/A' else '' }}')">
+                                                        <i class="fa-solid fa-user-pen"></i> Edit
+                                                    </button>
+                                                    {% if s.id != session.get('user_id') %}
+                                                        <button type="button" class="btn btn-glass btn-xs px-2" onclick="toggleRole({{ s.id }})" title="Toggle Role">
+                                                            <i class="fa-solid fa-user-shield text-info"></i>
+                                                        </button>
+                                                        <button type="button" class="btn btn-glass btn-xs text-danger border border-danger-subtle px-2" onclick="deleteUser({{ s.id }})" title="Delete Account">
+                                                            <i class="fa-solid fa-trash-can"></i>
+                                                        </button>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="8" class="text-center py-4 text-muted">No registered user accounts found.</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <button type="submit" class="btn btn-premium w-100 py-2.5"><i class="fa-solid fa-bullhorn me-1.5"></i>Broadcast Job Opening</button>
+            </div>
+
+            <!-- RESUMES LOG PANE -->
+            <div class="tab-pane fade" id="pane-resumes" role="tabpanel">
+                <div class="row g-3.5 mb-4">
+                    <div class="col-md-3">
+                        <div class="admin-kpi-card text-center">
+                            <span class="fs-9 text-muted d-block uppercase fw-bold mb-1">AVERAGE ATS SCORE</span>
+                            <h2 class="text-white fs-3 font-black mb-0 text-gradient-cyan">{{ resume_stats.avg }}%</h2>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="admin-kpi-card text-center">
+                            <span class="fs-9 text-muted d-block uppercase fw-bold mb-1">HIGHEST ATS SCORE</span>
+                            <h2 class="text-white fs-3 font-black mb-0 text-gradient-green">{{ resume_stats.max }}%</h2>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="admin-kpi-card text-center">
+                            <span class="fs-9 text-muted d-block uppercase fw-bold mb-1">LOWEST ATS SCORE</span>
+                            <h2 class="text-white fs-3 font-black mb-0 text-gradient-red">{{ resume_stats.min }}%</h2>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="admin-kpi-card text-center">
+                            <span class="fs-9 text-muted d-block uppercase fw-bold mb-1">TOTAL SCANS</span>
+                            <h2 class="text-white fs-3 font-black mb-0 text-gradient">{{ resume_stats.total }} Logs</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-4">
+                    <h3 class="h5 text-white mb-2"><i class="fa-solid fa-file-pdf me-2 text-gradient-cyan"></i>Uploaded Resume Archive</h3>
+                    <p class="text-secondary-custom fs-8 mb-4">Database logs of candidate resumes parsed by the ATS verification modules.</p>
+                    
+                    <div class="table-responsive">
+                        <table class="table align-middle custom-table-dark">
+                            <thead>
+                                <tr>
+                                    <th>Candidate Name</th>
+                                    <th>Filename Reference</th>
+                                    <th>ATS Parse Score</th>
+                                    <th>Uploaded At</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if resumes_list %}
+                                    {% for r in resumes_list %}
+                                        <tr>
+                                            <td class="fw-bold"><i class="fa-solid fa-user me-2 text-muted"></i>{{ r.username }}</td>
+                                            <td style="font-family: monospace; font-size: 0.8rem;">{{ r.filename }}</td>
+                                            <td class="fw-black {% if r.ats_score >= 80 %}text-gradient-green{% elif r.ats_score >= 60 %}text-info{% else %}text-warning{% endif %}">
+                                                {{ r.ats_score }}%
+                                            </td>
+                                            <td>{{ r.analyzed_at.split(' ')[0] if r.analyzed_at else '-' }}</td>
+                                            <td>
+                                                <a href="/admin/api/resume/download/{{ r.id }}" class="btn btn-glass btn-xs text-white">
+                                                    <i class="fa-solid fa-download me-1"></i> Download
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="5" class="text-center py-4 text-muted">No candidate resumes uploaded yet.</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTACT MAIL PANE -->
+            <div class="tab-pane fade" id="pane-inquiries" role="tabpanel">
+                <div class="glass-panel p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                        <div>
+                            <h3 class="h5 text-white mb-1"><i class="fa-solid fa-envelope-open-text me-2 text-gradient-purple"></i>Guest & Recruiter Inquiries</h3>
+                            <p class="text-secondary-custom fs-8 mb-0">Review messages sent through landing page contact form modules.</p>
+                        </div>
+                        <a href="{{ url_for('export_inquiries_csv') }}" class="btn btn-glass btn-sm fs-8 text-decoration-none">
+                            <i class="fa-solid fa-file-csv me-1.5 text-gradient"></i>Export CSV
+                        </a>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table align-middle custom-table-dark">
+                            <thead>
+                                <tr>
+                                    <th>Sender</th>
+                                    <th>Email</th>
+                                    <th>Subject</th>
+                                    <th>Message Body</th>
+                                    <th>Received At</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if inquiries %}
+                                    {% for inq in inquiries %}
+                                        <tr>
+                                            <td class="fw-bold"><i class="fa-solid fa-user me-2 text-muted"></i>{{ inq.name }}</td>
+                                            <td>{{ inq.email }}</td>
+                                            <td class="fw-semibold text-info">{{ inq.subject }}</td>
+                                            <td style="max-width: 250px; word-break: break-word;">{{ inq.message }}</td>
+                                            <td>{{ inq.created_at.split(' ')[0] if inq.created_at else '-' }}</td>
+                                            <td>
+                                                <button type="button" class="badge {% if inq.resolved %}custom-badge-resolved{% else %}custom-badge-unresolved{% endif %} cursor-pointer py-1.5 px-2.5 rounded border-0" 
+                                                        onclick="toggleResolveInquiry({{ inq.id }}, this)">
+                                                    {% if inq.resolved %}
+                                                        <i class="fa-solid fa-circle-check me-1"></i> Resolved
+                                                    {% else %}
+                                                        <i class="fa-solid fa-circle-exclamation me-1"></i> Unresolved
+                                                    {% endif %}
+                                                </button>
+                                            </td>
+                                            <td>
+                                                <button type="button" class="btn btn-glass btn-xs text-danger border border-danger-subtle px-2" onclick="deleteInquiry({{ inq.id }})">
+                                                    <i class="fa-solid fa-trash-can"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="7" class="text-center py-4 text-muted">No inquiry emails received yet.</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- JOBS BROADCAST PANE -->
+            <div class="tab-pane fade" id="pane-jobs" role="tabpanel">
+                <div class="row g-4">
+                    <div class="col-lg-4">
+                        <div class="glass-panel p-4">
+                            <h3 class="h6 text-white mb-2 fw-bold"><i class="fa-solid fa-briefcase me-2 text-gradient-cyan"></i>Post Placement Opening</h3>
+                            <p class="text-secondary-custom fs-9 mb-4">Publish real-time career positions for candidates' tracked boards.</p>
+                            
+                            <form id="admin-add-job-form">
+                                <div class="mb-3">
+                                    <label for="job_title" class="form-label fs-8 text-secondary-custom">Job Title</label>
+                                    <input type="text" class="form-control glass-input w-100 py-2 fs-8" id="job_title" name="title" placeholder="e.g. Associate Software Engineer" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="job_company" class="form-label fs-8 text-secondary-custom">Hiring Company</label>
+                                    <input type="text" class="form-control glass-input w-100 py-2 fs-8" id="job_company" name="company" placeholder="e.g. Google" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="job_description" class="form-label fs-8 text-secondary-custom">Description Summary</label>
+                                    <textarea class="form-control glass-input w-100 py-2 fs-8" id="job_description" name="description" placeholder="Explain roles, daily tasks..." style="height: 80px;" required></textarea>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="job_requirements" class="form-label fs-8 text-secondary-custom">Requirements (Skills / CGPA)</label>
+                                    <textarea class="form-control glass-input w-100 py-2 fs-8" id="job_requirements" name="requirements" placeholder="DSA, SQL, 8.0+ CGPA..." style="height: 80px;" required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-premium w-100 py-2.5"><i class="fa-solid fa-bullhorn me-1.5"></i>Broadcast Job Opening</button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-8">
+                        <div class="glass-panel p-4 h-100">
+                            <h3 class="h6 text-white mb-2 fw-bold"><i class="fa-solid fa-bullhorn me-2 text-gradient-cyan"></i>Active Job Broadcasts</h3>
+                            <p class="text-secondary-custom fs-9 mb-4">Currently published positions displayed on candidates' dashboards.</p>
+                            
+                            <div class="table-responsive">
+                                <table class="table align-middle custom-table-dark">
+                                    <thead>
+                                        <tr>
+                                            <th>Job Title</th>
+                                            <th>Company</th>
+                                            <th>Description</th>
+                                            <th>Requirements</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% if jobs %}
+                                            {% for j in jobs %}
+                                                <tr>
+                                                    <td class="fw-bold text-info"><i class="fa-solid fa-briefcase me-2"></i>{{ j.title }}</td>
+                                                    <td><span class="badge bg-dark border border-secondary text-secondary-custom">{{ j.company }}</span></td>
+                                                    <td class="text-truncate" style="max-width: 180px;" title="{{ j.description }}">{{ j.description }}</td>
+                                                    <td class="text-truncate" style="max-width: 180px;" title="{{ j.requirements }}">{{ j.requirements }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        {% else %}
+                                            <tr>
+                                                <td colspan="4" class="text-center py-4 text-muted">No job openings broadcasted.</td>
+                                            </tr>
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ANALYTICS INSIGHTS PANE -->
+            <div class="tab-pane fade" id="pane-analytics" role="tabpanel">
+                <div class="glass-panel p-4">
+                    <h3 class="h5 text-white mb-2"><i class="fa-solid fa-chart-simple me-2 text-gradient"></i>Visual Placement Analytics</h3>
+                    <p class="text-secondary-custom fs-8 mb-4">Real-time analytical graphs plotting student growth trends, target choices, and skill readiness indexes.</p>
+                    
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="bg-dark p-4 rounded border border-secondary text-center" style="min-height: 300px; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 16px !important;">
+                                <span class="fs-9 text-muted fw-bold d-block mb-3">COHORT USER GROWTH</span>
+                                <div style="position: relative; width: 100%; height: 230px;">
+                                    <canvas id="analyticsGrowthChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="bg-dark p-4 rounded border border-secondary text-center" style="min-height: 300px; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 16px !important;">
+                                <span class="fs-9 text-muted fw-bold d-block mb-3">MOST POPULAR SKILLS</span>
+                                <div style="position: relative; width: 100%; height: 230px;">
+                                    <canvas id="analyticsSkillsChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="bg-dark p-4 rounded border border-secondary text-center" style="min-height: 300px; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 16px !important;">
+                                <span class="fs-9 text-muted fw-bold d-block mb-3">MOST SELECTED DREAM COMPANIES</span>
+                                <div style="position: relative; width: 100%; height: 230px;">
+                                    <canvas id="analyticsCompaniesChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="bg-dark p-4 rounded border border-secondary text-center" style="min-height: 300px; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 16px !important;">
+                                <span class="fs-9 text-muted fw-bold d-block mb-3">PLACEMENT READY COHORT BANDS</span>
+                                <div style="position: relative; width: 100%; height: 230px;">
+                                    <canvas id="analyticsPlacementChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: EDIT USER DETAILS -->
+<div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-white border border-secondary" style="border-radius: 20px;">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title" id="editUserModalLabel"><i class="fa-solid fa-user-pen text-gradient me-2"></i>Edit Candidate Profile</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="admin-edit-user-form">
+                <div class="modal-body">
+                    <input type="hidden" id="edit-user-id" name="user_id">
+                    <div class="mb-3">
+                        <label for="edit-username" class="form-label fs-8 text-secondary-custom">Username</label>
+                        <input type="text" class="form-control glass-input py-2 fs-8 w-100" id="edit-username" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-email" class="form-label fs-8 text-secondary-custom">Email Address</label>
+                        <input type="email" class="form-control glass-input py-2 fs-8 w-100" id="edit-email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-cgpa" class="form-label fs-8 text-secondary-custom">CGPA Score</label>
+                        <input type="number" step="0.01" min="0" max="10" class="form-control glass-input py-2 fs-8 w-100" id="edit-cgpa" name="cgpa" placeholder="e.g. 8.5">
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-branch" class="form-label fs-8 text-secondary-custom">Academic Engineering Branch</label>
+                        <input type="text" class="form-control glass-input py-2 fs-8 w-100" id="edit-branch" name="branch" placeholder="e.g. Computer Science Engineering">
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-glass btn-sm text-white" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-premium btn-sm">Save Changes</button>
+                </div>
             </form>
         </div>
     </div>
 </div>
 
-<div class="row g-4 mt-1">
-    <!-- Student Roster Cohort -->
-    <div class="col-12">
-        <div class="glass-panel p-4">
-            <h3 class="h5 text-white mb-2"><i class="fa-solid fa-graduation-cap me-2 text-gradient"></i>Enrolled Student Cohort Roster</h3>
-            <p class="text-secondary-custom fs-8 mb-4">Direct administrative log of all registered student profiles, credentials quality, and match results.</p>
-            
-            <div class="table-responsive">
-                <table class="table align-middle custom-table-dark">
-                    <thead>
-                        <tr>
-                            <th>Student Candidate</th>
-                            <th>Email Address</th>
-                            <th>CGPA Value</th>
-                            <th>Skills logged</th>
-                            <th>Projects</th>
-                            <th>Certs</th>
-                            <th>Latest ATS</th>
-                            <th>Placement Probability</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% if students %}
-                            {% for s in students %}
-                                <tr>
-                                    <td class="fw-bold"><i class="fa-solid fa-circle-user me-2 text-gradient"></i>{{ s.username }}</td>
-                                    <td>{{ s.email }}</td>
-                                    <td>{{ '%.2f' | format(s.cgpa) if s.cgpa is not none else 'N/A' }}</td>
-                                    <td><span class="badge bg-secondary py-1 px-2.5">{{ s.skills_count }} Skills</span></td>
-                                    <td><span class="badge bg-secondary py-1 px-2.5">{{ s.projects_count }} Projects</span></td>
-                                    <td><span class="badge bg-secondary py-1 px-2.5">{{ s.certs_count }} Certs</span></td>
-                                    <td class="fw-bold text-info">
-                                        {% if s.ats_score is not none %}
-                                            {{ s.ats_score }}%
-                                        {% else %}
-                                            -
-                                        {% endif %}
-                                    </td>
-                                    <td class="text-gradient-green font-bold">
-                                        {% if s.placement_probability != 'N/A' %}
-                                            {{ s.placement_probability }}% Odds
-                                        {% else %}
-                                            N/A
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        {% else %}
-                            <tr>
-                                <td colspan="8" class="text-center py-4 text-muted">No student accounts registered in the database.</td>
-                            </tr>
-                        {% endif %}
-                    </tbody>
-                </table>
+<!-- MODAL: VIEW ACTIVITY LOGS -->
+<div class="modal fade" id="viewActivityModal" tabindex="-1" aria-labelledby="viewActivityModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-white border border-secondary" style="border-radius: 20px;">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title" id="viewActivityModalLabel"><i class="fa-solid fa-clock-rotate-left text-gradient me-2"></i>Candidate Activity Logs</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <p class="fs-8 text-secondary-custom mb-1">Candidate Profile: <strong id="activity-modal-username" class="text-white"></strong></p>
+                </div>
+                <div class="activity-timeline" id="activity-logs-container">
+                    <!-- Activities dynamic list -->
+                </div>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-glass btn-sm text-white" data-bs-dismiss="modal">Close Logs</button>
             </div>
         </div>
     </div>
 </div>
 
-<div class="row g-4 mt-1 mb-5">
-    <!-- Active Job Broadcasts list -->
-    <div class="col-12">
-        <div class="glass-panel p-4">
-            <h3 class="h5 text-white mb-2"><i class="fa-solid fa-bullhorn me-2 text-gradient-cyan"></i>Active Job Broadcasts</h3>
-            <p class="text-secondary-custom fs-8 mb-4">List of currently active placement openings published on the student job explorer dashboards.</p>
-            
-            <div class="table-responsive">
-                <table class="table align-middle custom-table-dark">
-                    <thead>
-                        <tr>
-                            <th>Job Opening Title</th>
-                            <th>Hiring Company</th>
-                            <th>Role description Summary</th>
-                            <th>Requirements criteria</th>
-                            <th>Published Date</th>
-                        </tr>
-                    </thead>
-                    <tbody id="admin-jobs-list-tbody">
-                        {% if jobs %}
-                            {% for j in jobs %}
-                                <tr>
-                                    <td class="fw-bold text-info"><i class="fa-solid fa-briefcase me-2"></i>{{ j.title }}</td>
-                                    <td><span class="badge bg-dark border border-secondary text-secondary-custom py-1.5 px-2.5">{{ j.company }}</span></td>
-                                    <td class="text-truncate" style="max-width: 250px;" title="{{ j.description }}">{{ j.description }}</td>
-                                    <td class="text-truncate" style="max-width: 250px;" title="{{ j.requirements }}">{{ j.requirements }}</td>
-                                    <td>{{ j.created_at.split(' ')[0] if j.created_at else '-' }}</td>
-                                </tr>
-                            {% endfor %}
-                        {% else %}
-                            <tr>
-                                <td colspan="5" class="text-center py-4 text-muted">No active job openings broadcasted yet.</td>
-                            </tr>
-                        {% endif %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Chart rendering client script -->
+<!-- Chart & Action Javascript functions -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // Colors and theme checking
+    // 1. Chart colors theme options
     const getChartThemeColors = () => {
         const theme = document.documentElement.getAttribute('data-theme') || 'dark';
         if (theme === 'light') {
@@ -219,42 +643,36 @@ document.addEventListener('DOMContentLoaded', function () {
     function initCharts(data) {
         const t = getChartThemeColors();
         
-        // 1. Skills Chart
-        const ctxSkills = document.getElementById('skillsChart').getContext('2d');
-        charts.skills = new Chart(ctxSkills, {
-            type: 'bar',
+        // --- OVERVIEW CHARTS ---
+        // A. Growth Chart
+        const ctxGrowthOverview = document.getElementById('growthChartOverview').getContext('2d');
+        charts.growthOverview = new Chart(ctxGrowthOverview, {
+            type: 'line',
             data: {
-                labels: data.skills.labels,
+                labels: data.growth.labels,
                 datasets: [{
-                    label: 'Students Count',
-                    data: data.skills.data,
-                    backgroundColor: t.colors[0],
-                    borderRadius: 4
+                    label: 'Cumulative Registrations',
+                    data: data.growth.data,
+                    borderColor: t.colors[0],
+                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                    fill: true,
+                    tension: 0.3
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: { enabled: true }
-                },
+                plugins: { legend: { display: false } },
                 scales: {
-                    x: {
-                        ticks: { color: t.text, font: { family: 'Outfit', size: 10 } },
-                        grid: { color: t.grid }
-                    },
-                    y: {
-                        ticks: { color: t.text, font: { family: 'Outfit', size: 10 }, stepSize: 1 },
-                        grid: { color: t.grid }
-                    }
+                    x: { ticks: { color: t.text, font: { family: 'Outfit', size: 9 } }, grid: { color: t.grid } },
+                    y: { ticks: { color: t.text, font: { family: 'Outfit', size: 9 }, stepSize: 1 }, grid: { color: t.grid } }
                 }
             }
         });
 
-        // 2. ATS Quality Chart
-        const ctxAts = document.getElementById('atsChart').getContext('2d');
-        charts.ats = new Chart(ctxAts, {
+        // B. ATS score quality donut
+        const ctxAtsOverview = document.getElementById('atsChartOverview').getContext('2d');
+        charts.atsOverview = new Chart(ctxAtsOverview, {
             type: 'doughnut',
             data: {
                 labels: data.ats.labels,
@@ -269,41 +687,109 @@ document.addEventListener('DOMContentLoaded', function () {
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        position: 'right',
-                        labels: { color: t.text, font: { family: 'Outfit', size: 9 } }
+                        position: 'bottom',
+                        labels: { color: t.text, font: { family: 'Outfit', size: 8 } }
                     }
                 }
             }
         });
 
-        // 3. Placement Readiness Chart
-        const ctxPlacement = document.getElementById('placementChart').getContext('2d');
-        charts.placement = new Chart(ctxPlacement, {
-            type: 'bar',
+        // --- FULL ANALYTICS PANE CHARTS ---
+        // C. Growth Chart Pane
+        const ctxGrowthPane = document.getElementById('analyticsGrowthChart').getContext('2d');
+        charts.growthPane = new Chart(ctxGrowthPane, {
+            type: 'line',
             data: {
-                labels: data.placement.labels,
+                labels: data.growth.labels,
                 datasets: [{
-                    label: 'Cohort Group Count',
-                    data: data.placement.data,
-                    backgroundColor: t.colors.slice(2, 6),
-                    borderRadius: 4
+                    label: 'Users Log',
+                    data: data.growth.data,
+                    borderColor: t.colors[2],
+                    backgroundColor: 'rgba(124, 58, 237, 0.1)',
+                    fill: true,
+                    tension: 0.3
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
+                plugins: { legend: { display: false } },
                 scales: {
-                    x: {
-                        ticks: { color: t.text, font: { family: 'Outfit', size: 10 } },
-                        grid: { color: t.grid }
-                    },
-                    y: {
-                        ticks: { color: t.text, font: { family: 'Outfit', size: 10 }, stepSize: 1 },
-                        grid: { color: t.grid }
-                    }
+                    x: { ticks: { color: t.text }, grid: { color: t.grid } },
+                    y: { ticks: { color: t.text, stepSize: 1 }, grid: { color: t.grid } }
+                }
+            }
+        });
+
+        // D. Skills Bar Chart
+        const ctxSkillsPane = document.getElementById('analyticsSkillsChart').getContext('2d');
+        charts.skillsPane = new Chart(ctxSkillsPane, {
+            type: 'bar',
+            data: {
+                labels: data.skills.labels,
+                datasets: [{
+                    label: 'Students Count',
+                    data: data.skills.data,
+                    backgroundColor: t.colors[0],
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { ticks: { color: t.text, font: { family: 'Outfit', size: 9 } }, grid: { color: t.grid } },
+                    y: { ticks: { color: t.text, stepSize: 1 }, grid: { color: t.grid } }
+                }
+            }
+        });
+
+        // E. Dream Companies Horizontal Bar
+        const ctxCompaniesPane = document.getElementById('analyticsCompaniesChart').getContext('2d');
+        charts.companiesPane = new Chart(ctxCompaniesPane, {
+            type: 'bar',
+            data: {
+                labels: data.companies.labels,
+                datasets: [{
+                    label: 'Mentions Count',
+                    data: data.companies.data,
+                    backgroundColor: t.colors[1],
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { ticks: { color: t.text, stepSize: 1 }, grid: { color: t.grid } },
+                    y: { ticks: { color: t.text, font: { family: 'Outfit', size: 9 } }, grid: { color: t.grid } }
+                }
+            }
+        });
+
+        // F. Placement bands
+        const ctxPlacementPane = document.getElementById('analyticsPlacementChart').getContext('2d');
+        charts.placementPane = new Chart(ctxPlacementPane, {
+            type: 'bar',
+            data: {
+                labels: data.placement.labels,
+                datasets: [{
+                    label: 'Count Group',
+                    data: data.placement.data,
+                    backgroundColor: t.colors.slice(3, 7),
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { ticks: { color: t.text, font: { family: 'Outfit', size: 8 } }, grid: { color: t.grid } },
+                    y: { ticks: { color: t.text, stepSize: 1 }, grid: { color: t.grid } }
                 }
             }
         });
@@ -328,7 +814,6 @@ document.addEventListener('DOMContentLoaded', function () {
         Object.keys(charts).forEach(key => {
             const chart = charts[key];
             if (chart) {
-                // Update text colors
                 if (chart.options.scales) {
                     if (chart.options.scales.x) {
                         chart.options.scales.x.ticks.color = t.text;
@@ -348,13 +833,12 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
-    // Handle Admin Job creation
+    // Job Openings logic
     const jobForm = document.getElementById('admin-add-job-form');
     if (jobForm) {
         jobForm.addEventListener('submit', function (e) {
             e.preventDefault();
             const formData = new FormData(jobForm);
-            
             fetch('/admin/api/add-job', {
                 method: 'POST',
                 body: formData
@@ -370,10 +854,186 @@ document.addEventListener('DOMContentLoaded', function () {
             })
             .catch(err => {
                 console.error('Error broadcasting job:', err);
-                alert('An error occurred while broadcasting the job.');
+                alert('An error occurred.');
             });
         });
     }
+
+    // USER MANAGEMENT FRONTEND LIVE FILTER
+    window.filterUserTable = function () {
+        const query = document.getElementById('search-user-input').value.toLowerCase().trim();
+        const roleFilter = document.getElementById('filter-user-role').value;
+        const rows = document.querySelectorAll('#user-roster-table tbody tr');
+
+        rows.forEach(row => {
+            const name = row.querySelector('.search-cell-name').textContent.toLowerCase();
+            const email = row.querySelector('.search-cell-email').textContent.toLowerCase();
+            const role = row.getAttribute('data-role');
+
+            const matchesQuery = name.includes(query) || email.includes(query);
+            const matchesRole = (roleFilter === 'all') || (role === roleFilter);
+
+            if (matchesQuery && matchesRole) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    };
+
+    // User Edit Actions populate & submit
+    const editModal = new bootstrap.Modal(document.getElementById('editUserModal'));
+    window.openEditUserModal = function (id, name, email, cgpa, branch) {
+        document.getElementById('edit-user-id').value = id;
+        document.getElementById('edit-username').value = name;
+        document.getElementById('edit-email').value = email;
+        document.getElementById('edit-cgpa').value = cgpa;
+        document.getElementById('edit-branch').value = branch;
+        editModal.show();
+    };
+
+    const editForm = document.getElementById('admin-edit-user-form');
+    if (editForm) {
+        editForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const formData = new FormData(editForm);
+            fetch('/admin/api/user/edit', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    editModal.hide();
+                    window.location.reload();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(err => {
+                console.error('Error updating user:', err);
+                alert('An error occurred saving updates.');
+            });
+        });
+    }
+
+    // User Activity Tracking render
+    const activityModal = new bootstrap.Modal(document.getElementById('viewActivityModal'));
+    window.viewActivityLogs = function (username, activitiesRaw) {
+        document.getElementById('activity-modal-username').textContent = username;
+        const container = document.getElementById('activity-logs-container');
+        container.innerHTML = '';
+        
+        const list = activitiesRaw ? activitiesRaw.split('|') : [];
+        if (list.length > 0 && list[0] !== '') {
+            list.forEach(act => {
+                const item = document.createElement('div');
+                item.className = 'activity-item position-relative mb-3.5 pb-1';
+                item.innerHTML = `
+                    <div class="activity-dot"></div>
+                    <span class="fs-9 text-muted d-block uppercase tracking-wider mb-1">Action Logged</span>
+                    <p class="fs-8 text-white mb-0" style="line-height:1.4;">${act}</p>
+                `;
+                container.appendChild(item);
+            });
+        } else {
+            container.innerHTML = `
+                <div class="text-center py-4 text-muted fs-8">
+                    <i class="fa-solid fa-folder-open fs-4 d-block mb-2"></i> No active user history.
+                </div>
+            `;
+        }
+        activityModal.show();
+    };
+
+    // Toggle user roles
+    window.toggleRole = function (userId) {
+        if (!confirm('Are you sure you want to change this user\'s role settings?')) return;
+        const formData = new FormData();
+        formData.append('user_id', userId);
+        fetch('/admin/api/user/toggle-role', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                window.location.reload();
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(err => console.error('Error:', err));
+    };
+
+    // Delete user account
+    window.deleteUser = function (userId) {
+        if (!confirm('Are you sure you want to permanently delete this user account? This will cascade delete their entire profile metrics.')) return;
+        const formData = new FormData();
+        formData.append('user_id', userId);
+        fetch('/admin/api/user/delete', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                window.location.reload();
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(err => console.error('Error:', err));
+    };
+
+    // Toggle inquiry resolved state
+    window.toggleResolveInquiry = function (inquiryId, badgeBtn) {
+        const formData = new FormData();
+        formData.append('inquiry_id', inquiryId);
+        fetch('/admin/api/inquiry/resolve', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                if (data.resolved) {
+                    badgeBtn.className = "badge custom-badge-resolved cursor-pointer py-1.5 px-2.5 rounded border-0";
+                    badgeBtn.innerHTML = '<i class="fa-solid fa-circle-check me-1"></i> Resolved';
+                } else {
+                    badgeBtn.className = "badge custom-badge-unresolved cursor-pointer py-1.5 px-2.5 rounded border-0";
+                    badgeBtn.innerHTML = '<i class="fa-solid fa-circle-exclamation me-1"></i> Unresolved';
+                }
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(err => console.error('Error toggling resolve:', err));
+    };
+
+    // Delete inquiry
+    window.deleteInquiry = function (inquiryId) {
+        if (!confirm('Are you sure you want to permanently delete this inquiry message?')) return;
+        const formData = new FormData();
+        formData.append('inquiry_id', inquiryId);
+        fetch('/admin/api/inquiry/delete', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                window.location.reload();
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(err => console.error('Error:', err));
+    };
 });
 </script>
 {% endblock %}
