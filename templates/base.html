@@ -98,31 +98,59 @@
     </nav>
 
     <!-- Main Content Container -->
-    <main id="content" tabindex="-1" class="container my-5" style="min-height: calc(100vh - 280px);">
-        <!-- Flash Messages Display -->
-        <div class="row justify-content-center">
-            <div class="col-md-12">
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        {% for category, message in messages %}
-                            <div class="alert-custom alert-{{ category }}-custom d-flex align-items-center" role="alert">
-                                {% if category == 'success' %}
-                                    <i class="fa-solid fa-circle-check me-2 fs-5"></i>
-                                {% elif category == 'danger' %}
-                                    <i class="fa-solid fa-circle-exclamation me-2 fs-5"></i>
-                                {% else %}
-                                    <i class="fa-solid fa-circle-info me-2 fs-5"></i>
-                                {% endif %}
-                                <div>{{ message }}</div>
+    {% if 'dashboard' in request.path or 'admin' in request.path or request.path == '/' %}
+        <main id="content" tabindex="-1" style="min-height: calc(100vh - 280px);">
+            <!-- Flash Messages Display -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="container mt-4">
+                        <div class="row justify-content-center">
+                            <div class="col-md-12">
+                                {% for category, message in messages %}
+                                    <div class="alert-custom alert-{{ category }}-custom d-flex align-items-center" role="alert">
+                                        {% if category == 'success' %}
+                                            <i class="fa-solid fa-circle-check me-2 fs-5"></i>
+                                        {% elif category == 'danger' %}
+                                            <i class="fa-solid fa-circle-exclamation me-2 fs-5"></i>
+                                        {% else %}
+                                            <i class="fa-solid fa-circle-info me-2 fs-5"></i>
+                                        {% endif %}
+                                        <div>{{ message }}</div>
+                                    </div>
+                                {% endfor %}
                             </div>
-                        {% endfor %}
-                    {% endif %}
-                {% endwith %}
+                        </div>
+                    </div>
+                {% endif %}
+            {% endwith %}
+            {% block content %}{% endblock %}
+        </main>
+    {% else %}
+        <main id="content" tabindex="-1" class="container my-5" style="min-height: calc(100vh - 280px);">
+            <!-- Flash Messages Display -->
+            <div class="row justify-content-center">
+                <div class="col-md-12">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert-custom alert-{{ category }}-custom d-flex align-items-center" role="alert">
+                                    {% if category == 'success' %}
+                                        <i class="fa-solid fa-circle-check me-2 fs-5"></i>
+                                    {% elif category == 'danger' %}
+                                        <i class="fa-solid fa-circle-exclamation me-2 fs-5"></i>
+                                    {% else %}
+                                        <i class="fa-solid fa-circle-info me-2 fs-5"></i>
+                                    {% endif %}
+                                    <div>{{ message }}</div>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                </div>
             </div>
-        </div>
-
-        {% block content %}{% endblock %}
-    </main>
+            {% block content %}{% endblock %}
+        </main>
+    {% endif %}
 
     <!-- Shared Footer -->
     <footer>
